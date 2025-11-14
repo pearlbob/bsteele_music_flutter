@@ -68,14 +68,14 @@ bool hasDisplay(SheetDisplay display) {
 bool isUpNote(Clef clef, Pitch pitch) {
   var pitchUpNumber = 0;
   switch (clef) {
-    case Clef.treble:
-      pitchUpNumber = Pitch.get(PitchEnum.B4).number;
+    case .treble:
+      pitchUpNumber = Pitch.get(.B4).number;
       break;
-    case Clef.bass:
-      pitchUpNumber = Pitch.get(PitchEnum.D3).number;
+    case .bass:
+      pitchUpNumber = Pitch.get(.D3).number;
       break;
-    case Clef.bass8vb:
-      pitchUpNumber = Pitch.get(PitchEnum.D2).number;
+    case .bass8vb:
+      pitchUpNumber = Pitch.get(.D2).number;
       break;
   }
   return pitch.number < pitchUpNumber;

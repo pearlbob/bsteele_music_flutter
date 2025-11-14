@@ -32,7 +32,7 @@ class DebugState extends State<Debug> {
         child: const Padding(
           padding: EdgeInsets.all(8.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               Text('empty now'),
             ],

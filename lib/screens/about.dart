@@ -45,8 +45,8 @@ class AboutState extends State<About> with WidgetsBindingObserver {
         style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),
         child: SingleChildScrollView(
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: .start,
+              crossAxisAlignment: .start,
               children: <Widget>[
                 app.messageTextWidget(),
                 const AppSpace(),

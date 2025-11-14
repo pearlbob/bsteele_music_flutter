@@ -79,8 +79,8 @@ class OptionsState extends State<Options> {
           child: Container(
             padding: const EdgeInsets.all(12.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: .start,
+              crossAxisAlignment: .start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 if (utilWorkaround.fullscreenEnabled)
@@ -98,7 +98,7 @@ class OptionsState extends State<Options> {
                 const AppSpace(),
                 //  User name
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  crossAxisAlignment: .baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: <Widget>[
                     Container(
@@ -124,7 +124,7 @@ class OptionsState extends State<Options> {
                 const AppSpace(),
                 // Leader/Follower Server Address
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  crossAxisAlignment: .baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: <Widget>[
                     Container(
@@ -255,7 +255,7 @@ class OptionsState extends State<Options> {
                           ? 'Connected'
                           : (_songUpdateService.isIdle ? 'Idle' : 'Retrying ${_songUpdateService.host}')),
                       style: generateAppTextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: .bold,
                         backgroundColor: _songUpdateService.isConnected || _songUpdateService.isIdle
                             ? Colors.green
                             : Colors.red[300],
@@ -289,7 +289,7 @@ class OptionsState extends State<Options> {
                       selectedIcon: appIcon(Icons.check),
                       segments: <ButtonSegment<AccidentalExpressionChoice>>[
                         ButtonSegment<AccidentalExpressionChoice>(
-                          value: AccidentalExpressionChoice.byKey,
+                          value: .byKey,
                           label: Text('By Key', style: buttonTextStyle()),
                           tooltip: _appOptions.toolTips
                               ? 'When required, accidentals notes are expressed as a sharp or flat\n'
@@ -297,7 +297,7 @@ class OptionsState extends State<Options> {
                               : null,
                         ),
                         ButtonSegment<AccidentalExpressionChoice>(
-                          value: AccidentalExpressionChoice.easyRead,
+                          value: .easyRead,
                           label: Text('Easy Read', style: buttonTextStyle()),
                           tooltip: _appOptions.toolTips
                               ? 'When required, accidental notes are expressed as an easy to read expression.\n'
@@ -484,14 +484,14 @@ class OptionsState extends State<Options> {
                           setState(() {
                             _appOptions.userDisplayStyle = value;
                             switch (value) {
-                              case UserDisplayStyle.highContrast:
+                              case .highContrast:
                                 _appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
                                 _appOptions.simplifiedChords = true;
-                                _appOptions.accidentalExpressionChoice = AccidentalExpressionChoice.easyRead;
+                                _appOptions.accidentalExpressionChoice = .easyRead;
                                 break;
                               default:
                                 _appOptions.simplifiedChords = false;
-                                _appOptions.accidentalExpressionChoice = AccidentalExpressionChoice.byKey;
+                                _appOptions.accidentalExpressionChoice = .byKey;
                                 break;
                             }
                           });
@@ -509,7 +509,7 @@ class OptionsState extends State<Options> {
                           //       //  pro player
                           //       AppWrap(children: [
                           //         Radio<UserDisplayStyle>(
-                          //           value: UserDisplayStyle.proPlayer,
+                          //           value: .proPlayer,
                           //           groupValue: _appOptions.userDisplayStyle,
                           //           onChanged: (value) {
                           //             setState(() {
@@ -526,10 +526,10 @@ class OptionsState extends State<Options> {
                           //           child: appTextButton(
                           //             'Pro',
                           //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                          //             value: UserDisplayStyle.proPlayer,
+                          //             value: .proPlayer,
                           //             onPressed: () {
                           //               setState(() {
-                          //                 _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
+                          //                 _appOptions.userDisplayStyle = .proPlayer;
                           //                 _adjustDisplay();
                           //               });
                           //             },
@@ -540,7 +540,7 @@ class OptionsState extends State<Options> {
                           //       //  player
                           //       AppWrap(children: [
                           //         Radio<UserDisplayStyle>(
-                          //           value: UserDisplayStyle.player,
+                          //           value: .player,
                           //           groupValue: _appOptions.userDisplayStyle,
                           //           onChanged: (value) {
                           //             setState(() {
@@ -558,10 +558,10 @@ class OptionsState extends State<Options> {
                           //           child: appTextButton(
                           //             'Player',
                           //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                          //             value: UserDisplayStyle.player,
+                          //             value: .player,
                           //             onPressed: () {
                           //               setState(() {
-                          //                 _appOptions.userDisplayStyle = UserDisplayStyle.player;
+                          //                 _appOptions.userDisplayStyle = .player;
                           //                 _adjustDisplay();
                           //               });
                           //             },
@@ -574,7 +574,7 @@ class OptionsState extends State<Options> {
                           Flexible(
                             child: RadioListTile<UserDisplayStyle>(
                               title: Text('Both Player and Singer', style: style),
-                              value: UserDisplayStyle.both,
+                              value: .both,
                             ),
                           ),
                           Flexible(
@@ -587,7 +587,7 @@ class OptionsState extends State<Options> {
                                   fontSize: (style.fontSize ?? appDefaultFontSize) * 2,
                                 ),
                               ),
-                              value: UserDisplayStyle.highContrast,
+                              value: .highContrast,
                             ),
                           ),
                         ],
@@ -596,7 +596,7 @@ class OptionsState extends State<Options> {
                     //       //  singer
                     //       AppWrap(children: [
                     //         Radio<UserDisplayStyle>(
-                    //           value: UserDisplayStyle.singer,
+                    //           value: .singer,
                     //           groupValue: _appOptions.userDisplayStyle,
                     //           onChanged: (value) {
                     //             setState(() {
@@ -613,10 +613,10 @@ class OptionsState extends State<Options> {
                     //           child: appTextButton(
                     //             'Singer',
                     //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                    //             value: UserDisplayStyle.singer,
+                    //             value: .singer,
                     //             onPressed: () {
                     //               setState(() {
-                    //                 _appOptions.userDisplayStyle = UserDisplayStyle.singer;
+                    //                 _appOptions.userDisplayStyle = .singer;
                     //                 _adjustDisplay();
                     //               });
                     //             },
@@ -627,7 +627,7 @@ class OptionsState extends State<Options> {
                     //       //  banner
                     //       // AppWrap(children: [
                     //       //   Radio<UserDisplayStyle>(
-                    //       //     value: UserDisplayStyle.banner,
+                    //       //     value: .banner,
                     //       //     groupValue: _appOptions.userDisplayStyle,
                     //       //     onChanged: (value) {
                     //       //       setState(() {
@@ -643,10 +643,10 @@ class OptionsState extends State<Options> {
                     //       //     child: appTextButton(
                     //       //       'Banner',
                     //       //       appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                    //       //       value: UserDisplayStyle.banner,
+                    //       //       value: .banner,
                     //       //       onPressed: () {
                     //       //         setState(() {
-                    //       //           _appOptions.userDisplayStyle = UserDisplayStyle.banner;
+                    //       //           _appOptions.userDisplayStyle = .banner;
                     //       //           adjustDisplay();
                     //       //         });
                     //       //       },
@@ -908,7 +908,7 @@ class OptionsState extends State<Options> {
 
   String _testType = 'unknown';
   final List<Pitch> _pitches = Pitch.flats;
-  static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
+  static final Pitch _atOrAbove = Pitch.get(.A3);
 
   late AppWidgetHelper appWidgetHelper;
 

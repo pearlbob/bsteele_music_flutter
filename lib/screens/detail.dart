@@ -177,15 +177,15 @@ class DetailState extends State<Detail> {
       sheetDisplayEnableOptionsWidget = Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: .min,
+          crossAxisAlignment: .start,
           children: children,
         ),
       );
     }
 
     const sheetMusicSizedBox = SizedBox(
-      width: double.infinity,
+      width: .infinity,
       height: 1000.0,
     );
 
@@ -201,7 +201,7 @@ class DetailState extends State<Detail> {
           Column(
             children: [
               const AppSpace(),
-              if (hasDisplay(SheetDisplay.bass8vb))
+              if (hasDisplay(.bass8vb))
                 CustomPaint(
                   painter: _FretBoardPainter(),
                   isComplex: true,
@@ -213,12 +213,12 @@ class DetailState extends State<Detail> {
                 ),
               const AppSpace(),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: .center,
+                crossAxisAlignment: .center,
                 children: [
                   // key, chords
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
                       Row(
                         children: [
@@ -244,7 +244,7 @@ class DetailState extends State<Detail> {
                   const AppSpace(),
                   //  notes and rests
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
                       Row(
                         children: [
@@ -329,7 +329,7 @@ class DetailState extends State<Detail> {
                   const AppSpace(),
                   //  entry details
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
                       Row(
                         children: [
@@ -409,7 +409,7 @@ class DetailState extends State<Detail> {
                   ),
                   // timing
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
                       Row(
                         children: [
@@ -510,7 +510,7 @@ class DetailState extends State<Detail> {
               const AppSpace(),
               //  run controls
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: .spaceEvenly,
                 children: [
                   appButton('Loop 1', onPressed: () {}, fontSize: _fontSize),
                   appButton('Loop 2', onPressed: () {}, fontSize: _fontSize),
@@ -792,7 +792,7 @@ class _FretBoardPainter extends CustomPainter {
     fretBoardNotes.addAll(scaleChord.chordNotes(rootKey));
 
     var chordComponents = scaleChord.getChordComponents();
-    var bassHalfStepOffset = Pitch.get(PitchEnum.E1).scaleNote.halfStep;
+    var bassHalfStepOffset = Pitch.get(.E1).scaleNote.halfStep;
 
     for (var fret = 0; fret <= 12; fret++) {
       for (var bassString = 0; bassString < 4; bassString++) {
@@ -841,7 +841,7 @@ class _FretBoardPainter extends CustomPainter {
         ..pushStyle(ui.TextStyle(
             color: Colors.black,
             fontSize: _fontSize,
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
             fontFamilyFallback: appFontFamilyFallback))
         ..addText(noteChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
@@ -856,7 +856,7 @@ class _FretBoardPainter extends CustomPainter {
         ..pushStyle(ui.TextStyle(
             color: Colors.black,
             fontSize: _fontSize,
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
             fontFamilyFallback: appFontFamilyFallback))
         ..addText(scaleChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));

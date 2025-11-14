@@ -22,7 +22,7 @@ Map<DrumTypeEnum, String> drumTypeToFileMap = {
 
 final TextStyle _style = generateAppTextStyle();
 final TextStyle _smallStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize * 2 / 3);
-final TextStyle _boldSmallStyle = _smallStyle.copyWith(fontWeight: FontWeight.bold);
+final TextStyle _boldSmallStyle = _smallStyle.copyWith(fontWeight: .bold);
 
 /// Show some data about the app and it's environment.
 class DrumsWidget extends StatefulWidget {
@@ -130,7 +130,7 @@ class DrumsState extends State<DrumsWidget> {
     var spacing = app.screenInfo.mediaWidth / 80;
 
     return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      return Column(crossAxisAlignment: .start, children: [
         const AppSpace(),
         AppWrapFullWidth(spacing: spacing, children: [
           Text(
@@ -250,7 +250,7 @@ class DrumsState extends State<DrumsWidget> {
         const AppSpace(),
         Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child: Column(crossAxisAlignment: .start, children: [
               AppWrapFullWidth(children: [
                 // appNoteButton(
                 //   noteQuarterUp.character,
@@ -303,7 +303,7 @@ class DrumsState extends State<DrumsWidget> {
                 //         width: fontsize ,
                 //         height: fontsize,
                 //         child: Align(
-                //         alignment: symbol.isUp ? Alignment.bottomCenter : Alignment.topCenter,
+                //         alignment: symbol.isUp ? .bottomCenter : .topCenter,
                 //           child:
                 //           Text(
                 //             symbol.character,

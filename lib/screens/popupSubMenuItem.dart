@@ -78,8 +78,8 @@ class _PopupSubMenuState<T extends NameValueMatcher> extends State<PopupSubMenuI
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: .center,
+          mainAxisSize: .max,
           children: <Widget>[
             Expanded(
               child: Text(

@@ -47,8 +47,8 @@ class SongsState extends State<Songs> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: .spaceBetween,
+            crossAxisAlignment: .start,
             children: <Widget>[
               app.messageTextWidget(),
               const AppSpace(),
@@ -154,14 +154,14 @@ class SongsState extends State<Songs> {
 
         if (!acceptAll) {
           switch (await _diffWarningPopup(oldSong, song)) {
-            case SongsDialogResponse.accept:
+            case .accept:
               break;
-            case SongsDialogResponse.acceptAll:
+            case .acceptAll:
               acceptAll = true;
               break;
-            case SongsDialogResponse.reject:
+            case .reject:
               continue;
-            case SongsDialogResponse.rejectAll:
+            case .rejectAll:
               break forLoop;
           }
         }
@@ -192,7 +192,7 @@ class SongsState extends State<Songs> {
                 '${oldSong.title} by ${oldSong.artist}'
                 '${oldSong.coverArtist.isNotEmpty ? ', cover by ${oldSong.coverArtist}' : ''}\n\n'
                 'The existing version of this song differs from the song read:',
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 22, fontWeight: .bold),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -243,7 +243,7 @@ class SongsState extends State<Songs> {
                   }),
                 ]),
               ],
-              actionsAlignment: MainAxisAlignment.start,
+              actionsAlignment: .start,
               elevation: 24.0,
             ));
     return response;

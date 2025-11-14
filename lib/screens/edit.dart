@@ -409,7 +409,7 @@ class EditState extends State<Edit> {
     appendFontSize = chordFontSize * 0.75;
 
     chordBoldTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.bold,
+      fontWeight: .bold,
       fontSize: chordFontSize,
     );
     chordTextStyle = generateAppTextStyle(
@@ -417,7 +417,7 @@ class EditState extends State<Edit> {
       color: Colors.black87,
     );
     lyricsTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.normal,
+      fontWeight: .normal,
       fontSize: chordFontSize,
       color: Colors.black87,
     );
@@ -427,9 +427,9 @@ class EditState extends State<Edit> {
     );
 
     //  generate edit text styles
-    _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-    _textFieldStyle = generateAppTextFieldStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-    _labelTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
+    _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: .bold);
+    _textFieldStyle = generateAppTextFieldStyle(fontSize: _defaultChordFontSize, fontWeight: .bold);
+    _labelTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: .bold);
 
     //  build the chords display based on the song chord section grid
     tableKeyId = 0;
@@ -636,7 +636,7 @@ class EditState extends State<Edit> {
                           message: 'Enter the title of the song here.\n'
                               'Do not add other comments such as artist or cover artist.',
                           child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              crossAxisAlignment: .baseline,
                               textBaseline: TextBaseline.alphabetic,
                               children: <Widget>[
                                 Container(
@@ -645,7 +645,7 @@ class EditState extends State<Edit> {
                                     'Title: ',
                                     style: generateAppTextStyle(
                                       fontSize: _defaultChordFontSize,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: .bold,
                                     ),
                                   ),
                                 ),
@@ -666,7 +666,7 @@ class EditState extends State<Edit> {
                               'Note that if the name starts with \'The\',\n'
                               'the app will automatically rotate it to the end of the name.',
                           child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              crossAxisAlignment: .baseline,
                               textBaseline: TextBaseline.alphabetic,
                               children: <Widget>[
                                 Container(
@@ -693,7 +693,7 @@ class EditState extends State<Edit> {
                               'This is an optional field.\n'
                               'It can be used to denote a user variation from the original recording.',
                           child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              crossAxisAlignment: .baseline,
                               textBaseline: TextBaseline.alphabetic,
                               children: <Widget>[
                                 Container(
@@ -719,7 +719,7 @@ class EditState extends State<Edit> {
                               'This is a required field to try to keep us out of legal trouble.\n'
                               'And yes, this is often difficult information to find.',
                           child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              crossAxisAlignment: .baseline,
                               textBaseline: TextBaseline.alphabetic,
                               children: <Widget>[
                                 Container(
@@ -1182,8 +1182,8 @@ class EditState extends State<Edit> {
                         ),
                         if (!isProEditInput)
                           Container(
-                            alignment: Alignment.topLeft,
-                            width: double.infinity,
+                            alignment: .topLeft,
+                            width: .infinity,
                             padding: const EdgeInsets.all(16.0),
                             color: theme.colorScheme.surface,
                             child: //  pre-configured table of edit widgets
@@ -1192,7 +1192,7 @@ class EditState extends State<Edit> {
 
                         if (isProEditInput)
                           Container(
-                              alignment: Alignment.topLeft,
+                              alignment: .topLeft,
                               padding: const EdgeInsets.all(16.0),
                               color: theme.colorScheme.surface,
                               child: AppTextField(
@@ -1201,16 +1201,16 @@ class EditState extends State<Edit> {
                                   minLines: 8,
                                   maxLines: 100,
                                   fontSize: _defaultChordFontSize,
-                                  fontWeight: FontWeight.normal,
+                                  fontWeight: .normal,
                                   width: MediaQuery.of(context).size.width * 0.96,
-                                  border: InputBorder.none,
+                                  border: .none,
                                   onChanged: (value) {
                                     checkSongWhenIdle();
                                   })),
 
                         // lyrics
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: .spaceBetween,
                           children: <Widget>[
                             Text(
                               'Lyrics:',
@@ -1234,25 +1234,25 @@ class EditState extends State<Edit> {
                         ),
                         if (!isProEditInput)
                           Container(
-                              alignment: Alignment.topLeft,
+                              alignment: .topLeft,
                               padding: const EdgeInsets.all(16.0),
                               color: theme.colorScheme.surface,
                               child: lyricsEntryWidget()),
                         if (isProEditInput)
                           Container(
-                            alignment: Alignment.topLeft,
+                            alignment: .topLeft,
                             padding: const EdgeInsets.all(16.0),
                             color: theme.colorScheme.surface,
                             width: MediaQuery.of(context).size.width,
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: .start,
+                              mainAxisSize: .max,
                               children: [
                                 Text(
                                   proChordsForLyrics(),
                                   style: TextStyle(
                                     fontSize: _defaultChordFontSize,
-                                    fontWeight: FontWeight.normal,
+                                    fontWeight: .normal,
                                     color: Colors.grey.shade400,
                                   ),
                                   overflow: TextOverflow.fade,
@@ -1267,7 +1267,7 @@ class EditState extends State<Edit> {
                                   width: MediaQuery.of(context).size.width * 0.6,
                                   //  fixme: quite arbitrary workaround!
                                   fontSize: _defaultChordFontSize,
-                                  fontWeight: FontWeight.normal,
+                                  fontWeight: .normal,
                                   border: InputBorder.none,
                                   onChanged: (value) {
                                     checkSongWhenIdle();
@@ -1443,7 +1443,7 @@ class EditState extends State<Edit> {
             if (row.length > 1) {
               next = row[c + 1]?.chordSectionLocation ?? lastMeasureLocation;
             }
-            var editPoint = EditPoint(next ?? lastMeasureLocation, measureEditType: MeasureEditType.insert);
+            var editPoint = EditPoint(next ?? lastMeasureLocation, measureEditType: .insert);
             addChordRowChild(_debugWidget(
                 plusMeasureEditGridDisplayWidget(editPoint,
                     tooltip: 'insert measure at the start of the row'
@@ -1477,7 +1477,7 @@ class EditState extends State<Edit> {
           addChordRowSectionAppend(
               maxEntryColumns,
               EditPoint(lastChordSectionLocation.asPhraseLocation(),
-                  measureEditType: MeasureEditType.append, onEndOfRow: true));
+                  measureEditType: .append, onEndOfRow: true));
         }
         lastChordSectionLocation = location;
 
@@ -1488,7 +1488,7 @@ class EditState extends State<Edit> {
         bool endOfRow = (measure?.endOfRow ?? false) || isLastOfPhrase;
 
         switch (measureNode.measureNodeType) {
-          case MeasureNodeType.section:
+          case .section:
             {
               //  insist that the section be in the first column
               assert(c == 0);
@@ -1503,7 +1503,7 @@ class EditState extends State<Edit> {
 
               //  plus column
               if (chordSection.isEmpty) {
-                var editPoint = EditPoint(location, measureEditType: MeasureEditType.append);
+                var editPoint = EditPoint(location, measureEditType: .append);
                 addChordRowChild(
                   _debugWidget(
                       plusMeasureEditGridDisplayWidget(editPoint,
@@ -1514,7 +1514,7 @@ class EditState extends State<Edit> {
               } else if (chordSection.phrases.first.isRepeat()) {
                 //  special care to insert a new row when the section starts with a repeat
                 var editPoint = EditPoint(ChordSectionLocation(location.sectionVersion, phraseIndex: 0),
-                    measureEditType: MeasureEditType.insert);
+                    measureEditType: .insert);
                 addChordRowChild(
                   _debugWidget(
                       plusMeasureEditGridDisplayWidget(editPoint,
@@ -1530,7 +1530,7 @@ class EditState extends State<Edit> {
                 {
                   var editPoint = EditPoint(
                       ChordSectionLocation(location.sectionVersion, phraseIndex: 0, measureIndex: 0),
-                      measureEditType: MeasureEditType.insert);
+                      measureEditType: .insert);
                   addChordRowChild(
                     _debugWidget(
                         plusMeasureEditGridDisplayWidget(editPoint,
@@ -1544,7 +1544,7 @@ class EditState extends State<Edit> {
                 //  note that the section is known to be non-empty
                 assert(chordSection.isNotEmpty);
                 var editPoint = EditPoint(ChordSectionLocation(location.sectionVersion, phraseIndex: 0),
-                    measureEditType: MeasureEditType.insert);
+                    measureEditType: .insert);
                 addChordRowChild(
                   _debugWidget(
                       plusMeasureEditGridDisplayWidget(editPoint,
@@ -1555,7 +1555,7 @@ class EditState extends State<Edit> {
               }
             }
             break;
-          case MeasureNodeType.repeat:
+          case .repeat:
             {
               //  entry column
               var editPoint = EditPoint(location);
@@ -1567,7 +1567,7 @@ class EditState extends State<Edit> {
               //  plus column already used
             }
             break;
-          // case MeasureNodeType.phrase:
+          // case .phrase:
           //   {
           //     //  entry column
           //     var editPoint = EditPoint(location);
@@ -1577,7 +1577,7 @@ class EditState extends State<Edit> {
           //     //  plus column
           //         {
           //       var editPoint =
-          //       EditPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
+          //       EditPoint(location, measureEditType: .append, onEndOfRow: endOfRow);
           //       addChordRowChild(_debugWidget(
           //           plusMeasureEditGridDisplayWidget(editPoint,
           //               tooltip: 'add a new measure here'
@@ -1586,7 +1586,7 @@ class EditState extends State<Edit> {
           //     }
           //   }
           //   break;
-          case MeasureNodeType.decoration:
+          case .decoration:
             {
               //  entry column
               var editPoint = EditPoint(location);
@@ -1598,7 +1598,7 @@ class EditState extends State<Edit> {
             }
             break;
 
-          case MeasureNodeType.measure:
+          case .measure:
             {
               {
                 //  entry column
@@ -1610,7 +1610,7 @@ class EditState extends State<Edit> {
 
               //  plus column
               {
-                var editPoint = EditPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: false);
+                var editPoint = EditPoint(location, measureEditType: .append, onEndOfRow: false);
                 List<Widget> widgets = [
                   plusMeasureEditGridDisplayWidget(editPoint,
                       tooltip: 'add a new measure here'
@@ -1620,7 +1620,7 @@ class EditState extends State<Edit> {
                   widgets.add(plusNewRowWidget(location));
 
                   if (chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
-                      MeasureNodeType.phrase) {}
+                      .phrase) {}
                 }
                 addChordRowChild(_debugWidget(
                     AppWrap(
@@ -1630,7 +1630,7 @@ class EditState extends State<Edit> {
                 if (endOfRow &&
                     selectedEditPoint == null &&
                     chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
-                        MeasureNodeType.phrase) {
+                        .phrase) {
                   //  warning: bumping into next column knowing this is the end of the row
                   addChordRowChildAtRowEnd(maxEntryColumns, _debugWidget(plusRepeatWidget(location), editPoint));
                   //  plus column already used
@@ -1652,14 +1652,14 @@ class EditState extends State<Edit> {
     if (lastChordSectionLocation != null &&
         (chordSong.findChordSectionBySectionVersion(lastChordSectionLocation.sectionVersion)?.isNotEmpty ?? false)) {
       addChordRowSectionAppend(maxEntryColumns,
-          EditPoint(lastChordSectionLocation, measureEditType: MeasureEditType.append, onEndOfRow: true));
+          EditPoint(lastChordSectionLocation, measureEditType: .append, onEndOfRow: true));
     }
 
     //  add the append for a new section
     if (selectedEditPoint == null) {
       var editPoint = EditPoint(
         null,
-        measureEditType: MeasureEditType.append,
+        measureEditType: .append,
       );
       addChordRowChild(_debugWidget(
           Container(
@@ -1675,9 +1675,9 @@ class EditState extends State<Edit> {
                 onTap: () {
                   setState(() {
                     chordSong.setCurrentChordSectionLocation(null);
-                    chordSong.setCurrentMeasureEditType(MeasureEditType.append);
+                    chordSong.setCurrentMeasureEditType(.append);
                     ChordSection cs = song.suggestNewSection();
-                    selectedEditPoint = EditPoint.byChordSection(cs, measureEditType: MeasureEditType.append);
+                    selectedEditPoint = EditPoint.byChordSection(cs, measureEditType: .append);
                     logger.log(_editEditPoint, 'editNewChordSection: ${chordSong.toMarkup()} + $selectedEditPoint');
                   });
                 },
@@ -1744,7 +1744,7 @@ class EditState extends State<Edit> {
           '${chordSection.sectionVersion}',
           style: generateAppTextStyle(
               fontSize: chordFontSize,
-              fontWeight: FontWeight.bold,
+              fontWeight: .bold,
               backgroundColor: App.getBackgroundColorForSectionVersion(chordSection.sectionVersion)),
         ),
       );
@@ -2132,7 +2132,7 @@ class EditState extends State<Edit> {
   //   if (loc != null) {
   //     loc = loc.asPhraseLocation();
   //     EditPoint editPoint =
-  //         EditPoint(loc?.asPhraseLocation(), measureEditType: MeasureEditType.append, onEndOfRow: true);
+  //         EditPoint(loc?.asPhraseLocation(), measureEditType: .append, onEndOfRow: true);
   //
   //     Widget w = plusMeasureEditGridDisplayWidget(editPoint,
   //         tooltip: 'add new measure on a new row'
@@ -2228,7 +2228,7 @@ class EditState extends State<Edit> {
       } else if (e.logicalKey == LogicalKeyboardKey.delete) {
         logger.d('main onKey: delete: "${editTextController.text}", ${editTextController.selection}');
         if (editTextController.text.isEmpty) {
-          if (selectedEditPoint?.measureEditType == MeasureEditType.replace) {
+          if (selectedEditPoint?.measureEditType == .replace) {
             performDelete();
           } else {
             performMeasureEntryCancel();
@@ -2304,7 +2304,7 @@ class EditState extends State<Edit> {
       return const Text('null');
     }
 
-    if (measureNode.measureNodeType != MeasureNodeType.section) {
+    if (measureNode.measureNodeType != .section) {
       return const Text('not_section');
     }
 
@@ -2360,8 +2360,8 @@ class EditState extends State<Edit> {
         color: sectionColor,
         width: _entryWidth,
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: .spaceAround,
+            crossAxisAlignment: .start,
             textDirection: TextDirection.ltr,
             children: <Widget>[
               //  section entry text field
@@ -2385,8 +2385,8 @@ class EditState extends State<Edit> {
                 ),
               //  section entry pull downs
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: .spaceBetween,
+                crossAxisAlignment: .center,
                 children: <Widget>[
                   //  section selection
                   chordSectionVersionDropdownButton(),
@@ -2410,8 +2410,8 @@ class EditState extends State<Edit> {
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
+                mainAxisAlignment: .spaceAround,
+                crossAxisAlignment: .baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: <Widget>[
                   //  section delete
@@ -2518,10 +2518,10 @@ class EditState extends State<Edit> {
       }
 
       switch (measureNode.measureNodeType) {
-        case MeasureNodeType.section:
+        case .section:
           //  insert new measure as measure in front of a section or after the end
           break;
-        case MeasureNodeType.measure:
+        case .measure:
           measure = measureNode.transposeToKey(song.key) as Measure;
           break;
         default:
@@ -2568,7 +2568,7 @@ class EditState extends State<Edit> {
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
             hintText:
-                (editTextController.text.isEmpty && (selectedEditPoint?.measureEditType == MeasureEditType.replace))
+                (editTextController.text.isEmpty && (selectedEditPoint?.measureEditType == .replace))
                     //  fixme: delete of last measure in section should warn about second delete
                     ? 'A second delete will delete this measure' //  fixme: not working?
                     : 'Enter the measure.',
@@ -2722,8 +2722,8 @@ class EditState extends State<Edit> {
           width: _entryWidth,
           margin: marginInsets,
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: .spaceAround,
+              crossAxisAlignment: .start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 //  measure edit text field
@@ -2744,7 +2744,7 @@ class EditState extends State<Edit> {
                             '${kDebugMode ? ' $editPoint' : ''}',
                     child: Container(
                       margin: doubleMarginInsets,
-                      child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+                      child: Row(crossAxisAlignment: .center, children: <Widget>[
                         Text(
                           measureEntryCorrection ?? '',
                           style: measureEntryValid
@@ -2755,7 +2755,7 @@ class EditState extends State<Edit> {
                     ),
                   ),
                 //  measure edit chord selection
-                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+                Row(mainAxisAlignment: .spaceEvenly, children: <Widget>[
                   editTooltip(
                       message: 'Select other notes from the key scale.',
                       child: ButtonTheme(
@@ -2791,8 +2791,8 @@ class EditState extends State<Edit> {
                   ),
                 ]),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: .spaceAround,
+                  crossAxisAlignment: .center,
                   children: <Widget>[
                     editTooltip(
                       message: 'Select from other chord descriptors.',
@@ -2874,10 +2874,10 @@ class EditState extends State<Edit> {
                 ),
                 const AppSpace(space: 20),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: .spaceAround,
+                    crossAxisAlignment: .center,
                     children: <Widget>[
-                      if (editPoint.measureEditType == MeasureEditType.replace)
+                      if (editPoint.measureEditType == .replace)
                         editTooltip(
                           message: 'Delete this measure'
                               '${kDebugMode ? ' $editPoint' : ''}',
@@ -2998,14 +2998,14 @@ class EditState extends State<Edit> {
         color: sectionColor,
         width: _entryWidth,
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: .spaceAround,
+            crossAxisAlignment: .start,
             textDirection: TextDirection.ltr,
             children: <Widget>[
               //  measure edit chord selection
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                child: Row(mainAxisAlignment: .spaceBetween, children: <Widget>[
                   Text(
                     'Repeat: ',
                     style: sectionAppTextStyle,
@@ -3045,12 +3045,12 @@ class EditState extends State<Edit> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: .spaceAround,
+                    crossAxisAlignment: .center,
                     children: <Widget>[
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: .start,
+                        crossAxisAlignment: .end,
                         children: <Widget>[
                           editTooltip(
                             message: 'Delete this repeat',
@@ -3182,7 +3182,7 @@ class EditState extends State<Edit> {
   }
 
   Widget plusRowWidget(ChordSectionLocation? loc) {
-    var editPoint = EditPoint(loc?.asPhraseLocation(), measureEditType: MeasureEditType.insert);
+    var editPoint = EditPoint(loc?.asPhraseLocation(), measureEditType: .insert);
     return AppInkWell(
         value: editPoint.location,
         onTap: () {
@@ -3209,7 +3209,7 @@ class EditState extends State<Edit> {
   }
 
   Widget plusRepeatWidget(ChordSectionLocation? loc) {
-    var editPoint = EditPoint(loc, measureEditType: MeasureEditType.insert);
+    var editPoint = EditPoint(loc, measureEditType: .insert);
     return AppInkWell(
         value: loc,
         onTap: () {
@@ -3239,7 +3239,7 @@ class EditState extends State<Edit> {
   }
 
   Widget plusNewRowWidget(ChordSectionLocation? loc) {
-    var editPoint = EditPoint(loc, measureEditType: MeasureEditType.append, onEndOfRow: true);
+    var editPoint = EditPoint(loc, measureEditType: .append, onEndOfRow: true);
 
     return _debugWidget(
         AppInkWell(
@@ -3349,7 +3349,7 @@ class EditState extends State<Edit> {
         child: Container(
           color: App.getBackgroundColorForSectionVersion(sectionVersion),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: .spaceBetween,
             children: [
               Text(
                 sectionVersion.toString(),
@@ -3528,7 +3528,7 @@ class EditState extends State<Edit> {
 
     //  setup song for edit
     song.setCurrentChordSectionLocation(selectedEditPoint?.location);
-    song.setCurrentMeasureEditType(selectedEditPoint?.measureEditType ?? MeasureEditType.append);
+    song.setCurrentMeasureEditType(selectedEditPoint?.measureEditType ?? .append);
 
     editLogPre(song, endOfRow);
 
@@ -3542,19 +3542,19 @@ class EditState extends State<Edit> {
       //  clean up after edit
       ChordSectionLocation? loc = song.getCurrentChordSectionLocation();
       switch (selectedEditPoint!.measureEditType) {
-        case MeasureEditType.append:
+        case .append:
           if (priorLocation != null && priorLocation.hasMeasureIndex) {
             song.setChordSectionLocationMeasureEndOfRow(priorLocation, selectedEditPoint?.onEndOfRow);
           }
           song.setChordSectionLocationMeasureEndOfRow(loc, endOfRow);
           break;
-        case MeasureEditType.replace:
+        case .replace:
           song.setChordSectionLocationMeasureEndOfRow(loc, endOfRow);
           break;
-        case MeasureEditType.insert:
+        case .insert:
           song.setChordSectionLocationMeasureEndOfRow(loc, endOfRow);
           break;
-        case MeasureEditType.delete:
+        case .delete:
           break;
       }
 
@@ -3569,7 +3569,7 @@ class EditState extends State<Edit> {
         ChordSectionLocation? loc = song.getCurrentChordSectionLocation();
         if (loc != null) {
           selectedEditPoint = EditPoint(loc, onEndOfRow: endOfRow);
-          selectedEditPoint!.measureEditType = MeasureEditType.append;
+          selectedEditPoint!.measureEditType = .append;
         }
       }
 
@@ -3623,7 +3623,7 @@ class EditState extends State<Edit> {
       ChordSectionLocation? priorLocation = selectedEditPoint?.location.priorMeasureIndexLocation();
       song.setCurrentChordSectionLocation(selectedEditPoint?.location);
       bool? endOfRow = song.getCurrentChordSectionLocationMeasure()?.endOfRow; //  find the current end of row
-      song.setCurrentMeasureEditType(MeasureEditType.delete);
+      song.setCurrentMeasureEditType(.delete);
       if (song.editList(measureEntryNodes!)) {
         //  apply the deleted end of row to the prior
         song.setChordSectionLocationMeasureEndOfRow(priorLocation, endOfRow);
@@ -3808,9 +3808,9 @@ class EditState extends State<Edit> {
   List<MeasureNode>? measureEntryNodes;
   MeasureNode? displayMeasureEntryNode;
 
-  TextStyle chordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
+  TextStyle chordBoldTextStyle = generateAppTextStyle(fontWeight: .bold);
 
-  // TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
+  // TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: .bold);
   TextStyle chordTextStyle = generateAppTextStyle();
   TextStyle lyricsTextStyle = generateAppTextStyle();
   TextStyle addRowRepeatTextStyle = generateAppTextStyle();

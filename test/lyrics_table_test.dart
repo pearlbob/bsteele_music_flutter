@@ -51,6 +51,6 @@ Size sizeRichText(RichText richText) {
   TextPainter textPainter = TextPainter()
     ..text = richText.text
     ..textDirection = TextDirection.ltr
-    ..layout(minWidth: 0, maxWidth: double.infinity);
+    ..layout(minWidth: 0, maxWidth: .infinity);
   return textPainter.size;
 }

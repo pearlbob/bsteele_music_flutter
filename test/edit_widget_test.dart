@@ -126,9 +126,9 @@ void main() async {
     //
     //   for (var musicKey in music_key.Key.values) {
     //     switch (musicKey.keyEnum) {
-    //       case KeyEnum.Gb:
-    //       case KeyEnum.Db:
-    //       case KeyEnum.Ab:
+    //       case .Gb:
+    //       case .Db:
+    //       case .Ab:
     //         continue;
     //       default:
     //         break;

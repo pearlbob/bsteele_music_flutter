@@ -7,9 +7,9 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart' as md;
 const _fontSize = 44.0;
 const _minTextStyle = TextStyle(fontSize: _fontSize / 2);
 final _markdownStyleSheet = md.MarkdownStyleSheet(
-  h1: const TextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold),
-  h2: const TextStyle(fontSize: _fontSize / 1.8, fontWeight: FontWeight.bold),
-  h3: const TextStyle(fontSize: _fontSize / 2, fontWeight: FontWeight.bold),
+  h1: const TextStyle(fontSize: _fontSize, fontWeight: .bold),
+  h2: const TextStyle(fontSize: _fontSize / 1.8, fontWeight: .bold),
+  h3: const TextStyle(fontSize: _fontSize / 2, fontWeight: .bold),
   listBullet: _minTextStyle,
   p: _minTextStyle,
   tableBody: _minTextStyle,

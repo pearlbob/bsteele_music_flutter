@@ -13,8 +13,8 @@ void main() {
   test('sheet display encode/decode', () {
     {
       HashSet<SheetDisplay> set = HashSet();
-      set.add(SheetDisplay.chords);
-      set.addAll([SheetDisplay.chords, SheetDisplay.lyrics]);
+      set.add(.chords);
+      set.addAll([.chords, .lyrics]);
       var s = sheetDisplaySetEncode(set);
       logger.i('"$s"');
       var set2 = sheetDisplaySetDecode(s);

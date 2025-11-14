@@ -90,15 +90,15 @@ class SongMaster extends ChangeNotifier {
 
     int momentNumber;
     switch (songUpdateState) {
-      case SongUpdateState.pause:
+      case .pause:
         momentNumber = _momentNumber ?? 0;
         _lastDrumTempoT = 0;
         break;
-      case SongUpdateState.playHold:
+      case .playHold:
         momentNumber = _momentNumber ?? 0;
         _lastDrumTempoT = 0;
         break;
-      case SongUpdateState.drumTempo:
+      case .drumTempo:
         momentNumber = -1;
         assert(_bpm >= MusicConstants.minBpm);
         if (_lastDrumTempoT == 0) {
@@ -177,7 +177,7 @@ class SongMaster extends ChangeNotifier {
         logger.log(_logSongMasterBpmChange, '   new _songStart: $_songStart');
       }
 
-      if (songUpdateState != SongUpdateState.idle) {
+      if (songUpdateState != .idle) {
         logger.log(
           _logSongMasterLogTickerDetails,
           'SongMaster: ${songUpdateState.name} ${time.toStringAsFixed(3)}: dt: ${dt.toStringAsFixed(3)}'
@@ -273,11 +273,11 @@ class SongMaster extends ChangeNotifier {
     );
 
     switch (songUpdateState) {
-      case SongUpdateState.none:
-      case SongUpdateState.idle:
-      case SongUpdateState.drumTempo:
+      case .none:
+      case .idle:
+      case .drumTempo:
         break;
-      case SongUpdateState.playing:
+      case .playing:
         if (_song != null) {
           {
             //  fixme: deal with a changing cadence!
@@ -339,7 +339,7 @@ class SongMaster extends ChangeNotifier {
             if (newMomentNumber == null) {
               //  stop
               _clearMomentNumber();
-              songUpdateState = SongUpdateState.idle;
+              songUpdateState = .idle;
               notifyListeners();
               logger.log(
                 _logSongMasterNotify,
@@ -362,8 +362,8 @@ class SongMaster extends ChangeNotifier {
         }
         break;
 
-      case SongUpdateState.playHold:
-      case SongUpdateState.pause:
+      case .playHold:
+      case .pause:
         if (_song != null) {
           //  prepare for the eventual restart
           if (_momentNumber != null) {
@@ -416,9 +416,9 @@ class SongMaster extends ChangeNotifier {
   tapTempo(int bpm) {
     setBpm(bpm);
     switch (songUpdateState) {
-      case SongUpdateState.none:
-      case SongUpdateState.idle:
-        songUpdateState = SongUpdateState.drumTempo;
+      case .none:
+      case .idle:
+        songUpdateState = .drumTempo;
         notifyListeners();
         break;
       default:
@@ -445,7 +445,7 @@ class SongMaster extends ChangeNotifier {
     _songStart = _appAudioPlayer.getCurrentTime() + (_drumParts != null ? _advanceS : 0.0);
 
     _clearMomentNumber();
-    songUpdateState = SongUpdateState.playing;
+    songUpdateState = .playing;
     notifyListeners();
     logger.log(
       _logRestart,
@@ -456,16 +456,16 @@ class SongMaster extends ChangeNotifier {
 
   pauseToggle() {
     switch (songUpdateState) {
-      case SongUpdateState.playing:
-        // songUpdateState = SongUpdateState.pause;
+      case .playing:
+        // songUpdateState = .pause;
         // notifyListeners();
         if (_song != null) pause(_song!);
         break;
-      case SongUpdateState.pause:
+      case .pause:
         //  setup for the restart
         resume();
         // _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
-        // songUpdateState = SongUpdateState.playing;
+        // songUpdateState = .playing;
         // notifyListeners();
         break;
       default:
@@ -489,52 +489,52 @@ class SongMaster extends ChangeNotifier {
     _drumParts = drumParts;
     _songStart ??= _appAudioPlayer.getCurrentTime(); //   sync with existing if it's running
     _clearMomentNumber();
-    songUpdateState = SongUpdateState.playing;
+    songUpdateState = .playing;
     notifyListeners();
     logger.log(_logDrums, 'playDrums: _bpm: $_bpm, $drumParts');
   }
 
   void stop() {
     switch (songUpdateState) {
-      case SongUpdateState.playing:
-      case SongUpdateState.playHold:
-      case SongUpdateState.pause:
-      case SongUpdateState.drumTempo:
-        songUpdateState = SongUpdateState.idle; //  for the running play
+      case .playing:
+      case .playHold:
+      case .pause:
+      case .drumTempo:
+        songUpdateState = .idle; //  for the running play
         _clearMomentNumber();
         _appAudioPlayer.stop();
         notifyListeners();
         break;
-      case SongUpdateState.none:
-      case SongUpdateState.idle:
+      case .none:
+      case .idle:
         break;
     }
-    songUpdateState = SongUpdateState.idle;
+    songUpdateState = .idle;
     _drumParts = null; //  stop the drums
   }
 
   void pause(final Song song) {
     _song = song.copySong(); //  allow for play modifications
-    if (songUpdateState != SongUpdateState.pause) {
+    if (songUpdateState != .pause) {
       _momentNumber ??= 0;
-      songUpdateState = SongUpdateState.pause;
+      songUpdateState = .pause;
       notifyListeners();
     }
   }
 
   void hold() {
-    if (songUpdateState != SongUpdateState.playHold) {
-      songUpdateState = SongUpdateState.playHold;
+    if (songUpdateState != .playHold) {
+      songUpdateState = .playHold;
       notifyListeners();
     }
   }
 
   void resume() {
     switch (songUpdateState) {
-      case SongUpdateState.pause:
-      case SongUpdateState.playHold:
+      case .pause:
+      case .playHold:
         _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
-        songUpdateState = SongUpdateState.playing;
+        songUpdateState = .playing;
         notifyListeners();
         break;
       default:
@@ -612,7 +612,7 @@ class SongMaster extends ChangeNotifier {
   bool _skipToCurrentSection = false;
   int? _skipToMomentNumber;
 
-  SongUpdateState songUpdateState = SongUpdateState.idle;
+  SongUpdateState songUpdateState = .idle;
 
   Song? _song;
   double? _songStart;

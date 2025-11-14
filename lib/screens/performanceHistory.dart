@@ -124,8 +124,8 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       body: Container(
         padding: const EdgeInsets.all(36.0),
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: .start,
+            crossAxisAlignment: .start,
             children: <Widget>[
               if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
               AppWrap(
@@ -171,7 +171,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                 songListGroup,
                 style: _songPerformanceStyle,
                 includeByLastSung: true,
-                selectedSortType: PlayListSortType.byHistory,
+                selectedSortType: .byHistory,
                 playListSearchMatcher: SongPlayListSearchMatcher(),
               ),
 

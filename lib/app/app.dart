@@ -46,16 +46,16 @@ const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's p
 const _toolTipWaitDuration = Duration(seconds: 2, milliseconds: 500);
 
 extension SongUpdateStateExtension on SongUpdateState {
-  bool get isPlaying => this == SongUpdateState.playing;
+  bool get isPlaying => this == .playing;
 
   bool get isPlayingOrPausedOrHold =>
-      this == SongUpdateState.playing || this == SongUpdateState.pause || this == SongUpdateState.playHold;
+      this == .playing || this == .pause || this == .playHold;
 
   // IconData get icon {
   //   return switch (this) {
-  //     SongUpdateState.idle => Icons.stop,
-  //     SongUpdateState.playing => Icons.play_arrow,
-  //     SongUpdateState.pause => Icons.pause,
+  //     .idle => Icons.stop,
+  //     .playing => Icons.play_arrow,
+  //     .pause => Icons.pause,
   //     _ => Icons.stop,
   //   };
   // }
@@ -130,7 +130,7 @@ class App {
   static const universalForegroundColor = Colors.black;
   static const universalAccentColor = Color(0xff57a9ff);
 
-  // const _universalFontWeight = FontWeight.normal;
+  // const _universalFontWeight = .normal;
   static const universalFontStyle = FontStyle.normal;
 
   //  app bar
@@ -160,9 +160,9 @@ class App {
   static const iconColor = Colors.white;
 
   //  margins and padding
-  EdgeInsetsGeometry get measureMargin => const EdgeInsets.all(3);
+  EdgeInsetsGeometry get measureMargin => const .all(3);
 
-  EdgeInsetsGeometry get measurePadding => const EdgeInsets.all(5);
+  EdgeInsetsGeometry get measurePadding => const .all(5);
 
   static Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
     sectionVersion ??= SectionVersion.defaultInstance;
@@ -177,31 +177,31 @@ class App {
   //  all section versions 1 will be the same color as the section without a version number
   //  section version color cycle will be determined by the number of colors added here for each section
   static const Map<SectionEnum, List<int>> _sectionColorMap = {
-    SectionEnum.intro: [
+    .intro: [
       // 0&1     2         3
       0xccfcc3, 0xb5e6ad, 0xa3cf9b,
     ],
-    SectionEnum.verse: [
+    .verse: [
       // 0 & 1     2         3
       0xfcf99d, 0xeaea7a, 0xd1d16d,
     ],
-    SectionEnum.preChorus: [
+    .preChorus: [
       // 0 & 1     2
       0xf4dcf2, 0xe1bee7, 0xdaa8e5,
     ],
-    SectionEnum.chorus: [
+    .chorus: [
       // 0 & 1     2         3
       0xf0f0f0, 0xd1d2d3, 0xbdbebf,
     ],
-    SectionEnum.a: [
+    .a: [
       // 0 & 1     2         3
       0xfcf99d, 0xeaea7a, 0xd1d16d,
     ],
-    SectionEnum.b: [0xdfd9ff, 0xcabbff, 0xaca0ef],
-    SectionEnum.bridge: [0xdfd9ff, 0xcabbff, 0xaca0ef],
-    SectionEnum.coda: [0xd7e5ff, 0xb6d2fc, 0x92b8ef],
-    SectionEnum.tag: [0xf4dcf2, 0xe1bee7, 0xdaa8e5],
-    SectionEnum.outro: [
+    .b: [0xdfd9ff, 0xcabbff, 0xaca0ef],
+    .bridge: [0xdfd9ff, 0xcabbff, 0xaca0ef],
+    .coda: [0xd7e5ff, 0xb6d2fc, 0x92b8ef],
+    .tag: [0xf4dcf2, 0xe1bee7, 0xdaa8e5],
+    .outro: [
       // 0 & 1
       0xd7e5ff, 0xb6d2fc, 0x92b8ef,
     ],
@@ -376,7 +376,7 @@ TextStyle appErrorTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, c
 const double _defaultFontSize = 24;
 
 TextStyle appButtonTextStyle({final double? fontSize}) {
-  return generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
+  return generateAppTextStyle(fontSize: fontSize, fontWeight: .bold, color: Colors.black);
 }
 
 @immutable
@@ -519,7 +519,7 @@ class AppWrapFullWidth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
+      width: .infinity,
       child: AppWrap(
         alignment: alignment,
         crossAxisAlignment: crossAxisAlignment,
@@ -535,16 +535,16 @@ class AppWrapFullWidth extends StatelessWidget {
   final double? spacing;
 }
 
-/// Used as a workaround for Wrap not having CrossAxisAlignment.baseline
+/// Used as a workaround for Wrap not having .baseline
 @immutable
 class AppRow extends StatelessWidget {
-  const AppRow({super.key, this.mainAxisAlignment = MainAxisAlignment.spaceBetween, required this.children});
+  const AppRow({super.key, this.mainAxisAlignment = .spaceBetween, required this.children});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: mainAxisAlignment,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
+      crossAxisAlignment: .baseline,
       textBaseline: TextBaseline.alphabetic,
       children: children,
     );
@@ -638,7 +638,7 @@ class AppWidgetHelper {
             title ?? 'unknown',
             style: TextStyle(
               fontSize: app.screenInfo.fontSize,
-              fontWeight: FontWeight.bold,
+              fontWeight: .bold,
               backgroundColor: Colors.transparent,
             ),
           ),

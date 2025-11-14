@@ -65,7 +65,7 @@ abstract class SheetNotation {
         style: TextStyle(
           color: color ?? _black.color,
           fontSize: fontSize ?? _fontSize,
-          fontWeight: fontWeight ?? FontWeight.normal,
+          fontWeight: fontWeight ?? .normal,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -179,7 +179,7 @@ class SheetChordTextNotation extends SheetTextNotation {
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
-        dx += _renderText(chord.transpose(_key, 0).toMarkup(), fontSize: _chordFontSize, fontWeight: FontWeight.bold);
+        dx += _renderText(chord.transpose(_key, 0).toMarkup(), fontSize: _chordFontSize, fontWeight: .bold);
         dx += staffSpace;
         break;
       }
@@ -322,11 +322,11 @@ class _SheetStaffNotation extends SheetNotation {
 
   SheetNoteSymbol _accidentalSheetNoteSymbol(Accidental accidental) {
     switch (accidental) {
-      case Accidental.sharp:
+      case .sharp:
         return accidentalSharp;
-      case Accidental.flat:
+      case .flat:
         return accidentalFlat;
-      case Accidental.natural:
+      case .natural:
         return accidentalNatural;
     }
   }
@@ -491,7 +491,7 @@ class _SheetStaffNotation extends SheetNotation {
 
     List<double> locations;
     switch (_clef) {
-      case Clef.treble:
+      case .treble:
         locations = (_key.isSharp
             //	treble sharps:  F♯,C♯,  G♯, D♯, A♯,  E♯,  B♯
             ? const <double>[0, 0, 1.5, -0.5, 1, 2.5, 0.5, 2] //  down from the top

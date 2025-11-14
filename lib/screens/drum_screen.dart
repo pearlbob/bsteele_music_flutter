@@ -86,7 +86,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
           style: style,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child: Column(crossAxisAlignment: .start, children: [
               if (app.message.isNotEmpty)
                 AppWrapFullWidth(alignment: WrapAlignment.start, children: [
                   Text(
@@ -147,7 +147,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
               if (showOtherActions)
                 AppWrapFullWidth(alignment: WrapAlignment.end, children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: .end,
                     children: [
                       const AppVerticalSpace(),
                       AppTooltip(
@@ -422,7 +422,7 @@ class DrumPlayListItem implements PlayListItem {
   @override
   Widget toWidget(
       BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus, bool bunch) {
-    var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);
+    var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: .bold);
     return AppInkWell(
         value: Id(drumParts.name),
         onTap: () {

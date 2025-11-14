@@ -103,7 +103,7 @@ class SongPlayListItem implements PlayListItem {
           children: [
             Text(
               song.title,
-              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.normal),
+              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: .normal),
             ),
             Text('   ', style: _indexTitleStyle),
           ],
@@ -126,7 +126,7 @@ class SongPlayListItem implements PlayListItem {
           children: [
             Text(
               song.title,
-              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.normal),
+              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: .normal),
             ),
             Text('   ', style: _indexTitleStyle),
           ],
@@ -286,7 +286,7 @@ class PlayListItemList {
       return label.isEmpty
           ? NullWidget()
           : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               const AppSpace(verticalSpace: 20),
               Text(label, style: _indexTitleStyle.copyWith(color: color ?? _indexTitleStyle.color)),
@@ -384,11 +384,11 @@ class PlayList extends StatefulWidget {
     this.showAllFilters = false,
     required this.playListSearchMatcher,
     this.allowSongListBunching = false,
-  }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
+  }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: .bold) {
     //
     titleFontSize = style?.fontSize ?? appDefaultFontSize;
     _textFontSize = 0.75 * titleFontSize;
-    artistStyle = titleStyle.copyWith(fontSize: _textFontSize, fontWeight: FontWeight.normal);
+    artistStyle = titleStyle.copyWith(fontSize: _textFontSize, fontWeight: .normal);
 
     searchDropDownStyle = artistStyle;
     searchTextStyle = titleStyle;
@@ -451,20 +451,20 @@ class PlayListState extends State<PlayList> {
       _selectedSortType = widget.selectedSortType!;
     } else if (widget.includeByLastSung) {
       //  preference for last sung (performance) lists
-      _selectedSortType = PlayListSortType.byHistory;
+      _selectedSortType = .byHistory;
     } else {
       switch (_selectedSortType) {
-        case PlayListSortType.byLastSung:
-        case PlayListSortType.byHistory:
-        case PlayListSortType.bySinger:
+        case .byLastSung:
+        case .byHistory:
+        case .bySinger:
           //  replace invalid preference for song lists
-          _selectedSortType = PlayListSortType.byTitle;
+          _selectedSortType = .byTitle;
           break;
-        case PlayListSortType.byTitle:
-        case PlayListSortType.byArtist:
-        case PlayListSortType.byLastChange:
-        case PlayListSortType.byComplexity:
-        case PlayListSortType.byYear:
+        case .byTitle:
+        case .byArtist:
+        case .byLastChange:
+        case .byComplexity:
+        case .byYear:
           break;
       }
     }
@@ -476,16 +476,16 @@ class PlayListState extends State<PlayList> {
         //  fool with the drop down options
         if (!widget.includeByLastSung) {
           switch (e) {
-            case PlayListSortType.byHistory:
-            case PlayListSortType.byLastSung:
-            case PlayListSortType.bySinger:
+            case .byHistory:
+            case .byLastSung:
+            case .bySinger:
               //  if in a song play list, these should be removed
               continue;
-            case PlayListSortType.byTitle:
-            case PlayListSortType.byArtist:
-            case PlayListSortType.byLastChange:
-            case PlayListSortType.byComplexity:
-            case PlayListSortType.byYear:
+            case .byTitle:
+            case .byArtist:
+            case .byLastChange:
+            case .byComplexity:
+            case .byYear:
               break;
           }
         }
@@ -540,7 +540,7 @@ class PlayListState extends State<PlayList> {
         int Function(PlayListItem key1, PlayListItem key2)? compare;
         if (widget.isOrderBy) {
           switch (_selectedSortType) {
-            case PlayListSortType.byArtist:
+            case .byArtist:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   var ret = item1.song.artist.compareTo(item2.song.artist);
@@ -551,7 +551,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.byLastChange:
+            case .byLastChange:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   var ret = -item1.song.lastModifiedTime.compareTo(item2.song.lastModifiedTime);
@@ -562,7 +562,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.byComplexity:
+            case .byComplexity:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
@@ -573,7 +573,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.byHistory:
+            case .byHistory:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   if (item1.songPerformance != null && item2.songPerformance != null) {
@@ -586,7 +586,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.byLastSung:
+            case .byLastSung:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   if (item1.songPerformance != null && item2.songPerformance != null) {
@@ -599,7 +599,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.bySinger:
+            case .bySinger:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   if (item1.songPerformance != null && item2.songPerformance != null) {
@@ -609,7 +609,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.byYear:
+            case .byYear:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   var ret = item1.song.getCopyrightYear().compareTo(item2.song.getCopyrightYear());
@@ -620,7 +620,7 @@ class PlayListState extends State<PlayList> {
                 return item1.compareTo(item2);
               };
               break;
-            case PlayListSortType.byTitle:
+            case .byTitle:
               compare = (PlayListItem item1, PlayListItem item2) {
                 return item1.compareTo(item2);
               };
@@ -746,7 +746,7 @@ class PlayListState extends State<PlayList> {
         //           ||
         //           _filterNameValues.isNotEmpty //  not random if filtered
         //           ||
-        //           _selectedSortType != PlayListSortType.byTitle //  not random if not by title
+        //           _selectedSortType != .byTitle //  not random if not by title
         //           ||
         //           (length <= 20) //   not random if too small
         //       ? 0
@@ -777,7 +777,7 @@ class PlayListState extends State<PlayList> {
             child: Focus(
               onKeyEvent: _onKeyEvent,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 children: [
                   AppWrapFullWidth(
                     alignment: WrapAlignment.spaceBetween,
@@ -899,7 +899,7 @@ class PlayListState extends State<PlayList> {
                                   onChanged: (value) {
                                     if (_selectedSortType != value) {
                                       setState(() {
-                                        _selectedSortType = value ?? PlayListSortType.byTitle;
+                                        _selectedSortType = value ?? .byTitle;
                                         app.clearMessage();
                                       });
                                     }
@@ -960,16 +960,16 @@ class PlayListState extends State<PlayList> {
 
       //  react to the paging requests
       switch (event.logicalKey) {
-        case LogicalKeyboardKey.arrowDown:
-        case LogicalKeyboardKey.pageDown:
+        case .arrowDown:
+        case .pageDown:
           _itemScrollController.scrollTo(
             index: max(0, itemIndexes.last),
             duration: _pageTransitionDuration,
             curve: Curves.decelerate,
           );
           return KeyEventResult.handled;
-        case LogicalKeyboardKey.arrowUp:
-        case LogicalKeyboardKey.pageUp:
+        case .arrowUp:
+        case .pageUp:
           _itemScrollController.scrollTo(
             index: max(0, itemIndexes.first - itemIndexes.length + 1),
             duration: _pageTransitionDuration,

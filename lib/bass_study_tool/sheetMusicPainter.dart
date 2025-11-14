@@ -23,35 +23,35 @@ class SheetNotationList {
 
       const double fontSize = 15; //  fixme
       switch (display) {
-        case SheetDisplay.section:
+        case .section:
           return SheetSectionTextNotation(
             display,
           );
-        case SheetDisplay.measureCount:
+        case .measureCount:
           return SheetMeasureCountTextNotation(
             display,
             activeHeight: fontSize,
           );
-        case SheetDisplay.chords:
+        case .chords:
           return SheetChordTextNotation(display);
-        case SheetDisplay.lyrics:
+        case .lyrics:
           return SheetLyricsTextNotation(display);
-        case SheetDisplay.guitarFingerings:
+        case .guitarFingerings:
           return SheetTextNotation(display, activeHeight: fontSize * 4); // fixme temp
-        case SheetDisplay.pianoChords:
+        case .pianoChords:
           return SheetChordStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-        case SheetDisplay.pianoTreble:
+        case .pianoTreble:
           return SheetTrebleStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-        case SheetDisplay.pianoBass: //  piano left hand
+        case .pianoBass: //  piano left hand
           return SheetBassStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-        case SheetDisplay.bassNoteNumbers:
+        case .bassNoteNumbers:
           return SheetBassNoteNumbersTextNotation(display, activeHeight: fontSize * 2);
-        case SheetDisplay.bassNotes:
+        case .bassNotes:
           return SheetBassNotesTextNotation(display, activeHeight: fontSize * 2);
-        case SheetDisplay.bass8vb:
+        case .bass8vb:
           return SheetBass8vbStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
       }
@@ -62,7 +62,7 @@ class SheetNotationList {
 
   static List<SheetNoteLocation> get sheetNoteLocations {
     List<SheetNoteLocation> ret = [];
-    if (hasDisplay(SheetDisplay.bass8vb)) {
+    if (hasDisplay(.bass8vb)) {
       List<SheetNoteLocation> sheetNoteLocations = sheetNotations[SheetDisplay.bass8vb.index].sheetNoteLocations;
       if (sheetNoteLocations.isNotEmpty) {
         ret.addAll(sheetNoteLocations);
@@ -149,9 +149,9 @@ class SheetMusicPainter extends CustomPainter {
           y += sn.totalHeight;
 
           switch (display) {
-            case SheetDisplay.pianoBass:
+            case .pianoBass:
               switch (lastDisplay) {
-                case SheetDisplay.pianoTreble:
+                case .pianoTreble:
                   y += staffVerticalGaps * staffSpace;
                   break;
                 default:
@@ -174,10 +174,10 @@ class SheetMusicPainter extends CustomPainter {
       if (hasDisplay(display)) {
         switch (display) {
           //  has staff
-          case SheetDisplay.pianoChords:
-          case SheetDisplay.pianoTreble:
-          case SheetDisplay.pianoBass:
-          case SheetDisplay.bass8vb:
+          case .pianoChords:
+          case .pianoTreble:
+          case .pianoBass:
+          case .bass8vb:
             firstYOff = _sheetNotations[display.index].dy;
             break;
           default:
@@ -195,10 +195,10 @@ class SheetMusicPainter extends CustomPainter {
       if (hasDisplay(display)) {
         switch (display) {
           //  has staff
-          case SheetDisplay.pianoChords:
-          case SheetDisplay.pianoTreble:
-          case SheetDisplay.pianoBass:
-          case SheetDisplay.bass8vb:
+          case .pianoChords:
+          case .pianoTreble:
+          case .pianoBass:
+          case .bass8vb:
             lastYOff = _sheetNotations[display.index].dy;
             break;
           default:

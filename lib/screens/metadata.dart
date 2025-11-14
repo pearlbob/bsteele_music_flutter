@@ -136,8 +136,8 @@ class MetadataScreenState extends State<MetadataScreen> {
           body: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: .start,
+                  crossAxisAlignment: .start,
                   children: <Widget>[
                     const AppSpace(),
                     Text(app.message,
@@ -212,10 +212,10 @@ class MetadataScreenState extends State<MetadataScreen> {
                     ]),
                     const AppSpace(horizontalSpace: 20),
                     Text('Set or clear metadata Name:Value pairs:',
-                        style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
+                        style: metadataStyle.copyWith(fontWeight: .bold)),
                     const AppSpace(horizontalSpace: 20),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: .start,
                       children: [
                         MetadataPopupMenuButton.button(
                           title: 'Existing metadata',
@@ -231,7 +231,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         const AppSpace(horizontalSpace: 20),
                         Text('New: ', style: metadataStyle),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: .start,
                           children: [
                             Row(
                               children: [
@@ -285,7 +285,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         ),
                         //  value entry
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: .start,
                           children: [
                             Row(
                               children: [
@@ -382,7 +382,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         ]),
                         style: metadataStyle,
                         isEditing: true,
-                        selectedSortType: PlayListSortType.byTitle,
+                        selectedSortType: .byTitle,
                         isFromTheTop: false,
                         showAllFilters: true,
                         playListSearchMatcher: SongPlayListSearchMatcher(),

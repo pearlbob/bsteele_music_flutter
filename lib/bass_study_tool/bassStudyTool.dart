@@ -208,7 +208,7 @@ class BassStudyTool {
                     }
 
                     if (isNote) {
-                      Pitch? pitch = Pitch.get(PitchEnum.E1).offsetByHalfSteps(string * 5 + fret);
+                      Pitch? pitch = Pitch.get(.E1).offsetByHalfSteps(string * 5 + fret);
                       logger.t('    Pitch: $pitch  (string: $string, fret: $fret), $chordDescriptor');
                       if (pitch != null) {
                         SheetNote sn = SheetNote.note(

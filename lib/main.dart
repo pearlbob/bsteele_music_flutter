@@ -548,11 +548,11 @@ class MyHomePageState extends State<MyHomePage> {
 
     final TextStyle searchTextStyle = generateAppTextStyle(
       color: Colors.black45,
-      fontWeight: FontWeight.bold,
+      fontWeight: .bold,
       textBaseline: TextBaseline.alphabetic,
     );
     _titleTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.bold,
+      fontWeight: .bold,
       textBaseline: TextBaseline.alphabetic,
       color: Colors.black,
     );
@@ -733,7 +733,7 @@ class MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: <Widget>[
           // if (kDebugMode)
           //   Container(
@@ -806,7 +806,7 @@ class MyHomePageState extends State<MyHomePage> {
       builder: (_) => AlertDialog(
         title: const Text(
           'Do you really want test the beta version of the bsteeleMusicApp?',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 22, fontWeight: .bold),
         ),
         actions: [
           Column(

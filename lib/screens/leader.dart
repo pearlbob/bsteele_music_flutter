@@ -81,7 +81,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
 
     _rawKeyboardListenerFocusNode = FocusNode();
 
-    _songUpdateState = SongUpdateState.idle;
+    _songUpdateState = .idle;
 
     tempoNotifier.addListener(_tempoNotifierListener);
   }
@@ -139,9 +139,9 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   void _songMasterListener() {
     //  follow the song master moment number
     switch (_songUpdateState) {
-      case SongUpdateState.none:
-      case SongUpdateState.idle:
-      case SongUpdateState.drumTempo:
+      case .none:
+      case .idle:
+      case .drumTempo:
         if (_songMaster.songUpdateState.isPlaying) {
           //  follow the song master's play mode
           setState(() {
@@ -150,9 +150,9 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
           });
         }
         break;
-      case SongUpdateState.playing:
-      case SongUpdateState.playHold:
-      case SongUpdateState.pause:
+      case .playing:
+      case .playHold:
+      case .pause:
         //  find the current measure
         if (_songMaster.momentNumber != null) {
           _setPlayMomentNotifier(
@@ -348,8 +348,8 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                       constraints: constraints,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
+                          begin: .topCenter,
+                          end: .bottomCenter,
                           colors: const <Color>[
                             App.screenBackgroundColor,
                             App.measureContainerBackgroundColor,
@@ -395,17 +395,17 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   Widget _songControls() {
     return Consumer<SongMasterNotifier>(
       builder: (context, songMasterNotifier, child) {
-        var songUpdateState = songMasterNotifier.songMaster?.songUpdateState ?? SongUpdateState.idle;
+        var songUpdateState = songMasterNotifier.songMaster?.songUpdateState ?? .idle;
         switch (songUpdateState) {
-          case SongUpdateState.playing:
-          case SongUpdateState.playHold:
-          case SongUpdateState.pause:
+          case .playing:
+          case .playHold:
+          case .pause:
             return NullWidget();
           default:
             return Padding(
               padding: const EdgeInsets.all(5.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: .start,
                 children: <Widget>[
                   //  control buttons
                   AppWrapFullWidth(
@@ -444,9 +444,9 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                     ],
                   ),
 
-                  if (songUpdateState == SongUpdateState.idle || songUpdateState == SongUpdateState.drumTempo)
+                  if (songUpdateState == .idle || songUpdateState == .drumTempo)
                     AppRow(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: .spaceAround,
                       children: [
                         //  key change
                         AppWrap(
@@ -586,7 +586,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                   if (app.isScreenBig &&
                       _appOptions.ninJam &&
                       _ninJam.isNinJamReady &&
-                      songUpdateState == SongUpdateState.idle)
+                      songUpdateState == .idle)
                     AppWrapFullWidth(
                       spacing: 20,
                       children: [
@@ -646,11 +646,11 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   Widget _songPlayTally() {
     return Consumer<SongMasterNotifier>(
       builder: (context, songMasterNotifier, child) {
-        var songUpdateState = songMasterNotifier.songMaster?.songUpdateState ?? SongUpdateState.idle;
+        var songUpdateState = songMasterNotifier.songMaster?.songUpdateState ?? .idle;
         switch (songUpdateState) {
-          case SongUpdateState.none:
-          case SongUpdateState.idle:
-          case SongUpdateState.drumTempo:
+          case .none:
+          case .idle:
+          case .drumTempo:
             return NullWidget();
           default:
             return Container(
@@ -795,7 +795,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
     _idleTimer = null;
   }
 
-  SongUpdateState _songUpdateState = SongUpdateState.idle;
+  SongUpdateState _songUpdateState = .idle;
 
   late final FocusNode _rawKeyboardListenerFocusNode;
 

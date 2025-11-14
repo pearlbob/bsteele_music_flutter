@@ -46,7 +46,7 @@ class StyleDemoState extends State<StyleDemo> {
             var sectionVersion = SectionVersion(Section.get(section), index);
             var color = App.getBackgroundColorForSectionVersion(sectionVersion);
             var coloredChordTextStyle =
-                generateChordTextStyle(fontSize: fontSize, fontWeight: FontWeight.w500, backgroundColor: color);
+                generateChordTextStyle(fontSize: fontSize, fontWeight: .w500, backgroundColor: color);
             sectionContainers.add(Container(
                 margin: app.measureMargin,
                 padding: app.measurePadding,
@@ -75,8 +75,8 @@ class StyleDemoState extends State<StyleDemo> {
           padding: const EdgeInsets.all(8.0),
           child: SingleChildScrollView(
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: .start,
+                crossAxisAlignment: .start,
                 textDirection: TextDirection.ltr,
                 children: <Widget>[
                   Text(

@@ -83,7 +83,7 @@ class AppOptions extends ChangeNotifier {
     _userDisplayStyle = Util.enumFromString(
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
             UserDisplayStyle.values) ??
-        UserDisplayStyle.both;
+        .both;
     _playerScrollHighlight = Util.enumFromString(
             await _readString(StorageValue.playerScrollHighlight.name,
                 defaultValue: PlayerScrollHighlight.off.toString()),
@@ -309,7 +309,7 @@ class AppOptions extends ChangeNotifier {
   bool get proEditInput => _proEditInput;
   bool _proEditInput = appEnableAssistedEditing ? false : true;
 
-  bool get isSinger => _userDisplayStyle == UserDisplayStyle.singer;
+  bool get isSinger => _userDisplayStyle == .singer;
 
   set toolTips(bool value) {
     if (_toolTips == value) {
@@ -349,7 +349,7 @@ class AppOptions extends ChangeNotifier {
 
   /// The user's selected style of player display.
   UserDisplayStyle get userDisplayStyle => _userDisplayStyle;
-  UserDisplayStyle _userDisplayStyle = UserDisplayStyle.both;
+  UserDisplayStyle _userDisplayStyle = .both;
 
   set userDisplayStyle(UserDisplayStyle value) {
     if (_userDisplayStyle != value) {
@@ -406,7 +406,7 @@ class AppOptions extends ChangeNotifier {
 
   /// The user's selected style of accidental display.
   AccidentalExpressionChoice get accidentalExpressionChoice => _accidentalExpressionChoice;
-  AccidentalExpressionChoice _accidentalExpressionChoice = AccidentalExpressionChoice.byKey;
+  AccidentalExpressionChoice _accidentalExpressionChoice = .byKey;
 
   set accidentalExpressionChoice(AccidentalExpressionChoice value) {
     if (_accidentalExpressionChoice != value) {

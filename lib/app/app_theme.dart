@@ -213,7 +213,7 @@ IconButton appIconButton({
 }) {
   return IconButton(
     icon: icon,
-    alignment: Alignment.bottomCenter,
+    alignment: .bottomCenter,
     onPressed: () {
       onPressed();
     },
@@ -323,7 +323,7 @@ DropdownButton<T> appDropdownButton<T>(
     style: style,
     isDense: true,
     iconSize: app.screenInfo.fontSize,
-    alignment: Alignment.centerLeft,
+    alignment: .centerLeft,
     elevation: 8,
     itemHeight: null,
   );
@@ -444,10 +444,10 @@ class AppTextField extends StatelessWidget {
             isDense: true,
             contentPadding: const EdgeInsets.all(2.0),
             hintText: hintText,
-            hintStyle: style?.copyWith(color: Colors.black54, fontWeight: FontWeight.normal),
+            hintStyle: style?.copyWith(color: Colors.black54, fontWeight: .normal),
           ),
-          style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.normal),
-          //(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
+          style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? .normal),
+          //(fontSize: fontSize, fontWeight: fontWeight ?? .bold),
           autofocus: false,
           maxLength: null,
           minLines: minLines,
@@ -514,7 +514,7 @@ TextStyle generateAppTextStyle({
     //  watch out: backgroundColor interferes with mouse text select on textFields!
     backgroundColor: nullBackground ? null : backgroundColor ?? App.universalBackgroundColor,
     fontSize: fontSize,
-    fontWeight: fontWeight ?? FontWeight.normal,
+    fontWeight: fontWeight ?? .normal,
     fontStyle: fontStyle ?? App.universalFontStyle,
     textBaseline: textBaseline ?? TextBaseline.alphabetic,
     fontFamily: fontFamily ?? appFontFamily,
@@ -547,7 +547,7 @@ TextStyle generateAppTextFieldStyle({
 
 TextStyle generateAppBarLinkTextStyle() {
   return generateAppTextStyle(
-    fontWeight: FontWeight.bold,
+    fontWeight: .bold,
     color: App.defaultForegroundColor,
     backgroundColor: Colors.transparent,
   );

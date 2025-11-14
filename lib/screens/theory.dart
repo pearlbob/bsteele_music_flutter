@@ -63,11 +63,11 @@ class TheoryState extends State<TheoryWidget> {
             children: [
               const AppSpace(),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: .center,
+                crossAxisAlignment: .center,
                 children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
                       Container(
                         color: backgroundColor,
@@ -212,10 +212,10 @@ class TheoryState extends State<TheoryWidget> {
 
     //  major half steps
     {
-      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+      var boldStyle = _style.copyWith(fontWeight: .bold);
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           'Major Half Steps',
           style: boldStyle,
@@ -225,7 +225,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var i = 0; i < halfSteps; i++) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               '${(i % MusicConstants.halfStepsPerOctave) + 1}',
               style: boldStyle,
@@ -246,7 +246,7 @@ class TheoryState extends State<TheoryWidget> {
       row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           '$_key Major Scale Number',
           style: _style,
@@ -256,7 +256,7 @@ class TheoryState extends State<TheoryWidget> {
         var scaleNoteNumber = _key.getMajorScaleNumberByHalfStep(halfStep);
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               (scaleNoteNumber != null ? (scaleNoteNumber + 1).toString() : ''),
               style: _style,
@@ -276,7 +276,7 @@ class TheoryState extends State<TheoryWidget> {
       row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           '$_key Major Scale',
           style: _style,
@@ -286,7 +286,7 @@ class TheoryState extends State<TheoryWidget> {
         var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               (scaleNotes.contains(scaleNote) ? scaleNote.toString() : ''),
               style: _style,
@@ -300,7 +300,7 @@ class TheoryState extends State<TheoryWidget> {
       row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           'Minor Half Steps',
           style: _style,
@@ -310,7 +310,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               '${(halfStep + 3) % MusicConstants.halfStepsPerOctave + 1}',
               style: _style,
@@ -330,7 +330,7 @@ class TheoryState extends State<TheoryWidget> {
       row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           '${scaleNote.toMarkup()} Minor Scale Number',
           style: _style,
@@ -341,7 +341,7 @@ class TheoryState extends State<TheoryWidget> {
             _key.getMinorScaleNumberByHalfStep(halfStep + MusicConstants.halfStepsFromMajorToAssociatedMinorKey);
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               (scaleNoteNumber != null ? (scaleNoteNumber + 1).toString() : ''),
               style: _style,
@@ -363,7 +363,7 @@ class TheoryState extends State<TheoryWidget> {
       row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           '${scaleNote.toMarkup()} Minor Scale',
           style: _style,
@@ -374,7 +374,7 @@ class TheoryState extends State<TheoryWidget> {
         scaleNote = originalScaleNote.asSharp(value: isSharp);
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               (scaleNotes.contains(originalScaleNote) ? scaleNote.toString() : ''),
               style: _style,
@@ -403,10 +403,10 @@ class TheoryState extends State<TheoryWidget> {
 
     //  halfsteps
     {
-      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+      var boldStyle = _style.copyWith(fontWeight: .bold);
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           'Half Steps',
           style: boldStyle,
@@ -416,7 +416,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var i = 0; i < _halfStepsPerOctave; i++) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               '$i',
               style: boldStyle,
@@ -429,7 +429,7 @@ class TheoryState extends State<TheoryWidget> {
     row = [];
     row.add(Container(
       padding: padding,
-      alignment: Alignment.centerRight,
+      alignment: .centerRight,
       child: Text(
         'Structure',
         style: _style,
@@ -438,7 +438,7 @@ class TheoryState extends State<TheoryWidget> {
     for (var v in ChordComponent.values) {
       row.add(Container(
           padding: padding,
-          alignment: Alignment.center,
+          alignment: .center,
           child: Text(
             v.shortName,
             style: _style,
@@ -458,7 +458,7 @@ class TheoryState extends State<TheoryWidget> {
     row = [];
     row.add(Container(
       padding: padding,
-      alignment: Alignment.centerRight,
+      alignment: .centerRight,
       child: Text(
         'Scale Notes',
         style: _style,
@@ -468,7 +468,7 @@ class TheoryState extends State<TheoryWidget> {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
-          alignment: Alignment.center,
+          alignment: .center,
           child: Text(
             (scaleNotes.contains(scaleNote) ? scaleNote.toString() : ''),
             style: _style,
@@ -479,7 +479,7 @@ class TheoryState extends State<TheoryWidget> {
     row = [];
     row.add(Container(
       padding: padding,
-      alignment: Alignment.centerRight,
+      alignment: .centerRight,
       child: Text(
         'Accidentals',
         style: _style,
@@ -489,7 +489,7 @@ class TheoryState extends State<TheoryWidget> {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
-          alignment: Alignment.center,
+          alignment: .center,
           child: Text(
             (scaleNotes.contains(scaleNote) ? '' : scaleNote.toString()),
             style: _style,
@@ -500,7 +500,7 @@ class TheoryState extends State<TheoryWidget> {
     row = [];
     row.add(Container(
       padding: padding,
-      alignment: Alignment.centerRight,
+      alignment: .centerRight,
       child: Text(
         'Chord Notes',
         style: _style,
@@ -514,7 +514,7 @@ class TheoryState extends State<TheoryWidget> {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
-          alignment: Alignment.center,
+          alignment: .center,
           child: Text(
             (chordHalfSteps.contains(halfStep) ? scaleNote.toString() : ''),
             style: _style,
@@ -540,11 +540,11 @@ class TheoryState extends State<TheoryWidget> {
 
     //  major diatonic names
     {
-      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+      var boldStyle = _style.copyWith(fontWeight: .bold);
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           'Major Key',
           style: boldStyle,
@@ -553,7 +553,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var diatonic in MajorDiatonic.values) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               diatonic.name,
               style: boldStyle,
@@ -566,7 +566,7 @@ class TheoryState extends State<TheoryWidget> {
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           '${key.name} ',
           style: _style,
@@ -576,7 +576,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var diatonicDegree = 0; diatonicDegree < diatonicDegrees; diatonicDegree++) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               key.getMajorDiatonicByDegree(diatonicDegree).toString(),
               style: _style,
@@ -738,11 +738,11 @@ class TheoryState extends State<TheoryWidget> {
 
     //  major diatonic names
     {
-      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+      var boldStyle = _style.copyWith(fontWeight: .bold);
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           'Minor Key',
           style: boldStyle,
@@ -751,7 +751,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var diatonic in MinorDiatonic.values) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               diatonic.name,
               style: boldStyle,
@@ -764,7 +764,7 @@ class TheoryState extends State<TheoryWidget> {
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
-        alignment: Alignment.centerRight,
+        alignment: .centerRight,
         child: Text(
           '${key.getMinorKey()} ',
           style: _style,
@@ -774,7 +774,7 @@ class TheoryState extends State<TheoryWidget> {
       for (var diatonicDegree = 0; diatonicDegree < diatonicDegrees; diatonicDegree++) {
         row.add(Container(
             padding: padding,
-            alignment: Alignment.center,
+            alignment: .center,
             child: Text(
               key.getMinorDiatonicByDegree(diatonicDegree).toString(),
               style: _style,
@@ -934,19 +934,19 @@ class TheoryState extends State<TheoryWidget> {
     final tableRows = <TableRow>[];
     const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
 
-    var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+    var boldStyle = _style.copyWith(fontWeight: .bold);
 
     tableRows.add(TableRow(children: [
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Concert Pitch',
             style: boldStyle,
           )),
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Instrument(s)',
             style: boldStyle,
@@ -956,14 +956,14 @@ class TheoryState extends State<TheoryWidget> {
     tableRows.add(TableRow(children: [
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'C  +0 (-0): No Transposition',
             style: _style,
           )),
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Piccolo, Flute,  Oboe, Bassoon,  Trombone, Baritone B.C., Tuba',
             style: _style,
@@ -973,14 +973,14 @@ class TheoryState extends State<TheoryWidget> {
     tableRows.add(TableRow(children: [
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Bb +2 (-10): up a major 2nd',
             style: _style,
           )),
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Clarinet, Bass Clarinet, Soprano Saxophone, Tenor Saxophone'
             ', Trumpet, Baritone T.C.',
@@ -991,14 +991,14 @@ class TheoryState extends State<TheoryWidget> {
     tableRows.add(TableRow(children: [
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Eb +9 (-3):  down a minor 3rd',
             style: _style,
           )),
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Soprano Clarinet, Alto Clarinet, Alto Saxophone, Baritone Saxophone',
             style: _style,
@@ -1008,14 +1008,14 @@ class TheoryState extends State<TheoryWidget> {
     tableRows.add(TableRow(children: [
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'F  +7 (-5):   up a perfect 5th',
             style: _style,
           )),
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'English Horn, French Horn',
             style: _style,
@@ -1025,14 +1025,14 @@ class TheoryState extends State<TheoryWidget> {
     tableRows.add(TableRow(children: [
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'G  +7 (-5):   up a perfect 4th',
             style: _style,
           )),
       Container(
           padding: padding,
-          alignment: Alignment.centerLeft,
+          alignment: .centerLeft,
           child: Text(
             'Alto Flute',
             style: _style,

@@ -457,7 +457,7 @@ class SingersState extends State<Singers> {
           body: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: .start,
               children: [
                 if (app.message.isNotEmpty)
                   Text(app.message, style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle),
@@ -520,7 +520,7 @@ class SingersState extends State<Singers> {
                     alignment: WrapAlignment.end,
                     children: [
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: .end,
                         children: [
                           const AppVerticalSpace(),
                           if (_allSongPerformances.isNotEmpty)
@@ -725,7 +725,7 @@ class SingersState extends State<Singers> {
                                 }
                               },
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: .spaceBetween,
                                 children: [
                                   AppTooltip(
                                     message:
@@ -825,7 +825,7 @@ class SingersState extends State<Singers> {
                             });
                           },
                           fontSize: fontSize,
-                          fontWeight: FontWeight.normal,
+                          fontWeight: .normal,
                         ),
                       ),
                     ],
@@ -848,7 +848,7 @@ class SingersState extends State<Singers> {
                     style: singerTextStyle,
                     includeByLastSung: true,
                     isFromTheTop: false,
-                    selectedSortType: PlayListSortType.byTitle,
+                    selectedSortType: .byTitle,
                     playListSearchMatcher: SongPlayListSearchMatcher(),
                     allowSongListBunching: true,
                   ),

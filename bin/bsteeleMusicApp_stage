@@ -128,7 +128,7 @@ echo test http://www.bsteele.com/$app/$flavor
 
 #	deploy to local tomcat
 cd $git
-bin/bsteeleMusicApp_beta_war
+echo not done:  bin/bsteeleMusicApp_beta_war
 
 # print some facts
 bin/bsteeleMusicApp_codeLineCount

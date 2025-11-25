@@ -194,7 +194,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                                 setState(() {
                                                   SongMetadata.removeAll(_selectedNameValue);
                                                   _selectedNameValue = _emptySelectedNameValue;
-                                                  AppOptions().storeSongMetadata();
+                                                  appOptions.storeSongMetadata();
                                                 });
                                                 Navigator.of(context).pop();
                                               }),
@@ -414,7 +414,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                     SongMetadata.remove(songIdMetadata, _selectedNameValue);
                   }
                 }
-                AppOptions().storeSongMetadata();
+                appOptions.storeSongMetadata();
               });
             }
           },
@@ -534,7 +534,7 @@ Writing a file will allow you to reload your changes later.''',
       } else {
         SongMetadata.clear(); // wow!
         SongMetadata.fromJson(content);
-        AppOptions().storeSongMetadata();
+        appOptions.storeSongMetadata();
       }
     });
   }

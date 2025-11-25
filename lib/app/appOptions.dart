@@ -23,6 +23,9 @@ on linux:
 //  diagnostic logging enables
 const Level _logStartup = Level.debug;
 
+//  global instance
+final appOptions = AppOptions();
+
 const int countInMax = 3;
 const bool appEnableAssistedEditing = false; //  fixme: ultimately delete all the associated code
 
@@ -56,12 +59,7 @@ enum PlayerScrollHighlight {
   measure,
 }
 
-enum AccidentalExpressionChoice {
-  byKey,
-  alwaysSharp,
-  alwaysFlat,
-  easyRead,
-}
+enum AccidentalExpressionChoice { byKey, alwaysSharp, alwaysFlat, easyRead }
 
 /// Application level, persistent, shared values.
 class AppOptions extends ChangeNotifier {
@@ -80,23 +78,35 @@ class AppOptions extends ChangeNotifier {
     var usTimer = UsTimer();
     _prefs = await SharedPreferences.getInstance();
 
-    _userDisplayStyle = Util.enumFromString(
-            await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
-            UserDisplayStyle.values) ??
+    _userDisplayStyle =
+        Util.enumFromString(
+          await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
+          UserDisplayStyle.values,
+        ) ??
         .both;
-    _playerScrollHighlight = Util.enumFromString(
-            await _readString(StorageValue.playerScrollHighlight.name,
-                defaultValue: PlayerScrollHighlight.off.toString()),
-            PlayerScrollHighlight.values) ??
+    _playerScrollHighlight =
+        Util.enumFromString(
+          await _readString(
+            StorageValue.playerScrollHighlight.name,
+            defaultValue: PlayerScrollHighlight.off.toString(),
+          ),
+          PlayerScrollHighlight.values,
+        ) ??
         PlayerScrollHighlight.off;
-    _nashvilleSelection = Util.enumFromString(
-            await _readString(StorageValue.nashvilleSelection.name, defaultValue: NashvilleSelection.off.name),
-            NashvilleSelection.values) ??
+    _nashvilleSelection =
+        Util.enumFromString(
+          await _readString(StorageValue.nashvilleSelection.name, defaultValue: NashvilleSelection.off.name),
+          NashvilleSelection.values,
+        ) ??
         NashvilleSelection.off;
-    _accidentalExpressionChoice = Util.enumFromString(
-            await _readString(StorageValue.accidentalExpressionChoice.name,
-                defaultValue: AccidentalExpressionChoice.byKey.name),
-            AccidentalExpressionChoice.values) ??
+    _accidentalExpressionChoice =
+        Util.enumFromString(
+          await _readString(
+            StorageValue.accidentalExpressionChoice.name,
+            defaultValue: AccidentalExpressionChoice.byKey.name,
+          ),
+          AccidentalExpressionChoice.values,
+        ) ??
         AccidentalExpressionChoice.byKey;
     _drumPartsListJson = await _readString(StorageValue.drumPartsListJson.name, defaultValue: '');
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
@@ -108,8 +118,10 @@ class AppOptions extends ChangeNotifier {
     _playWithBouncingBall = await _readBool('playWithBouncingBall', defaultValue: _playWithBouncingBall);
     _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
     _simplifiedChords = await _readBool(StorageValue.simplifiedChords.name, defaultValue: _simplifiedChords);
-    _alwaysUseTheNewestSongOnRead =
-        await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
+    _alwaysUseTheNewestSongOnRead = await _readBool(
+      'alwaysUseTheNewestSongOnRead',
+      defaultValue: _alwaysUseTheNewestSongOnRead,
+    );
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
     _proEditInput = appEnableAssistedEditing ? await _readBool('proEditInput', defaultValue: _proEditInput) : true;
@@ -121,8 +133,10 @@ class AppOptions extends ChangeNotifier {
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
     _readSongMetadata();
-    _lastAllSongPerformancesStoreMillisecondsSinceEpoch =
-        await _readInt('lastAllSongPerformancesStoreMillisecondsSinceEpoch', defaultValue: 0);
+    _lastAllSongPerformancesStoreMillisecondsSinceEpoch = await _readInt(
+      'lastAllSongPerformancesStoreMillisecondsSinceEpoch',
+      defaultValue: 0,
+    );
     _volume = await _readDouble('volume', defaultValue: 1.0);
     _updateAllSongPerformances();
     notifyListeners();
@@ -475,7 +489,7 @@ class AppOptions extends ChangeNotifier {
   }
 
   void storeAllSongPerformances() {
-    String storage = _allSongPerformances.toJsonString();
+    String storage = allSongPerformances.toJsonString();
     _saveString(StorageValue.allSongPerformances.name, storage);
     _lastAllSongPerformancesStoreMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
   }
@@ -485,7 +499,7 @@ class AppOptions extends ChangeNotifier {
     logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
     logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
     if (jsonString.isNotEmpty) {
-      int count = _allSongPerformances.updateFromJsonString(jsonString);
+      int count = allSongPerformances.updateFromJsonString(jsonString);
       logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
@@ -588,7 +602,7 @@ class AppOptions extends ChangeNotifier {
   HashSet<SheetDisplay> _sheetDisplays = HashSet();
   List<String> _sessionSingers = [];
 
-  final AllSongPerformances _allSongPerformances = AllSongPerformances();
+  final AllSongPerformances allSongPerformances = AllSongPerformances();
 
   /// The user's application name.
   String get user => _user;

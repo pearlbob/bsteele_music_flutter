@@ -31,7 +31,7 @@ const Level _singerLogHistory = Level.debug;
 const Level _logSongUpdate = Level.debug;
 
 final List<String> _sessionSingers =
-    AppOptions().sessionSingers; //  in session order, stored locally to persist over screen reentry.
+    appOptions.sessionSingers; //  in session order, stored locally to persist over screen reentry.
 
 bool _isInSingingMode = false;
 const String _unknownSinger = 'unknown';
@@ -602,7 +602,7 @@ class SingersState extends State<Singers> {
                                             _sessionSingers.remove(_selectedSinger);
                                             appOptions.sessionSingers = _sessionSingers;
                                             _setSelectedSinger(_unknownSinger);
-                                            AppOptions().storeAllSongPerformances();
+                                            appOptions.storeAllSongPerformances();
                                             allHaveBeenWritten = false;
                                           });
                                           Navigator.of(context).pop();
@@ -630,7 +630,7 @@ class SingersState extends State<Singers> {
                               onPressed: () {
                                 setState(() {
                                   _allSongPerformances.clear();
-                                  AppOptions().storeAllSongPerformances();
+                                  appOptions.storeAllSongPerformances();
                                   allHaveBeenWritten = false;
                                 });
                               },
@@ -970,7 +970,7 @@ class SingersState extends State<Singers> {
                           _allSongPerformances.removeSingerSong(singer, song.songId.toString());
                         }
                       }
-                      AppOptions().storeAllSongPerformances();
+                      appOptions.storeAllSongPerformances();
                     });
                   }
                 }
@@ -1300,7 +1300,7 @@ class SingersState extends State<Singers> {
       _allSongPerformances.addSongPerformance(updatedPerformance);
       logger.log(_singerLogHistory, 'updatedPerformance: $updatedPerformance');
       logger.d('navigateToPlayer.playerSelectedBpm back: $playerSelectedBpm');
-      AppOptions().storeAllSongPerformances();
+      appOptions.storeAllSongPerformances();
       allHaveBeenWritten = false;
 
       //  push the selected singer forward in the list
@@ -1333,7 +1333,7 @@ class SingersState extends State<Singers> {
       logger.d('filePickUpdate: $count');
       _allSongPerformances.loadSongs(app.allSongs);
       if (count > 0) {
-        AppOptions().storeAllSongPerformances();
+        appOptions.storeAllSongPerformances();
         allHaveBeenWritten = false;
       }
     }
@@ -1414,7 +1414,7 @@ class SingersState extends State<Singers> {
   //   return _allSongPerformances.bySinger(singer).isNotEmpty;
   // }
 
-  final AllSongPerformances _allSongPerformances = AllSongPerformances();
+  final AllSongPerformances _allSongPerformances = appOptions.allSongPerformances; // convienence only
 
   static const inactiveBackgroundColor = Color(0xFFe0e0e0);
   static const inactiveRequesterColor = Color(0xFFceecf0);
@@ -1423,5 +1423,4 @@ class SingersState extends State<Singers> {
   static const EdgeInsets appendInsets = EdgeInsets.all(3);
   static const EdgeInsets appendPadding = EdgeInsets.all(3);
 
-  final appOptions = AppOptions();
 }

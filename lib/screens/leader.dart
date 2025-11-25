@@ -291,7 +291,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                     width: onStringWidth + 4 * chordsTextWidth,
                     //  max width of chars expected
                     child: Text(
-                      '$onString${scaleNoteByAccidentalExpressionChoice(firstScaleNote.transpose(value, relativeOffset), _appOptions.accidentalExpressionChoice, key: _displaySongKey).toMarkup()})',
+                      '$onString${scaleNoteByAccidentalExpressionChoice(firstScaleNote.transpose(value, relativeOffset), appOptions.accidentalExpressionChoice, key: _displaySongKey).toMarkup()})',
                       style: _headerTextStyle,
                       softWrap: false,
                       textAlign: TextAlign.right,
@@ -309,7 +309,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
     var theme = Theme.of(context);
     var appBarTextStyle = generateAppBarLinkTextStyle();
 
-    if (_appOptions.ninJam) {
+    if (appOptions.ninJam) {
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
@@ -343,7 +343,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
               return Stack(
                 children: <Widget>[
                   //  smooth background
-                  if (_appOptions.userDisplayStyle != UserDisplayStyle.highContrast)
+                  if (appOptions.userDisplayStyle != UserDisplayStyle.highContrast)
                     Container(
                       constraints: constraints,
                       decoration: BoxDecoration(
@@ -361,7 +361,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                     ),
 
                   //  center marker
-                  if (kDebugMode || _appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
+                  if (kDebugMode || appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
                     Column(
                       children: [
                         //  offset the marker
@@ -369,7 +369,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                         Container(
                           constraints: BoxConstraints.tight(
                             Size(
-                              _appOptions.playerScrollHighlight == PlayerScrollHighlight.off
+                              appOptions.playerScrollHighlight == PlayerScrollHighlight.off
                                   ? 16
                                   : constraints.maxWidth, // for testing only
                               4,
@@ -584,7 +584,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
 
                   //  ninjam aid
                   if (app.isScreenBig &&
-                      _appOptions.ninJam &&
+                      appOptions.ninJam &&
                       _ninJam.isNinJamReady &&
                       songUpdateState == .idle)
                     AppWrapFullWidth(
@@ -779,7 +779,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   // }
 
   bool _capoIsPossible() {
-    return !_appOptions.isSinger && !(_songUpdateService.isConnected && _songUpdateService.isLeader);
+    return !appOptions.isSinger && !(_songUpdateService.isConnected && _songUpdateService.isLeader);
   }
 
   void _resetIdleTimer() {
@@ -822,7 +822,6 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   Timer? _idleTimer;
 
   late AppWidgetHelper _appWidgetHelper;
-
-  static final _appOptions = AppOptions();
+  
   final AppSongUpdateService _songUpdateService = AppSongUpdateService();
 }

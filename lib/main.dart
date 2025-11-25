@@ -202,7 +202,6 @@ void main() async {
 
   //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
-  var appOptions = AppOptions();
   await appOptions.init(); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
@@ -424,9 +423,9 @@ class MyHomePageState extends State<MyHomePage> {
       String dataAsString = await loadAssetString('lib/assets/allSongPerformances.songperformances');
 
       try {
-        var allPerformances = AllSongPerformances();
-        allPerformances.updateFromJsonString(dataAsString);
-        allPerformances.loadSongs(app.allSongs);
+        var allSongPerformances = appOptions.allSongPerformances;
+        allSongPerformances.updateFromJsonString(dataAsString);
+        allSongPerformances.loadSongs(app.allSongs);
         logger.i('internal song performances used');
       } catch (fe) {
         logger.i('internal song performance parse error: $fe');
@@ -502,15 +501,14 @@ class MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        var allPerformances = AllSongPerformances();
-        allPerformances.updateFromJsonString(dataAsString);
+        appOptions.allSongPerformances.updateFromJsonString(dataAsString);
         var allSongs = app.allSongs;
-        var corrections = allPerformances.loadSongs(allSongs);
+        var corrections = appOptions.allSongPerformances.loadSongs(allSongs);
         logger.i('external song performances read from: $url, corrections: $corrections');
 
         //  it's very important to store corrected performances/history/requests locally
         //  so they are not corrected at every reload
-        AppOptions().storeAllSongPerformances();
+        appOptions.storeAllSongPerformances();
       } catch (fe) {
         app.warningMessage = 'Loading of history failed.';
         logger.i('external song performance parse error: $fe');

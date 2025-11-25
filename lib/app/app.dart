@@ -25,7 +25,6 @@ import 'appOptions.dart';
 import 'app_theme.dart';
 
 final App app = App();
-final AppOptions _appOptions = AppOptions();
 final UtilWorkaround utilWorkaround = UtilWorkaround();
 
 String userName =
@@ -461,7 +460,7 @@ class AppTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (_appOptions.toolTips) {
+    if (appOptions.toolTips) {
       var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
       return Tooltip(
         key: key,

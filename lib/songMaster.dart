@@ -139,7 +139,7 @@ class SongMaster extends ChangeNotifier {
             drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/blip.flac',
             when: nextTempoT,
             duration: 0.15, //fixme: temp
-            volume: _appOptions.volume,
+            volume: appOptions.volume,
           );
 
           //  clean up for the next request
@@ -567,7 +567,7 @@ class SongMaster extends ChangeNotifier {
             filePath,
             when: timing,
             duration: 0.25, //fixme: temp
-            volume: _appOptions.volume,
+            volume: appOptions.volume,
           );
         }
       }
@@ -634,7 +634,6 @@ class SongMaster extends ChangeNotifier {
   var drumsAreMuted = true;
   DrumParts? _drumParts;
 
-  final _appOptions = AppOptions();
   final AppAudioPlayer _appAudioPlayer = AppAudioPlayer();
 }
 

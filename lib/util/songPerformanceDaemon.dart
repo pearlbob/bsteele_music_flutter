@@ -38,7 +38,7 @@ class SongPerformanceDaemon {
 
   void _initialize() async {
     if (!kDebugMode) {
-      _lastStore = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
+      _lastStore = appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
       Timer.periodic(const Duration(minutes: 10), _timerCallback);
       logger.i('SongPerformanceDaemon initialized');
     } else {
@@ -47,20 +47,20 @@ class SongPerformanceDaemon {
   }
 
   _timerCallback(Timer timer) async {
-    var due = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch + _updateDelayMilliseconds;
+    var due = appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch + _updateDelayMilliseconds;
 
     var dueFormat = intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(due));
     var nowMs = DateTime.now().millisecondsSinceEpoch;
 
-    if (_lastStore != _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch //  store required
+    if (_lastStore != appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch //  store required
             &&
             nowMs >= due //  been idle long enough
         ) {
       logger.i('SongPerformanceDaemon update: '
           '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(nowMs))} > $dueFormat');
       saveAllSongPerformances().then((response) {
-        _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch = nowMs;
-        _lastStore = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
+        appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch = nowMs;
+        _lastStore = appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
       });
     } else {
       logger.i('SongPerformanceDaemon callback: not needed: '
@@ -71,7 +71,6 @@ class SongPerformanceDaemon {
   }
 
   final int _updateDelayMilliseconds = Duration.millisecondsPerMinute * 30;
-  final AllSongPerformances _allSongPerformances = AllSongPerformances();
-  final AppOptions _appOptions = AppOptions();
+  final AllSongPerformances _allSongPerformances = appOptions.allSongPerformances; // convenience only
   int _lastStore = 0;
 }

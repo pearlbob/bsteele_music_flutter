@@ -697,7 +697,6 @@ class DetailState extends State<Detail> {
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   TextStyle _style = generateAppTextStyle();
-  final AppOptions appOptions = AppOptions();
 }
 
 class _FretBoardPainter extends CustomPainter {

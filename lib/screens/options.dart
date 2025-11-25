@@ -40,16 +40,16 @@ class OptionsState extends State<Options> {
   initState() {
     super.initState();
 
-    _userTextEditingController.text = _appOptions.user;
+    _userTextEditingController.text = appOptions.user;
     _userTextEditingController.addListener(() {
       if (_userTextEditingController.text.isNotEmpty) {
-        _appOptions.user = _userTextEditingController.text;
+        appOptions.user = _userTextEditingController.text;
       }
     });
 
-    _websocketHostEditingController.text = _appOptions.websocketHost == AppOptions.idleHost
+    _websocketHostEditingController.text = appOptions.websocketHost == AppOptions.idleHost
         ? ''
-        : _appOptions.websocketHost;
+        : appOptions.websocketHost;
 
     _songUpdateService.addListener(_songUpdateServiceCallback);
   }
@@ -114,7 +114,7 @@ class OptionsState extends State<Options> {
                         if (value.isNotEmpty) {
                           logger.log(_logUserNameEntry, 'user name onChanged: $value');
                           setState(() {
-                            _appOptions.user = value;
+                            appOptions.user = value;
                           });
                         }
                       },
@@ -150,7 +150,7 @@ class OptionsState extends State<Options> {
                           controller: _websocketHostEditingController,
                           hintText: 'address here',
                           onChanged: (value) {
-                            _appOptions.websocketHost = value;
+                            appOptions.websocketHost = value;
                           },
                         ),
                       ),
@@ -180,7 +180,7 @@ class OptionsState extends State<Options> {
                       child: appButton(
                         'None',
                         onPressed: () {
-                          _appOptions.websocketHost = AppOptions.idleHost;
+                          appOptions.websocketHost = AppOptions.idleHost;
                           _websocketHostEditingController.text = '';
                         },
                       ),
@@ -190,8 +190,8 @@ class OptionsState extends State<Options> {
                       child: appButton(
                         'Studio',
                         onPressed: () {
-                          _appOptions.websocketHost = 'cj.local';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                          appOptions.websocketHost = 'cj.local';
+                          _websocketHostEditingController.text = appOptions.websocketHost;
                         },
                       ),
                     ),
@@ -200,8 +200,8 @@ class OptionsState extends State<Options> {
                       child: appButton(
                         'Park',
                         onPressed: () {
-                          _appOptions.websocketHost = parkFixedIpAddress;
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                          appOptions.websocketHost = parkFixedIpAddress;
+                          _websocketHostEditingController.text = appOptions.websocketHost;
                         },
                       ),
                     ),
@@ -210,8 +210,8 @@ class OptionsState extends State<Options> {
                       child: appButton(
                         'Bob\'s pi',
                         onPressed: () {
-                          _appOptions.websocketHost = 'bobspi.local';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                          appOptions.websocketHost = 'bobspi.local';
+                          _websocketHostEditingController.text = appOptions.websocketHost;
                         },
                       ),
                     ),
@@ -223,8 +223,8 @@ class OptionsState extends State<Options> {
                         child: appButton(
                           'This host',
                           onPressed: () {
-                            _appOptions.websocketHost = host;
-                            _websocketHostEditingController.text = _appOptions.websocketHost;
+                            appOptions.websocketHost = host;
+                            _websocketHostEditingController.text = appOptions.websocketHost;
                           },
                         ),
                       ),
@@ -232,8 +232,8 @@ class OptionsState extends State<Options> {
                       appButton(
                         'bob\'s place',
                         onPressed: () {
-                          _appOptions.websocketHost = 'bob'; //'bobspi.local';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                          appOptions.websocketHost = 'bob'; //'bobspi.local';
+                          _websocketHostEditingController.text = appOptions.websocketHost;
                         },
                       ),
                   ],
@@ -291,7 +291,7 @@ class OptionsState extends State<Options> {
                         ButtonSegment<AccidentalExpressionChoice>(
                           value: .byKey,
                           label: Text('By Key', style: buttonTextStyle()),
-                          tooltip: _appOptions.toolTips
+                          tooltip: appOptions.toolTips
                               ? 'When required, accidentals notes are expressed as a sharp or flat\n'
                                     'based on the song\'s key.'
                               : null,
@@ -299,19 +299,19 @@ class OptionsState extends State<Options> {
                         ButtonSegment<AccidentalExpressionChoice>(
                           value: .easyRead,
                           label: Text('Easy Read', style: buttonTextStyle()),
-                          tooltip: _appOptions.toolTips
+                          tooltip: appOptions.toolTips
                               ? 'When required, accidental notes are expressed as an easy to read expression.\n'
                                     'For example, A♯ will always be expressed as B♭'
                               : null,
                         ),
                       ],
-                      selected: <AccidentalExpressionChoice>{_appOptions.accidentalExpressionChoice},
+                      selected: <AccidentalExpressionChoice>{appOptions.accidentalExpressionChoice},
                       onSelectionChanged: (Set<AccidentalExpressionChoice> newSelection) {
                         setState(() {
                           // By default there is only a single segment that can be
                           // selected at one time, so its value is always the first
                           // item in the selected set.
-                          _appOptions.accidentalExpressionChoice = newSelection.first;
+                          appOptions.accidentalExpressionChoice = newSelection.first;
                         });
                       },
                     ),
@@ -330,7 +330,7 @@ class OptionsState extends State<Options> {
                         ButtonSegment<bool>(
                           value: true,
                           label: Text('Reduced', style: buttonTextStyle()),
-                          tooltip: _appOptions.toolTips
+                          tooltip: appOptions.toolTips
                               ? 'Show Nashville style beats only when they are absolutely required.\n'
                                     'This will not happen if the measure is full length.\n'
                                     'Typically the period convention will be used.'
@@ -339,18 +339,18 @@ class OptionsState extends State<Options> {
                         ButtonSegment<bool>(
                           value: false,
                           label: Text('Always', style: buttonTextStyle()),
-                          tooltip: _appOptions.toolTips
+                          tooltip: appOptions.toolTips
                               ? 'Show Nashville style beats any time the beats are not a full measure.'
                               : null,
                         ),
                       ],
-                      selected: <bool>{_appOptions.reducedNashvilleDots},
+                      selected: <bool>{appOptions.reducedNashvilleDots},
                       onSelectionChanged: (Set<bool> newSelection) {
                         setState(() {
                           // By default there is only a single segment that can be
                           // selected at one time, so its value is always the first
                           // item in the selected set.
-                          _appOptions.reducedNashvilleDots = newSelection.first;
+                          appOptions.reducedNashvilleDots = newSelection.first;
                         });
                       },
                     ),
@@ -367,14 +367,14 @@ class OptionsState extends State<Options> {
                       selectedIcon: appIcon(Icons.check),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.resolveWith((states) {
-                          return _appOptions.simplifiedChords ? Colors.red : null;
+                          return appOptions.simplifiedChords ? Colors.red : null;
                         }),
                       ),
                       segments: <ButtonSegment<bool>>[
                         ButtonSegment<bool>(
                           value: true,
                           label: Text('Simplified', style: buttonTextStyle()),
-                          tooltip: _appOptions.toolTips
+                          tooltip: appOptions.toolTips
                               ? 'Show chords in simplified form.\n'
                                     'These will be an approximation of the original chords\n'
                                     'to help beginners as they play.'
@@ -383,18 +383,18 @@ class OptionsState extends State<Options> {
                         ButtonSegment<bool>(
                           value: false,
                           label: Text('Original', style: buttonTextStyle()),
-                          tooltip: _appOptions.toolTips
+                          tooltip: appOptions.toolTips
                               ? 'Show chords in a simplified form or in their full complexity.'
                               : null,
                         ),
                       ],
-                      selected: <bool>{_appOptions.simplifiedChords},
+                      selected: <bool>{appOptions.simplifiedChords},
                       onSelectionChanged: (Set<bool> newSelection) {
                         setState(() {
                           // By default there is only a single segment that can be
                           // selected at one time, so its value is always the first
                           // item in the selected set.
-                          _appOptions.simplifiedChords = newSelection.first;
+                          appOptions.simplifiedChords = newSelection.first;
                         });
                       },
                     ),
@@ -411,17 +411,17 @@ class OptionsState extends State<Options> {
 
                         onPressed: () {
                           setState(() {
-                            _appOptions.toolTips = !_appOptions.toolTips;
+                            appOptions.toolTips = !appOptions.toolTips;
                           });
                         },
                         // softWrap: false,
                       ),
                     ),
                     appSwitch(
-                      value: _appOptions.toolTips,
+                      value: appOptions.toolTips,
                       onChanged: (value) {
                         setState(() {
-                          _appOptions.toolTips = value;
+                          appOptions.toolTips = value;
                         });
                       },
                     ),
@@ -449,23 +449,23 @@ class OptionsState extends State<Options> {
                           );
                         }).toList(),
                         onChanged: (value) {
-                          if (value != null && value != _appOptions.tapToAdvance) {
+                          if (value != null && value != appOptions.tapToAdvance) {
                             setState(() {
-                              _appOptions.tapToAdvance = value;
+                              appOptions.tapToAdvance = value;
                             });
                           }
                         },
-                        value: _appOptions.tapToAdvance,
+                        value: appOptions.tapToAdvance,
                         style: generateAppTextStyle(color: Colors.black, textBaseline: TextBaseline.ideographic),
                         itemHeight: null,
                       ),
                     ),
                     // appSwitch(
                     //   appKeyEnum: AppKeyEnum.optionsTapToAdvance,
-                    //   value: _appOptions.tapToAdvance,
+                    //   value: appOptions.tapToAdvance,
                     //   onChanged: (value) {
                     //     setState(() {
-                    //       _appOptions.tapToAdvance = !_appOptions.tapToAdvance;
+                    //       appOptions.tapToAdvance = !appOptions.tapToAdvance;
                     //     });
                     //   },
                     // ),
@@ -478,20 +478,20 @@ class OptionsState extends State<Options> {
                   spacing: viewportWidth(0.5),
                   children: [
                     RadioGroup<UserDisplayStyle>(
-                      groupValue: _appOptions.userDisplayStyle,
+                      groupValue: appOptions.userDisplayStyle,
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {
-                            _appOptions.userDisplayStyle = value;
+                            appOptions.userDisplayStyle = value;
                             switch (value) {
                               case .highContrast:
-                                _appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
-                                _appOptions.simplifiedChords = true;
-                                _appOptions.accidentalExpressionChoice = .easyRead;
+                                appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
+                                appOptions.simplifiedChords = true;
+                                appOptions.accidentalExpressionChoice = .easyRead;
                                 break;
                               default:
-                                _appOptions.simplifiedChords = false;
-                                _appOptions.accidentalExpressionChoice = .byKey;
+                                appOptions.simplifiedChords = false;
+                                appOptions.accidentalExpressionChoice = .byKey;
                                 break;
                             }
                           });
@@ -510,11 +510,11 @@ class OptionsState extends State<Options> {
                           //       AppWrap(children: [
                           //         Radio<UserDisplayStyle>(
                           //           value: .proPlayer,
-                          //           groupValue: _appOptions.userDisplayStyle,
+                          //           groupValue: appOptions.userDisplayStyle,
                           //           onChanged: (value) {
                           //             setState(() {
                           //               if (value != null) {
-                          //                 _appOptions.userDisplayStyle = value;
+                          //                 appOptions.userDisplayStyle = value;
                           //                 _adjustDisplay();
                           //               }
                           //             });
@@ -529,7 +529,7 @@ class OptionsState extends State<Options> {
                           //             value: .proPlayer,
                           //             onPressed: () {
                           //               setState(() {
-                          //                 _appOptions.userDisplayStyle = .proPlayer;
+                          //                 appOptions.userDisplayStyle = .proPlayer;
                           //                 _adjustDisplay();
                           //               });
                           //             },
@@ -541,11 +541,11 @@ class OptionsState extends State<Options> {
                           //       AppWrap(children: [
                           //         Radio<UserDisplayStyle>(
                           //           value: .player,
-                          //           groupValue: _appOptions.userDisplayStyle,
+                          //           groupValue: appOptions.userDisplayStyle,
                           //           onChanged: (value) {
                           //             setState(() {
                           //               if (value != null) {
-                          //                 _appOptions.userDisplayStyle = value;
+                          //                 appOptions.userDisplayStyle = value;
                           //                 _adjustDisplay();
                           //               }
                           //             });
@@ -561,7 +561,7 @@ class OptionsState extends State<Options> {
                           //             value: .player,
                           //             onPressed: () {
                           //               setState(() {
-                          //                 _appOptions.userDisplayStyle = .player;
+                          //                 appOptions.userDisplayStyle = .player;
                           //                 _adjustDisplay();
                           //               });
                           //             },
@@ -597,11 +597,11 @@ class OptionsState extends State<Options> {
                     //       AppWrap(children: [
                     //         Radio<UserDisplayStyle>(
                     //           value: .singer,
-                    //           groupValue: _appOptions.userDisplayStyle,
+                    //           groupValue: appOptions.userDisplayStyle,
                     //           onChanged: (value) {
                     //             setState(() {
                     //               if (value != null) {
-                    //                 _appOptions.userDisplayStyle = value;
+                    //                 appOptions.userDisplayStyle = value;
                     //                 _adjustDisplay();
                     //               }
                     //             });
@@ -616,7 +616,7 @@ class OptionsState extends State<Options> {
                     //             value: .singer,
                     //             onPressed: () {
                     //               setState(() {
-                    //                 _appOptions.userDisplayStyle = .singer;
+                    //                 appOptions.userDisplayStyle = .singer;
                     //                 _adjustDisplay();
                     //               });
                     //             },
@@ -628,11 +628,11 @@ class OptionsState extends State<Options> {
                     //       // AppWrap(children: [
                     //       //   Radio<UserDisplayStyle>(
                     //       //     value: .banner,
-                    //       //     groupValue: _appOptions.userDisplayStyle,
+                    //       //     groupValue: appOptions.userDisplayStyle,
                     //       //     onChanged: (value) {
                     //       //       setState(() {
                     //       //         if (value != null) {
-                    //       //           _appOptions.userDisplayStyle = value;
+                    //       //           appOptions.userDisplayStyle = value;
                     //       //           adjustDisplay();
                     //       //         }
                     //       //       });
@@ -646,7 +646,7 @@ class OptionsState extends State<Options> {
                     //       //       value: .banner,
                     //       //       onPressed: () {
                     //       //         setState(() {
-                    //       //           _appOptions.userDisplayStyle = .banner;
+                    //       //           appOptions.userDisplayStyle = .banner;
                     //       //           adjustDisplay();
                     //       //         });
                     //       //       },
@@ -664,10 +664,10 @@ class OptionsState extends State<Options> {
                   Row(
                     children: <Widget>[
                       appWidgetHelper.checkbox(
-                        value: _appOptions.playWithChords,
+                        value: appOptions.playWithChords,
                         onChanged: (value) {
                           setState(() {
-                            _appOptions.playWithChords = value ?? false;
+                            appOptions.playWithChords = value ?? false;
                           });
                         },
                       ),
@@ -681,10 +681,10 @@ class OptionsState extends State<Options> {
                   Row(
                     children: <Widget>[
                       appWidgetHelper.checkbox(
-                        value: _appOptions.playWithBass,
+                        value: appOptions.playWithBass,
                         onChanged: (value) {
                           setState(() {
-                            _appOptions.playWithBass = value ?? true;
+                            appOptions.playWithBass = value ?? true;
                           });
                         },
                       ),
@@ -723,10 +723,10 @@ class OptionsState extends State<Options> {
                   Row(
                     children: <Widget>[
                       appWidgetHelper.checkbox(
-                        value: _appOptions.debug,
+                        value: appOptions.debug,
                         onChanged: (value) {
-                          _appOptions.debug = value;
-                          Logger.level = _appOptions.debug ? Level.debug : Level.info;
+                          appOptions.debug = value;
+                          Logger.level = appOptions.debug ? Level.debug : Level.info;
                           setState(() {});
                         },
                       ),
@@ -740,7 +740,7 @@ class OptionsState extends State<Options> {
                       'Clear all local stored options',
                       onPressed: () {
                         setState(() {
-                          _appOptions.clear();
+                          appOptions.clear();
                         });
                       },
                       // softWrap: false,
@@ -919,6 +919,5 @@ class OptionsState extends State<Options> {
   String _ipAddress = '';
 
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();
-  final AppOptions _appOptions = AppOptions();
   final App app = App();
 }

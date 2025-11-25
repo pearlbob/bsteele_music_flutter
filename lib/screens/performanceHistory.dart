@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 import '../app/app.dart';
+import '../app/appOptions.dart';
 import '../util/play_list_search_matcher.dart';
 
 /// Provide a number of song related actions for the user.
@@ -48,7 +49,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       // reverse the date ordering
       return -SongPerformance.compareByLastSungSongIdAndSinger(first, other);
     });
-    performanceHistory.addAll(allSongPerformances.allSongPerformanceHistory);
+    performanceHistory.addAll(_allSongPerformances.allSongPerformanceHistory);
     PlayListGroup songListGroup;
     {
       List<PlayListItemList> songLists = [];
@@ -234,5 +235,5 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
   late TextStyle _songPerformanceStyle;
 
   final App app = App();
-  final AllSongPerformances allSongPerformances = AllSongPerformances();
+  final AllSongPerformances _allSongPerformances = appOptions.allSongPerformances;  //  convenience only
 }

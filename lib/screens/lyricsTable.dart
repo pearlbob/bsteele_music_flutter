@@ -199,15 +199,15 @@ class LyricsTable {
     var usTimer = UsTimer();
     _song = song;
     displayMusicKey = musicKey ?? song.key;
-    _nashvilleSelection = _appOptions.nashvilleSelection;
-    _simplifiedChordsSelection = _appOptions.simplifiedChords;
+    _nashvilleSelection = appOptions.nashvilleSelection;
+    _simplifiedChordsSelection = appOptions.simplifiedChords;
     _maxLines = 1;
 
     _paddingSizeMax = _paddingSizeDefault;
     _marginSizeMax = _marginSizeDefault;
     _computeScreenSizes();
 
-    var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle);
+    var displayGrid = song.toDisplayGrid(appOptions.userDisplayStyle);
     logger.log(_logLyricsBuild, 'lyricsBuild: displayGrid: ${usTimer.deltaToString()}');
 
     _cellGrid = Grid<_SongCellWidget>();
@@ -217,7 +217,7 @@ class LyricsTable {
     displayMusicKey = musicKey ?? song.key;
     int transpositionOffset = displayMusicKey.getHalfStep() - song.key.getHalfStep();
 
-    switch (_appOptions.userDisplayStyle) {
+    switch (appOptions.userDisplayStyle) {
       case .proPlayer:
         for (var r = 0; r < displayGrid.getRowCount(); r++) {
           var row = displayGrid.getRow(r);
@@ -629,7 +629,7 @@ class LyricsTable {
                 case .lyric:
                   //  color done by prior chord section
                   {
-                    var songCellType = _appOptions.userDisplayStyle == .both
+                    var songCellType = appOptions.userDisplayStyle == .both
                         ? _SongCellType.lyric
                         : _SongCellType.lyricEllipsis;
                     _cellGrid.set(
@@ -942,7 +942,7 @@ class LyricsTable {
     }
     logger.log(_logHeights, 'raw heights: $heights');
 
-    switch (_appOptions.userDisplayStyle) {
+    switch (appOptions.userDisplayStyle) {
       case .banner:
         //  even up the banner width's
         var width = 0.0;
@@ -1075,7 +1075,7 @@ class LyricsTable {
     }
 
     //  discover the overall total width and height
-    double arrowIndicatorWidth = _appOptions.playWithLineIndicator ? _chordFontSizeUnscaled : 0;
+    double arrowIndicatorWidth = appOptions.playWithLineIndicator ? _chordFontSizeUnscaled : 0;
     var totalWidth = widths.fold<double>(
       arrowIndicatorWidth,
       (previous, e) => previous + e + _paddingSize + 2 * _marginSize,
@@ -1084,10 +1084,10 @@ class LyricsTable {
     logger.log(_logFontSize, 'chord ratio: $chordWidth/$totalWidth = ${chordWidth / totalWidth}');
 
     //  limit space for player lyrics
-    if (_appOptions.userDisplayStyle == .player && widths.last == 0) {
+    if (appOptions.userDisplayStyle == .player && widths.last == 0) {
       widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
       totalWidth = chordWidth + widths.last;
-    } else if (_appOptions.userDisplayStyle == .both) {
+    } else if (appOptions.userDisplayStyle == .both) {
       if (totalWidth >= screenWidth) {
         //  use as much spare space as needed for lyrics
         widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - (totalWidth - widths.last)));
@@ -1110,7 +1110,7 @@ class LyricsTable {
     assert(totalWidth > 0);
     assert(totalHeight > 0);
 
-    switch (_appOptions.userDisplayStyle) {
+    switch (appOptions.userDisplayStyle) {
       case .banner:
         _scaleFactor = 0.65;
         break;
@@ -1120,7 +1120,7 @@ class LyricsTable {
         break;
     }
 
-    switch (_appOptions.userDisplayStyle) {
+    switch (appOptions.userDisplayStyle) {
       case .proPlayer:
         //  fit everything vertically
         // logger.log(_logFontSize, 'proPlayer: _scaleFactor: $_scaleFactor vs ${screenHeight * 0.65 / totalHeight}');
@@ -1189,7 +1189,7 @@ class LyricsTable {
         ', padding: ${_paddingSize.toStringAsFixed(2)}',
       );
     }
-    _maxLines = _appOptions.userDisplayStyle == .player ? 1 : _defaultMaxLines;
+    _maxLines = appOptions.userDisplayStyle == .player ? 1 : _defaultMaxLines;
 
     //  set the cell grid sizing
     final double xMargin = 2.0 * _marginSize;
@@ -1244,7 +1244,7 @@ class LyricsTable {
     logger.log(_logLyricsBuild, 'lyricsBuild: songMoment mapping: ${usTimer.deltaToString()}');
 
     //  box up the children, applying necessary widths and heights
-    switch (_appOptions.userDisplayStyle) {
+    switch (appOptions.userDisplayStyle) {
       case .banner:
         {
           for (var c = 0; c < song.songMoments.length; c++) {
@@ -1325,7 +1325,7 @@ class LyricsTable {
             }
             Widget rowWidget;
             {
-              if (r == 0 && _appOptions.userDisplayStyle == .proPlayer) {
+              if (r == 0 && appOptions.userDisplayStyle == .proPlayer) {
                 //  put the first row of pro in a wrap
                 rowWidget = AppWrap(
                   children: [
@@ -1392,7 +1392,7 @@ class LyricsTable {
     }
 
     //  show copyright
-    switch (_appOptions.userDisplayStyle) {
+    switch (appOptions.userDisplayStyle) {
       case .banner:
         items.add(Text('Release/Label: ${song.copyright}', style: _lyricsTextStyle));
         break;
@@ -1831,7 +1831,7 @@ class LyricsTable {
         {
           var scaleNote = transposedChord.scaleChord.scaleNote;
           //  process scale note by accidental choice
-          switch (_appOptions.accidentalExpressionChoice) {
+          switch (appOptions.accidentalExpressionChoice) {
             case .alwaysSharp:
               scaleNote = scaleNote.asSharp();
               break;
@@ -1874,7 +1874,7 @@ class LyricsTable {
               ScaleNote.X; //  should never happen!
 
           //  process scale note by accidental choice
-          switch (_appOptions.accidentalExpressionChoice) {
+          switch (appOptions.accidentalExpressionChoice) {
             case .alwaysSharp:
               slashScaleNote = slashScaleNote.asSharp();
               break;
@@ -2002,7 +2002,7 @@ class LyricsTable {
     );
     _coloredLyricTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
-      fontSize: (_appOptions.userDisplayStyle == .banner ? 0.5 : 1) * _lyricsFontSizeUnscaled,
+      fontSize: (appOptions.userDisplayStyle == .banner ? 0.5 : 1) * _lyricsFontSizeUnscaled,
       fontWeight: .normal,
     );
   }
@@ -2225,7 +2225,6 @@ class LyricsTable {
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
 
   music_key.Key displayMusicKey = music_key.Key.C;
-  final AppOptions _appOptions = AppOptions();
   final RegExp verticalBarAndSpacesRegExp = RegExp(r'\s*\|\s*');
 }
 
@@ -2304,7 +2303,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
       ', selected: $selected',
     );
 
-    switch (AppOptions().playerScrollHighlight) {
+    switch (appOptions.playerScrollHighlight) {
       case .off:
       case .measure:
         return NullWidget();
@@ -2586,7 +2585,7 @@ class _SongCellState extends State<_SongCellWidget> {
             }
           }
 
-          switch (AppOptions().playerScrollHighlight) {
+          switch (appOptions.playerScrollHighlight) {
             case .off:
             case .chordRow:
               isNowSelected = false;

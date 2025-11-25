@@ -173,7 +173,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                               app.clearMessage();
                               logger.t('read drum file');
                               _filePickReadDrumPartsList(context);
-                              _appOptions.drumPartsListJson = _drumPartsList.toJson();
+                              appOptions.drumPartsListJson = _drumPartsList.toJson();
                             });
                           },
                         ),
@@ -192,10 +192,10 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     width: app.screenInfo.mediaWidth * 0.4,
                     // fixme: too fiddly
                     child: Slider(
-                      value: _appOptions.volume * 10,
+                      value: appOptions.volume * 10,
                       onChanged: (value) {
                         setState(() {
-                          _appOptions.volume = value / 10;
+                          appOptions.volume = value / 10;
                         });
                       },
                       min: 0,
@@ -399,7 +399,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   final SongMaster _songMaster = SongMaster();
 
   final DrumPartsList _drumPartsList = DrumPartsList();
-  final _appOptions = AppOptions();
 }
 
 class DrumPlayListItem implements PlayListItem {

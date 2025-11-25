@@ -199,9 +199,9 @@ class AppSongUpdateService extends ChangeNotifier {
 
   String _findTheHost() {
     var host = '';
-    if (_appOptions.websocketHost.isNotEmpty) {
-      host = _appOptions.websocketHost;
-      if (_appOptions.websocketHost == AppOptions.idleHost) {
+    if (appOptions.websocketHost.isNotEmpty) {
+      host = appOptions.websocketHost;
+      if (appOptions.websocketHost == AppOptions.idleHost) {
         host = ''; //  never a real host
       }
     } else if (kIsWeb && Uri.base.scheme == 'http') {
@@ -248,7 +248,7 @@ class AppSongUpdateService extends ChangeNotifier {
 
   void issueSongUpdate(SongUpdate songUpdate) {
     if (_isLeader) {
-      songUpdate.setUser(_appOptions.user);
+      songUpdate.setUser(appOptions.user);
       _songUpdate = songUpdate.copyWith(); //  update out becomes the template for BPM in from the tempo machine fixme?
       var jsonText = songUpdate.toJson();
       _webSocketSink?.add(jsonText);
@@ -285,7 +285,7 @@ class AppSongUpdateService extends ChangeNotifier {
   SongUpdate? _songUpdate;
 
   String get leaderName =>
-      (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : Song.defaultUser));
+      (_isLeader ? appOptions.user : (_songUpdate != null ? _songUpdate!.user : Song.defaultUser));
   WebSocketChannel? _webSocketChannel;
 
   String get ipAddress => _ipAddress;
@@ -305,5 +305,4 @@ class AppSongUpdateService extends ChangeNotifier {
   static int get delayMilliseconds => _singleton._delayMilliseconds;
   var _delayMilliseconds = 0;
   StreamSubscription<dynamic>? _subscription;
-  final AppOptions _appOptions = AppOptions();
 }

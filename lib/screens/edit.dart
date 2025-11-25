@@ -57,7 +57,9 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 final ChordSectionLocation defaultLocation = // last resort, better than null
-    ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
+ChordSectionLocation(
+  SectionVersion.bySection(Section.get(SectionEnum.chorus)),
+);
 
 const bool _editDebug = kDebugMode && false;
 const bool _editDebugVerbose = kDebugMode && false;
@@ -112,9 +114,7 @@ class Edit extends StatefulWidget {
 }
 
 class EditState extends State<Edit> {
-  EditState()
-      : song = _initialSong.copySong(),
-        originalSong = _initialSong.copySong() {
+  EditState() : song = _initialSong.copySong(), originalSong = _initialSong.copySong() {
     isProEditInput = appOptions.proEditInput;
 
     chordSong = song;
@@ -141,10 +141,12 @@ class EditState extends State<Edit> {
       if (textSelection.baseOffset >= 0) {
         lastEditTextSelection = textSelection.copyWith();
       }
-      logger.d('_chordTextController.addListener(): "${editTextController.text}",'
-          ' ${selectedEditPoint?.toString()}'
-          ', baseOffset: ${textSelection.baseOffset}'
-          ', extentOffset: ${textSelection.extentOffset}');
+      logger.d(
+        '_chordTextController.addListener(): "${editTextController.text}",'
+        ' ${selectedEditPoint?.toString()}'
+        ', baseOffset: ${textSelection.baseOffset}'
+        ', extentOffset: ${textSelection.extentOffset}',
+      );
 
       preProcessMeasureEntry(editTextController.text);
       if (measureEntryValid) {
@@ -172,8 +174,10 @@ class EditState extends State<Edit> {
     titleTextEditingController.addListener(() {
       appTextFieldListener(titleTextEditingController);
       song.title = titleTextEditingController.text;
-      logger.t('_titleTextEditingController listener: \'${titleTextEditingController.text}\''
-          ', ${titleTextEditingController.selection}');
+      logger.t(
+        '_titleTextEditingController listener: \'${titleTextEditingController.text}\''
+        ', ${titleTextEditingController.selection}',
+      );
       checkSongChangeStatus();
     });
     artistTextEditingController.addListener(() {
@@ -202,8 +206,10 @@ class EditState extends State<Edit> {
         var bpm = int.parse(bpmTextEditingController.text);
         if (bpm < MusicConstants.minBpm || bpm > MusicConstants.maxBpm) {
           setState(() {
-            app.errorMessage('BPM needs to be a number '
-                'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'');
+            app.errorMessage(
+              'BPM needs to be a number '
+              'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'',
+            );
           });
         } else {
           setState(() {
@@ -216,7 +222,8 @@ class EditState extends State<Edit> {
       } catch (e) {
         setState(() {
           app.errorMessage(
-              'caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}');
+            'caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}',
+          );
         });
       }
     });
@@ -224,10 +231,9 @@ class EditState extends State<Edit> {
     //  generate time signature drop down items
     _timeSignatureItems = [];
     for (final timeSignature in knownTimeSignatures) {
-      _timeSignatureItems.add(appDropdownMenuItem<TimeSignature>(
-        value: timeSignature,
-        child: Text(timeSignature.toString()),
-      ));
+      _timeSignatureItems.add(
+        appDropdownMenuItem<TimeSignature>(value: timeSignature, child: Text(timeSignature.toString())),
+      );
     }
   }
 
@@ -247,8 +253,9 @@ class EditState extends State<Edit> {
     artistTextEditingController.text = song.artist;
     coverArtistTextEditingController.text = song.coverArtist;
     copyrightTextEditingController.text = song.copyright;
-    userTextEditingController.text =
-        songToLoad.user.isEmpty || songToLoad.user == Song.defaultUser ? appOptions.user : songToLoad.user;
+    userTextEditingController.text = songToLoad.user.isEmpty || songToLoad.user == Song.defaultUser
+        ? appOptions.user
+        : songToLoad.user;
     bpmTextEditingController.text = song.beatsPerMinute.toString();
 
     lyricsEntries.removeListener(lyricsEntriesListener);
@@ -285,86 +292,104 @@ class EditState extends State<Edit> {
     }
 
     showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                'Do you really want discard your changes?',
-                style: chordBoldTextStyle,
-              ),
-              actions: [
-                appButton('Discard all my changes!', onPressed: () {
-                  app.clearMessage();
-                  Navigator.of(context).pop(); //  the dialog
-                  Navigator.of(context).pop(); //  the screen
-                }),
-                const AppSpace(space: 100),
-                appButton('Cancel the return... I need to work some more on this.', onPressed: () {
-                  Navigator.of(context).pop();
-                  checkSong();
-                }),
-              ],
-              elevation: 24.0,
-            ));
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Do you really want discard your changes?', style: chordBoldTextStyle),
+        actions: [
+          appButton(
+            'Discard all my changes!',
+            onPressed: () {
+              app.clearMessage();
+              Navigator.of(context).pop(); //  the dialog
+              Navigator.of(context).pop(); //  the screen
+            },
+          ),
+          const AppSpace(space: 100),
+          appButton(
+            'Cancel the return... I need to work some more on this.',
+            onPressed: () {
+              Navigator.of(context).pop();
+              checkSong();
+            },
+          ),
+        ],
+        elevation: 24.0,
+      ),
+    );
     return false;
   }
 
   /// return true if the song removal was confirmed
   bool removePopup() {
     showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                'Do you really want remove "${song.title}" by ${song.artist}'
-                '${song.coverArtist.isEmpty ? '' : ', cover by ${song.coverArtist}'}?',
-                style: chordBoldTextStyle,
-              ),
-              actions: [
-                appButton('Remove the song.', onPressed: () {
-                  app.allSongs.remove(song);
-                  app.clearMessage();
-                  Navigator.of(context).pop(); //  the dialog
-                  Navigator.of(context).pop(); //  the screen
-                }),
-                const AppSpace(space: 100),
-                appButton('Cancel the removal... I need to work some more on this.', onPressed: () {
-                  Navigator.of(context).pop();
-                  checkSong();
-                }),
-              ],
-              elevation: 24.0,
-            ));
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          'Do you really want remove "${song.title}" by ${song.artist}'
+          '${song.coverArtist.isEmpty ? '' : ', cover by ${song.coverArtist}'}?',
+          style: chordBoldTextStyle,
+        ),
+        actions: [
+          appButton(
+            'Remove the song.',
+            onPressed: () {
+              app.allSongs.remove(song);
+              app.clearMessage();
+              Navigator.of(context).pop(); //  the dialog
+              Navigator.of(context).pop(); //  the screen
+            },
+          ),
+          const AppSpace(space: 100),
+          appButton(
+            'Cancel the removal... I need to work some more on this.',
+            onPressed: () {
+              Navigator.of(context).pop();
+              checkSong();
+            },
+          ),
+        ],
+        elevation: 24.0,
+      ),
+    );
     return false;
   }
 
   /// return true if the song removal was confirmed
   bool renamePopup() {
     showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                'Do you really want rename "${originalSong.title}" by ${originalSong.artist}'
-                '${originalSong.coverArtist.isEmpty ? '' : ', cover by ${originalSong.coverArtist}'}'
-                '\nto "${song.title}" by ${song.artist}'
-                '${song.coverArtist.isEmpty ? '' : ', cover by ${song.coverArtist}'}?',
-                style: chordBoldTextStyle,
-              ),
-              actions: [
-                appButton('Rename the song.', onPressed: () {
-                  app.allSongs.remove(originalSong);
-                  app.allSongs.add(song);
-                  app.selectedSong = song;
-                  app.clearMessage();
-                  Navigator.of(context).pop(); //  the dialog
-                  Navigator.of(context).pop(); //  the screen
-                }),
-                const AppSpace(space: 100),
-                appButton('Cancel the rename... I need to work some more on this.', onPressed: () {
-                  Navigator.of(context).pop();
-                  checkSong();
-                }),
-              ],
-              elevation: 24.0,
-            ));
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          'Do you really want rename "${originalSong.title}" by ${originalSong.artist}'
+          '${originalSong.coverArtist.isEmpty ? '' : ', cover by ${originalSong.coverArtist}'}'
+          '\nto "${song.title}" by ${song.artist}'
+          '${song.coverArtist.isEmpty ? '' : ', cover by ${song.coverArtist}'}?',
+          style: chordBoldTextStyle,
+        ),
+        actions: [
+          appButton(
+            'Rename the song.',
+            onPressed: () {
+              app.allSongs.remove(originalSong);
+              app.allSongs.add(song);
+              app.selectedSong = song;
+              app.clearMessage();
+              Navigator.of(context).pop(); //  the dialog
+              Navigator.of(context).pop(); //  the screen
+            },
+          ),
+          const AppSpace(space: 100),
+          appButton(
+            'Cancel the rename... I need to work some more on this.',
+            onPressed: () {
+              Navigator.of(context).pop();
+              checkSong();
+            },
+          ),
+        ],
+        elevation: 24.0,
+      ),
+    );
     return false;
   }
 
@@ -408,23 +433,10 @@ class EditState extends State<Edit> {
     chordFontSize = min(_defaultChordFontSize, max(12, chordFontSize));
     appendFontSize = chordFontSize * 0.75;
 
-    chordBoldTextStyle = generateAppTextStyle(
-      fontWeight: .bold,
-      fontSize: chordFontSize,
-    );
-    chordTextStyle = generateAppTextStyle(
-      fontSize: appendFontSize,
-      color: Colors.black87,
-    );
-    lyricsTextStyle = generateAppTextStyle(
-      fontWeight: .normal,
-      fontSize: chordFontSize,
-      color: Colors.black87,
-    );
-    addRowRepeatTextStyle = generateAppTextStyle(
-      fontSize: chordFontSize,
-      backgroundColor: _addColor,
-    );
+    chordBoldTextStyle = generateAppTextStyle(fontWeight: .bold, fontSize: chordFontSize);
+    chordTextStyle = generateAppTextStyle(fontSize: appendFontSize, color: Colors.black87);
+    lyricsTextStyle = generateAppTextStyle(fontWeight: .normal, fontSize: chordFontSize, color: Colors.black87);
+    addRowRepeatTextStyle = generateAppTextStyle(fontSize: chordFontSize, backgroundColor: _addColor);
 
     //  generate edit text styles
     _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: .bold);
@@ -447,16 +459,18 @@ class EditState extends State<Edit> {
     Table displayChordTable;
     if (selectedEditPoint != null) {
       logger.log(
-          _editEditPoint,
-          'pre  manager: selectedEditPoint: $selectedEditPoint'
-          ', chordSong: ${chordSong.toMarkup()}');
+        _editEditPoint,
+        'pre  manager: selectedEditPoint: $selectedEditPoint'
+        ', chordSong: ${chordSong.toMarkup()}',
+      );
       songEditManager = SongEditManager(chordSong);
       chordSong = songEditManager.preEdit(selectedEditPoint!);
       selectedEditPoint = songEditManager.editPoint;
       logger.log(
-          _editEditPoint,
-          'post manager: selectedEditPoint: $selectedEditPoint'
-          ', chordSong: ${chordSong.toMarkup()}');
+        _editEditPoint,
+        'post manager: selectedEditPoint: $selectedEditPoint'
+        ', chordSong: ${chordSong.toMarkup()}',
+      );
       hadSelectedEditPoint = true;
     } else if (hadSelectedEditPoint || !identical(song, chordSong)) {
       //  update the lyrics
@@ -466,11 +480,12 @@ class EditState extends State<Edit> {
       lyricsEntries = lyricsEntriesFromSong(song);
     }
     logger.log(
-        _editEditPoint,
-        'display: selectedEditPoint: $selectedEditPoint'
-        ', displayMeasureEntryNode: \'${displayMeasureEntryNode?.toMarkup()}\''
-        ', lyrics: ${lyricsEntries.hasChangedLines()}'
-        ', ${chordSong.toMarkup()}');
+      _editEditPoint,
+      'display: selectedEditPoint: $selectedEditPoint'
+      ', displayMeasureEntryNode: \'${displayMeasureEntryNode?.toMarkup()}\''
+      ', lyrics: ${lyricsEntries.hasChangedLines()}'
+      ', ${chordSong.toMarkup()}',
+    );
 
     displayChordTable = isProEditInput ? Table() : chordsEntryWidget();
 
@@ -481,721 +496,776 @@ class EditState extends State<Edit> {
       appBar: appWidgetHelper.appBar(
         title: 'Edit: ${song.title}',
         leading: appWidgetHelper.back(
-            canPop: _canPop,
-            onPressed: () {
-              app.clearMessage();
-            }),
+          canPop: _canPop,
+          onPressed: () {
+            app.clearMessage();
+          },
+        ),
       ),
       body:
           //  deal with keyboard strokes flutter is not usually handling
           //  note that return (i.e. enter) is not a keyboard event!
           KeyboardListener(
-        focusNode: FocusNode(),
-        onKeyEvent: _editOnKey,
-        child: Column(
-          children: [
-            app.messageTextWidget(),
-            // const AppVerticalSpace(space: 10),
-            Expanded(
-              child: GestureDetector(
-                // fixme: put GestureDetector only on chord table
-                child: Scrollbar(
-                  thickness: max(16.0, 0.0125 * app.screenInfo.mediaWidth),
-                  controller: scrollController,
-                  child: SingleChildScrollView(
+            focusNode: FocusNode(),
+            onKeyEvent: _editOnKey,
+            child: Column(
+              children: [
+                app.messageTextWidget(),
+                // const AppVerticalSpace(space: 10),
+                Expanded(
+                  child: GestureDetector(
+                    // fixme: put GestureDetector only on chord table
+                    child: Scrollbar(
+                      thickness: max(16.0, 0.0125 * app.screenInfo.mediaWidth),
                       controller: scrollController,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(children: [
-                        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: 10, children: <Widget>[
-                          AppTooltip(
-                            message: isValidSong
-                                ? songHasChanged
-                                    ? 'Save the song to your local drive,\n'
-                                        'Typically this is your personal Downloads folder.'
-                                    : 'The song has not been altered so it is not necessary to write it.'
-                                : 'Invalid song entries cannot be saved.\nFix the errors first.',
-                            child: appButton(
-                              'Save song on local drive',
-
-                              fontSize: _defaultChordFontSize,
-                              onPressed: (songHasChanged && isValidSong)
-                                  ? () {
-                                      saveSong();
-                                      Navigator.pop(context);
-                                    }
-                                  : null,
-                              // backgroundColor: (songHasChanged && isValidSong ? null : appDisabledColor),
-                            ),
-                          ),
-                          AppWrap(alignment: WrapAlignment.spaceBetween, spacing: 25, children: <Widget>[
-                            editTooltip(
-                              message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                              child: appButton('Undo', fontSize: _defaultChordFontSize, onPressed: () {
-                                undo();
-                              }),
-                            ),
-                            editTooltip(
-                              message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
-                              child: appButton(
-                                'Redo',
-                                fontSize: _defaultChordFontSize,
-                                onPressed: () {
-                                  redo();
-                                },
-                              ),
-                            ),
-                            if (kDebugMode)
-                              appButton(
-                                'Sheet music',
-                                fontSize: _defaultChordFontSize,
-                                onPressed: () {
-                                  setState(() {
-                                    _navigateToDetail(context);
-                                  });
-                                },
-                              ),
-                            editTooltip(
-                              message: 'Clear all song values to\n'
-                                  'start entering a new song.',
-                              child: appButton(
-                                'Clear',
-                                fontSize: _defaultChordFontSize,
-                                onPressed: () {
-                                  setState(() {
-                                    song = Song(
-                                        title: '',
-                                        artist: '',
-                                        copyright: '',
-                                        key: music_key.Key.getDefault(),
-                                        beatsPerMinute: 106,
-                                        beatsPerBar: 4,
-                                        unitsPerMeasure: 4,
-                                        user: userName,
-                                        chords: 'V: X',
-                                        rawLyrics: 'V: ');
-                                    loadSong(song);
-                                    undoStackPushIfDifferent();
-                                  });
-                                },
-                              ),
-                            ),
-                            if (song.songId == originalSong.songId)
-                              editTooltip(
-                                message: 'Remove this song from the list of songs.',
-                                child: appButton(
-                                  'Remove',
-                                  fontSize: _defaultChordFontSize,
-                                  onPressed: () {
-                                    removePopup();
-                                  },
-                                ),
-                              ),
-                            if (song.songId != originalSong.songId)
-                              editTooltip(
-                                message: 'Rename this song.'
-                                    '${kDebugMode ? '\n${song.songId} vs ${originalSong.songId}' : ''}',
-                                child: appButton(
-                                  'Rename the song',
-                                  fontSize: _defaultChordFontSize,
-                                  onPressed: () {
-                                    renamePopup();
-                                  },
-                                ),
-                              ),
-                            // appIconButton(
-                            //        icon: Icon(
-                            //          Icons.arrow_left,
-                            //          size: 48,
-                            //        ),
-                            //        label: const Text(
-                            //          '',
-                            //          style: _boldTextStyle,
-                            //        ),
-                            //        onPressed: () {
-                            //          _errorMessage('bob: fixme: arrow_left');
-                            //        },
-                            //      ),
-                            // appIconButton(
-                            //        icon: Icon(
-                            //          Icons.arrow_right,
-                            //          size: 48,
-                            //        ),
-                            //        label: Text(
-                            //          '',
-                            //          style: _buttonTextStyle,
-                            //        ),
-                            //        onPressed: () {
-                            //          _errorMessage('bob: fixme: arrow_right');
-                            //        },
-                            //      ),
-                          ]),
-                        ]),
-                        const AppSpace(),
-                        //  attributes
-                        AppTooltip(
-                          message: 'Enter the title of the song here.\n'
-                              'Do not add other comments such as artist or cover artist.',
-                          child: Row(
-                              crossAxisAlignment: .baseline,
-                              textBaseline: TextBaseline.alphabetic,
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            AppWrapFullWidth(
+                              alignment: WrapAlignment.spaceBetween,
+                              spacing: 10,
                               children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                                  child: Text(
-                                    'Title: ',
-                                    style: generateAppTextStyle(
-                                      fontSize: _defaultChordFontSize,
-                                      fontWeight: .bold,
+                                AppTooltip(
+                                  message: isValidSong
+                                      ? songHasChanged
+                                            ? 'Save the song to your local drive,\n'
+                                                  'Typically this is your personal Downloads folder.'
+                                            : 'The song has not been altered so it is not necessary to write it.'
+                                      : 'Invalid song entries cannot be saved.\nFix the errors first.',
+                                  child: appButton(
+                                    'Save song on local drive',
+
+                                    fontSize: _defaultChordFontSize,
+                                    onPressed: (songHasChanged && isValidSong)
+                                        ? () {
+                                            saveSong();
+                                            Navigator.pop(context);
+                                          }
+                                        : null,
+                                    // backgroundColor: (songHasChanged && isValidSong ? null : appDisabledColor),
+                                  ),
+                                ),
+                                AppWrap(
+                                  alignment: WrapAlignment.spaceBetween,
+                                  spacing: 25,
+                                  children: <Widget>[
+                                    editTooltip(
+                                      message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
+                                      child: appButton(
+                                        'Undo',
+                                        fontSize: _defaultChordFontSize,
+                                        onPressed: () {
+                                          undo();
+                                        },
+                                      ),
+                                    ),
+                                    editTooltip(
+                                      message: undoStack.canUndo
+                                          ? 'Redo the last edit undone'
+                                          : 'There is no edit to redo',
+                                      child: appButton(
+                                        'Redo',
+                                        fontSize: _defaultChordFontSize,
+                                        onPressed: () {
+                                          redo();
+                                        },
+                                      ),
+                                    ),
+                                    if (kDebugMode)
+                                      appButton(
+                                        'Sheet music',
+                                        fontSize: _defaultChordFontSize,
+                                        onPressed: () {
+                                          setState(() {
+                                            _navigateToDetail(context);
+                                          });
+                                        },
+                                      ),
+                                    editTooltip(
+                                      message:
+                                          'Clear all song values to\n'
+                                          'start entering a new song.',
+                                      child: appButton(
+                                        'Clear',
+                                        fontSize: _defaultChordFontSize,
+                                        onPressed: () {
+                                          setState(() {
+                                            song = Song(
+                                              title: '',
+                                              artist: '',
+                                              copyright: '',
+                                              key: music_key.Key.getDefault(),
+                                              beatsPerMinute: 106,
+                                              beatsPerBar: 4,
+                                              unitsPerMeasure: 4,
+                                              user: userName,
+                                              chords: 'V: X',
+                                              rawLyrics: 'V: ',
+                                            );
+                                            loadSong(song);
+                                            undoStackPushIfDifferent();
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    if (song.songId == originalSong.songId)
+                                      editTooltip(
+                                        message: 'Remove this song from the list of songs.',
+                                        child: appButton(
+                                          'Remove',
+                                          fontSize: _defaultChordFontSize,
+                                          onPressed: () {
+                                            removePopup();
+                                          },
+                                        ),
+                                      ),
+                                    if (song.songId != originalSong.songId)
+                                      editTooltip(
+                                        message:
+                                            'Rename this song.'
+                                            '${kDebugMode ? '\n${song.songId} vs ${originalSong.songId}' : ''}',
+                                        child: appButton(
+                                          'Rename the song',
+                                          fontSize: _defaultChordFontSize,
+                                          onPressed: () {
+                                            renamePopup();
+                                          },
+                                        ),
+                                      ),
+                                    // appIconButton(
+                                    //        icon: Icon(
+                                    //          Icons.arrow_left,
+                                    //          size: 48,
+                                    //        ),
+                                    //        label: const Text(
+                                    //          '',
+                                    //          style: _boldTextStyle,
+                                    //        ),
+                                    //        onPressed: () {
+                                    //          _errorMessage('bob: fixme: arrow_left');
+                                    //        },
+                                    //      ),
+                                    // appIconButton(
+                                    //        icon: Icon(
+                                    //          Icons.arrow_right,
+                                    //          size: 48,
+                                    //        ),
+                                    //        label: Text(
+                                    //          '',
+                                    //          style: _buttonTextStyle,
+                                    //        ),
+                                    //        onPressed: () {
+                                    //          _errorMessage('bob: fixme: arrow_right');
+                                    //        },
+                                    //      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const AppSpace(),
+                            //  attributes
+                            AppTooltip(
+                              message:
+                                  'Enter the title of the song here.\n'
+                                  'Do not add other comments such as artist or cover artist.',
+                              child: Row(
+                                crossAxisAlignment: .baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: <Widget>[
+                                  Container(
+                                    padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                    child: Text(
+                                      'Title: ',
+                                      style: generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: .bold),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: AppTextField(
-                                    controller: titleTextEditingController,
-                                    hintText: 'Enter the song title.',
-                                    fontSize: _defaultChordFontSize,
-                                    onChanged: (value) {
-                                      logger.t('fixme: AppKeyEnum.editTitle.onChanged');
-                                    }, //  fixme: ignored
+                                  Expanded(
+                                    child: AppTextField(
+                                      controller: titleTextEditingController,
+                                      hintText: 'Enter the song title.',
+                                      fontSize: _defaultChordFontSize,
+                                      onChanged: (value) {
+                                        logger.t('fixme: AppKeyEnum.editTitle.onChanged');
+                                      }, //  fixme: ignored
+                                    ),
                                   ),
-                                ),
-                              ]),
-                        ),
-                        AppTooltip(
-                          message: 'Enter the artist\'s name here.\n'
-                              'Note that if the name starts with \'The\',\n'
-                              'the app will automatically rotate it to the end of the name.',
-                          child: Row(
-                              crossAxisAlignment: .baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                                  child: Text(
-                                    'Artist: ',
-                                    style: _titleTextStyle,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: AppTextField(
-                                    controller: artistTextEditingController,
-                                    hintText: 'Enter the song\'s artist.',
-                                    fontSize: _defaultChordFontSize,
-                                    onChanged: (value) {
-                                      logger.t('fixme: AppKeyEnum.editArtist.onChanged');
-                                    }, //  fixme: ignored
-                                  ),
-                                ),
-                              ]),
-                        ),
-                        AppTooltip(
-                          message: 'Enter the cover artist\'s name here.\n'
-                              'This is an optional field.\n'
-                              'It can be used to denote a user variation from the original recording.',
-                          child: Row(
-                              crossAxisAlignment: .baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                                  child: Text(
-                                    'Cover Artist:',
-                                    style: _textFieldStyle,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: AppTextField(
-                                    controller: coverArtistTextEditingController,
-                                    hintText: 'Enter the song\'s cover artist.',
-                                    fontSize: _defaultChordFontSize,
-                                    onChanged: (value) {}, //  fixme: ignored
-                                  ),
-                                ),
-                              ]),
-                        ),
-                        AppTooltip(
-                          message: 'Enter the date of the original recording \n'
-                              'and the current copyright ownership.\n'
-                              'This is a required field to try to keep us out of legal trouble.\n'
-                              'And yes, this is often difficult information to find.',
-                          child: Row(
-                              crossAxisAlignment: .baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                                  child: Text(
-                                    'Release/Label:',
-                                    style: _textFieldStyle,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: AppTextField(
-                                    controller: copyrightTextEditingController,
-                                    hintText: 'Enter the song\'s copyright. Required.',
-                                    fontSize: _defaultChordFontSize,
-                                    onChanged: (value) {}, //  fixme: ignored
-                                  ),
-                                ),
-                              ]),
-                        ),
-                        const AppSpace(),
-                        AppWrapFullWidth(
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          spacing: 20,
-                          children: <Widget>[
+                                ],
+                              ),
+                            ),
                             AppTooltip(
-                              message: 'Enter the original key of the song here.\n'
-                                  'This may not be the first chord of the first measure!',
-                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                                Text(
-                                  "Key: ",
-                                  style: _labelTextStyle,
-                                ),
-                                appDropdownButton<music_key.Key>(
-                                  music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                                    logger.t('keySelectDropdownMenuItems: music_key.Key value: $value');
-                                    return appDropdownMenuItem<music_key.Key>(
-                                      value: value,
-                                      child: Text(
-                                        '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                              message:
+                                  'Enter the artist\'s name here.\n'
+                                  'Note that if the name starts with \'The\',\n'
+                                  'the app will automatically rotate it to the end of the name.',
+                              child: Row(
+                                crossAxisAlignment: .baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: <Widget>[
+                                  Container(
+                                    padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                    child: Text('Artist: ', style: _titleTextStyle),
+                                  ),
+                                  Expanded(
+                                    child: AppTextField(
+                                      controller: artistTextEditingController,
+                                      hintText: 'Enter the song\'s artist.',
+                                      fontSize: _defaultChordFontSize,
+                                      onChanged: (value) {
+                                        logger.t('fixme: AppKeyEnum.editArtist.onChanged');
+                                      }, //  fixme: ignored
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            AppTooltip(
+                              message:
+                                  'Enter the cover artist\'s name here.\n'
+                                  'This is an optional field.\n'
+                                  'It can be used to denote a user variation from the original recording.',
+                              child: Row(
+                                crossAxisAlignment: .baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: <Widget>[
+                                  Container(
+                                    padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                    child: Text('Cover Artist:', style: _textFieldStyle),
+                                  ),
+                                  Expanded(
+                                    child: AppTextField(
+                                      controller: coverArtistTextEditingController,
+                                      hintText: 'Enter the song\'s cover artist.',
+                                      fontSize: _defaultChordFontSize,
+                                      onChanged: (value) {}, //  fixme: ignored
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            AppTooltip(
+                              message:
+                                  'Enter the date of the original recording \n'
+                                  'and the current copyright ownership.\n'
+                                  'This is a required field to try to keep us out of legal trouble.\n'
+                                  'And yes, this is often difficult information to find.',
+                              child: Row(
+                                crossAxisAlignment: .baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: <Widget>[
+                                  Container(
+                                    padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                    child: Text('Release/Label:', style: _textFieldStyle),
+                                  ),
+                                  Expanded(
+                                    child: AppTextField(
+                                      controller: copyrightTextEditingController,
+                                      hintText: 'Enter the song\'s copyright. Required.',
+                                      fontSize: _defaultChordFontSize,
+                                      onChanged: (value) {}, //  fixme: ignored
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const AppSpace(),
+                            AppWrapFullWidth(
+                              crossAxisAlignment: WrapCrossAlignment.start,
+                              spacing: 20,
+                              children: <Widget>[
+                                AppTooltip(
+                                  message:
+                                      'Enter the original key of the song here.\n'
+                                      'This may not be the first chord of the first measure!',
+                                  child: AppWrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text("Key: ", style: _labelTextStyle),
+                                      appDropdownButton<music_key.Key>(
+                                        music_key.Key.values
+                                            .toList()
+                                            .reversed
+                                            .map((music_key.Key value) {
+                                              logger.t('keySelectDropdownMenuItems: music_key.Key value: $value');
+                                              return appDropdownMenuItem<music_key.Key>(
+                                                value: value,
+                                                child: Text(
+                                                  '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                                                  style: _labelTextStyle,
+                                                ),
+                                              );
+                                            })
+                                            .toList(growable: false),
+                                        onChanged: (value) {
+                                          logger.log(_editLog, 'editEditKeyDropdown onChanged: $value');
+                                          if (song.key != value && value != null) {
+                                            setState(() {
+                                              song.key = value;
+                                              keyChordNote = song.key.getKeyScaleNote();
+                                              undoStackPushIfDifferent();
+                                            });
+                                          }
+                                        },
+                                        value: song.key,
                                         style: _labelTextStyle,
                                       ),
-                                    );
-                                  }).toList(growable: false),
-                                  onChanged: (value) {
-                                    logger.log(_editLog, 'editEditKeyDropdown onChanged: $value');
-                                    if (song.key != value && value != null) {
-                                      setState(() {
-                                        song.key = value;
-                                        keyChordNote = song.key.getKeyScaleNote();
-                                        undoStackPushIfDifferent();
-                                      });
-                                    }
-                                  },
-                                  value: song.key,
-                                  style: _labelTextStyle,
-                                ),
-                                SizedBox.shrink(
-                                  child: Text('keyTally_${song.key.toMarkup()}'),
-                                ),
-                              ]),
-                            ),
-                            AppTooltip(
-                              message: 'Enter the song\'s tempo in beats per minute (BPM).',
-                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                                Text(
-                                  "   BPM: ",
-                                  style: _labelTextStyle,
-                                ),
-                                SizedBox(
-                                  width: 3 * _defaultChordFontSize,
-                                  child: AppTextField(
-                                    controller: bpmTextEditingController,
-                                    fontSize: _defaultChordFontSize,
-                                    onChanged: (value) {}, //  fixme: ignored
+                                      SizedBox.shrink(child: Text('keyTally_${song.key.toMarkup()}')),
+                                    ],
                                   ),
                                 ),
-                              ]),
-                            ),
+                                AppTooltip(
+                                  message: 'Enter the song\'s tempo in beats per minute (BPM).',
+                                  child: AppWrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text("   BPM: ", style: _labelTextStyle),
+                                      SizedBox(
+                                        width: 3 * _defaultChordFontSize,
+                                        child: AppTextField(
+                                          controller: bpmTextEditingController,
+                                          fontSize: _defaultChordFontSize,
+                                          onChanged: (value) {}, //  fixme: ignored
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
-                            AppTooltip(
-                              message: 'Enter the song\'s time signature as it would appear on sheet music.',
-                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                                Text(
-                                  "Time: ",
-                                  style: _labelTextStyle,
+                                AppTooltip(
+                                  message: 'Enter the song\'s time signature as it would appear on sheet music.',
+                                  child: AppWrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text("Time: ", style: _labelTextStyle),
+                                      appDropdownButton<TimeSignature>(
+                                        _timeSignatureItems,
+                                        onChanged: (value) {
+                                          if (value != null && song.timeSignature != value) {
+                                            song.timeSignature = value;
+                                            if (!checkSongChangeStatus()) {
+                                              setState(() {}); //  display the return to original
+                                            }
+                                          }
+                                        },
+                                        value: song.timeSignature,
+                                        style: _labelTextStyle,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                appDropdownButton<TimeSignature>(
-                                  _timeSignatureItems,
-                                  onChanged: (value) {
-                                    if (value != null && song.timeSignature != value) {
-                                      song.timeSignature = value;
-                                      if (!checkSongChangeStatus()) {
-                                        setState(() {}); //  display the return to original
-                                      }
-                                    }
-                                  },
-                                  value: song.timeSignature,
-                                  style: _labelTextStyle,
-                                ),
-                              ]),
-                            ),
-                            //  user
-                            AppTooltip(
-                              message: 'Enter the user name of the person who is transcribing the song.\n'
-                                  'Typically this is your own user name.',
-                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                                Text(
-                                  "User: ",
-                                  style: _labelTextStyle,
-                                ),
-                                SizedBox(
-                                  width: 300.0,
-                                  child: AppTextField(
-                                    controller: userTextEditingController,
-                                    hintText: 'Enter the user name.',
-                                    fontSize: _defaultChordFontSize,
-                                    onChanged: (value) {}, //  fixme: ignored
+                                //  user
+                                AppTooltip(
+                                  message:
+                                      'Enter the user name of the person who is transcribing the song.\n'
+                                      'Typically this is your own user name.',
+                                  child: AppWrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text("User: ", style: _labelTextStyle),
+                                      SizedBox(
+                                        width: 300.0,
+                                        child: AppTextField(
+                                          controller: userTextEditingController,
+                                          hintText: 'Enter the user name.',
+                                          fontSize: _defaultChordFontSize,
+                                          onChanged: (value) {}, //  fixme: ignored
+                                        ),
+                                      ),
+                                      const AppSpace(),
+                                      if (originalSong.user != userTextEditingController.text)
+                                        Text('(was ${originalSong.user})', style: _labelTextStyle),
+                                    ],
                                   ),
                                 ),
                                 const AppSpace(),
-                                if (originalSong.user != userTextEditingController.text)
-                                  Text(
-                                    '(was ${originalSong.user})',
-                                    style: _labelTextStyle,
+                                AppTooltip(
+                                  message:
+                                      'Search Google for information on this song.\n'
+                                      'Typically this is good for lyrics and copyright.',
+                                  child: appButton(
+                                    'Google',
+                                    onPressed: () {
+                                      openLink(
+                                        'https://www.google.com/search?q='
+                                        '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}'
+                                        '+lyrics',
+                                      );
+                                    },
+                                    fontSize: _defaultChordFontSize,
                                   ),
-                              ]),
+                                ),
+                                AppTooltip(
+                                  message:
+                                      'Search Wikipedia for information on this song.\n'
+                                      'Typically this is good for background information and genre.',
+                                  child: appButton(
+                                    'Wikipedia',
+                                    onPressed: () {
+                                      openLink(
+                                        'https://en.wikipedia.org/w/index.php?search='
+                                        '${'${song.title} %28${song.artist} song%29'.replaceAll(', The', '').replaceAll(' ', '+')}',
+                                      );
+                                    },
+                                    fontSize: _defaultChordFontSize,
+                                  ),
+                                ),
+                                AppTooltip(
+                                  message:
+                                      'Search Ultimate-guitar for this song.\n'
+                                      'Typically this is good for chord structure suggestions...\n'
+                                      'even if there a many variations to choose from.',
+                                  child: appButton(
+                                    'Ultimate-guitar',
+                                    onPressed: () {
+                                      openLink(
+                                        'https://www.ultimate-guitar.com/search.php?search_type=title&value='
+                                        '${'${song.title} by ${song.artist}'.replaceAll(' ', '%20')}',
+                                      );
+                                    },
+                                    fontSize: _defaultChordFontSize,
+                                  ),
+                                ),
+                                AppTooltip(
+                                  message:
+                                      'Search MusicNotes for this song.\n'
+                                      'You will likely find sheet music for the song here, at a price.',
+                                  child: appButton(
+                                    'MusicNotes',
+                                    onPressed: () {
+                                      openLink(
+                                        'https://www.musicnotes.com/search/go?w='
+                                        '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}',
+                                      );
+                                    },
+                                    fontSize: _defaultChordFontSize,
+                                  ),
+                                ),
+                                AppTooltip(
+                                  message:
+                                      'Search Azlyrics for this song.\n'
+                                      'This requires a Search click once there.\n'
+                                      'Lyrics can be found here.',
+                                  child: appButton(
+                                    'Azlyrics',
+                                    onPressed: () {
+                                      openLink(
+                                        'https://search.azlyrics.com/search.php?q='
+                                        '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}',
+                                      );
+                                    },
+                                    fontSize: _defaultChordFontSize,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const AppSpace(),
-                            AppTooltip(
-                              message: 'Search Google for information on this song.\n'
-                                  'Typically this is good for lyrics and copyright.',
-                              child: appButton(
-                                'Google',
-                                onPressed: () {
-                                  openLink('https://www.google.com/search?q='
-                                      '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}'
-                                      '+lyrics');
-                                },
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                            AppTooltip(
-                              message: 'Search Wikipedia for information on this song.\n'
-                                  'Typically this is good for background information and genre.',
-                              child: appButton(
-                                'Wikipedia',
-                                onPressed: () {
-                                  openLink('https://en.wikipedia.org/w/index.php?search='
-                                      '${'${song.title} %28${song.artist} song%29'.replaceAll(', The', '').replaceAll(' ', '+')}');
-                                },
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                            AppTooltip(
-                              message: 'Search Ultimate-guitar for this song.\n'
-                                  'Typically this is good for chord structure suggestions...\n'
-                                  'even if there a many variations to choose from.',
-                              child: appButton(
-                                'Ultimate-guitar',
-                                onPressed: () {
-                                  openLink('https://www.ultimate-guitar.com/search.php?search_type=title&value='
-                                      '${'${song.title} by ${song.artist}'.replaceAll(' ', '%20')}');
-                                },
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                            AppTooltip(
-                              message: 'Search MusicNotes for this song.\n'
-                                  'You will likely find sheet music for the song here, at a price.',
-                              child: appButton(
-                                'MusicNotes',
-                                onPressed: () {
-                                  openLink('https://www.musicnotes.com/search/go?w='
-                                      '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}');
-                                },
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                            AppTooltip(
-                                message: 'Search Azlyrics for this song.\n'
-                                    'This requires a Search click once there.\n'
-                                    'Lyrics can be found here.',
-                                child: appButton(
-                                  'Azlyrics',
-                                  onPressed: () {
-                                    openLink('https://search.azlyrics.com/search.php?q='
-                                        '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}');
-                                  },
-                                  fontSize: _defaultChordFontSize,
-                                )),
-                          ],
-                        ),
-                        const AppSpace(space: 30),
+                            const AppSpace(space: 30),
 
-                        //  chords
-                        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: <Widget>[
-                          AppTooltip(
-                            message: 'Enter the song\'s chord structure in the section below.',
-                            child: Text(
-                              "Chords:",
-                              style: _titleTextStyle,
+                            //  chords
+                            AppWrapFullWidth(
+                              alignment: WrapAlignment.spaceBetween,
+                              children: <Widget>[
+                                AppTooltip(
+                                  message: 'Enter the song\'s chord structure in the section below.',
+                                  child: Text("Chords:", style: _titleTextStyle),
+                                ),
+                                AppWrap(
+                                  spacing: 50,
+                                  children: [
+                                    if (isProEditInput)
+                                      editTooltip(
+                                        message:
+                                            'Validate the chord input.\n'
+                                            'This will also reformat the entry.',
+                                        child: appButton(
+                                          'Validate',
+                                          fontSize: _defaultChordFontSize,
+                                          onPressed: () {
+                                            setState(() {
+                                              validateSongChords(select: true);
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    editTooltip(
+                                      message:
+                                          (selectedEditPoint != null
+                                              ? 'Click outside the chords to cancel editing\n'
+                                              : '') +
+                                          (showHints
+                                              ? 'Click to hide the editing hints'
+                                              : 'Click for hints about editing.'),
+                                      child: appButton(
+                                        'Hints',
+                                        fontSize: _defaultChordFontSize,
+                                        onPressed: () {
+                                          setState(() {
+                                            showHints = !showHints;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    if (appEnableAssistedEditing)
+                                      editTooltip(
+                                        message: proMessage,
+                                        child: appButton(
+                                          isProEditInput ? 'Assisted Input' : 'Pro Input',
+                                          fontSize: _defaultChordFontSize,
+                                          onPressed: () {
+                                            setState(() {
+                                              if (isProEditInput) {
+                                                checkSong();
+                                                if (!isValidSongChordsAndLyrics) {
+                                                  app.errorMessage(
+                                                    'Cannot change edit input mode without valid chords and lyrics.',
+                                                  );
+                                                  return; //  don't change on invalid input
+                                                }
+                                              } else {
+                                                //  is currently assisted entry
+                                                proChordTextEditingController.text = song.toMarkup(asEntry: true);
+                                                proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
+                                                selectedEditPoint = null; //  for reentry to assisted
+                                              }
+                                              isProEditInput = !isProEditInput;
+                                              appOptions.proEditInput = isProEditInput;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
-                          AppWrap(spacing: 50, children: [
-                            if (isProEditInput)
-                              editTooltip(
-                                message: 'Validate the chord input.\n'
-                                    'This will also reformat the entry.',
-                                child: appButton('Validate', fontSize: _defaultChordFontSize, onPressed: () {
-                                  setState(() {
-                                    validateSongChords(select: true);
-                                  });
-                                }),
-                              ),
-                            editTooltip(
-                              message: (selectedEditPoint != null
-                                      ? 'Click outside the chords to cancel editing\n'
-                                      : '') +
-                                  (showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                              child: appButton('Hints', fontSize: _defaultChordFontSize, onPressed: () {
-                                setState(() {
-                                  showHints = !showHints;
-                                });
-                              }),
-                            ),
-                            if (appEnableAssistedEditing)
-                              editTooltip(
-                                message: proMessage,
-                                child: appButton(
-                                  isProEditInput ? 'Assisted Input' : 'Pro Input',
-                                  fontSize: _defaultChordFontSize,
-                                  onPressed: () {
-                                    setState(() {
-                                      if (isProEditInput) {
-                                        checkSong();
-                                        if (!isValidSongChordsAndLyrics) {
-                                          app.errorMessage(
-                                              'Cannot change edit input mode without valid chords and lyrics.');
-                                          return; //  don't change on invalid input
-                                        }
-                                      } else {
-                                        //  is currently assisted entry
-                                        proChordTextEditingController.text = song.toMarkup(asEntry: true);
-                                        proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
-                                        selectedEditPoint = null; //  for reentry to assisted
-                                      }
-                                      isProEditInput = !isProEditInput;
-                                      appOptions.proEditInput = isProEditInput;
-                                    });
-                                  },
-                                ),
-                              ),
-                          ]),
-                        ]),
-                        if (showHints)
-                          RichText(
-                            text: TextSpan(
-                              children: <InlineSpan>[
-                                TextSpan(
-                                  text: '\n'
-                                      'Hints:\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: '\n'
-                                      'If you have crashed the app and lost your song edits, try this:'
-                                      ' Return to the main menu from here, select the submenus (the hamburger in the upper left'
-                                      ' corner), Songs, "Edit the last song edited".  You may have your'
-                                      ' edits to the song left in the app.'
-                                      ' Note that only valid songs are remembered in this fashion.'
-                                      '\n',
-                                  style: appTextStyle,
-                                ),
-                                if (appEnableAssistedEditing)
-                                  TextSpan(
-                                    text: '\n'
-                                        '"Assisted Input" is a user interface experiment that seems to have failed.'
-                                        ' The intent is to provide graphical interactions to the user that will always'
-                                        ' provide a valid chord entry.  Click a plus sign to add an element.'
-                                        ' Click an item to modify it.'
-                                        ' It is now recommended to use the "Pro Input" mode.\n',
-                                    style: appTextStyle,
-                                  ),
-                                TextSpan(
-                                  text: '\n'
-                                      'Section types are followed by a colon (:).'
-                                      ' Sections can be entered abbreviated and in lower case.'
-                                      ' The available section buttons will enter the correct abbreviation.'
-                                      ' Section types can be followed with a digit to indicate a variation.\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: '\nThe sections are: ${listSections()}',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: '. '
-                                      'Their abbreviations are: ',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: listSectionAbbreviations(),
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: '.\n\n'
-                                      'Sections with the same content will automatically be placed in the same declaration.'
-                                      ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
-                                      ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
-                                      ' the capitalization for your input and place it on the line below the test entry box.'
-                                      ' What you see in the text below the entry box will be what will be entered into the edit.'
-                                      ' Note that often as you type, parts of a partial chord entry will be considered a comment,'
-                                      ' i.e. will be placed in parenthesis in the text below.'
-                                      ' When the chord entry is correct, the characters will be removed from the comment and will be'
-                                      ' returned to their correct position in the entry.'
-                                      '\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: '''A capital X is used to indicate no chord.\n\n''',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
-                                      ' be a B♭m7 or the chord B followed by a Bm7?'
-                                      ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
-                                      '',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'Limited set of case sensitive chord modifiers can be used: 7sus4,'
-                                      ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
-                                      ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
-                                      ' 6, dim7, º7, ◦, dim, aug5, aug7, aug, sus7, sus4,'
-                                      ' sus2, sus, m9, m11, m13, m6, Maj7, maj7, maj9, maj,'
-                                      ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
-                                      ' And of course the major chord is assumed if there is no modifier!'
-                                      ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
-                                      ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
-                                      ' The bass note is a single note, not a chord.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Periods (.) can be used to repeat chords on another beat within the same measure. For'
-                                      ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: '''Sample measures to use:
+                            if (showHints)
+                              RichText(
+                                text: TextSpan(
+                                  children: <InlineSpan>[
+                                    TextSpan(
+                                      text:
+                                          '\n'
+                                          'Hints:\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '\n'
+                                          'If you have crashed the app and lost your song edits, try this:'
+                                          ' Return to the main menu from here, select the submenus (the hamburger in the upper left'
+                                          ' corner), Songs, "Edit the last song edited".  You may have your'
+                                          ' edits to the song left in the app.'
+                                          ' Note that only valid songs are remembered in this fashion.'
+                                          '\n',
+                                      style: appTextStyle,
+                                    ),
+                                    if (appEnableAssistedEditing)
+                                      TextSpan(
+                                        text:
+                                            '\n'
+                                            '"Assisted Input" is a user interface experiment that seems to have failed.'
+                                            ' The intent is to provide graphical interactions to the user that will always'
+                                            ' provide a valid chord entry.  Click a plus sign to add an element.'
+                                            ' Click an item to modify it.'
+                                            ' It is now recommended to use the "Pro Input" mode.\n',
+                                        style: appTextStyle,
+                                      ),
+                                    TextSpan(
+                                      text:
+                                          '\n'
+                                          'Section types are followed by a colon (:).'
+                                          ' Sections can be entered abbreviated and in lower case.'
+                                          ' The available section buttons will enter the correct abbreviation.'
+                                          ' Section types can be followed with a digit to indicate a variation.\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(text: '\nThe sections are: ${listSections()}', style: appTextStyle),
+                                    TextSpan(
+                                      text:
+                                          '. '
+                                          'Their abbreviations are: ',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(text: listSectionAbbreviations(), style: appTextStyle),
+                                    TextSpan(
+                                      text:
+                                          '.\n\n'
+                                          'Sections with the same content will automatically be placed in the same declaration.'
+                                          ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
+                                          ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
+                                          ' the capitalization for your input and place it on the line below the test entry box.'
+                                          ' What you see in the text below the entry box will be what will be entered into the edit.'
+                                          ' Note that often as you type, parts of a partial chord entry will be considered a comment,'
+                                          ' i.e. will be placed in parenthesis in the text below.'
+                                          ' When the chord entry is correct, the characters will be removed from the comment and will be'
+                                          ' returned to their correct position in the entry.'
+                                          '\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text: '''A capital X is used to indicate no chord.\n\n''',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
+                                          ' be a B♭m7 or the chord B followed by a Bm7?'
+                                          ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
+                                          '',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Limited set of case sensitive chord modifiers can be used: 7sus4,'
+                                          ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
+                                          ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
+                                          ' 6, dim7, º7, ◦, dim, aug5, aug7, aug, sus7, sus4,'
+                                          ' sus2, sus, m9, m11, m13, m6, Maj7, maj7, maj9, maj,'
+                                          ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
+                                          ' And of course the major chord is assumed if there is no modifier!'
+                                          ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
+                                          ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
+                                          ' The bass note is a single note, not a chord.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Periods (.) can be used to repeat chords on another beat within the same measure. For'
+                                          ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text: '''Sample measures to use:
       A B C G
       A# C# Bb Db
       C7 D7 Dbm Dm Em Dm7 F#m7 A#maj7 Gsus9
       DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
-                                  style: appTextStyle,
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Commas (,) between measures can be used to indicate the end of a row of measures.'
+                                          ' The maximum number of measures allowed within a single row is 8.'
+                                          ' If there are no commas within a phrase of 8 or more measures, the phrase will'
+                                          ' automatically be split into rows of 4 measures.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Minus signs (-) can be used to indicate a repeated measure.'
+                                          ' There must be a space before and after it.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Row repeats are indicated by a lower case x followed by the number 2 or more.'
+                                          ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
+                                          ' first measure of the first row and a closing square bracket (]) after the last'
+                                          ' measure before the x and the digits.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Comments are not allowed in the chord section.'
+                                          ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Since you can enter the return key to create a new row for your entry,'
+                                          ' you must us the exit to stop editing.  Clicking outside the entry'
+                                          ' box or typing escape will work as well.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'The red bar or measure highlight indicate where entry text will be entered.'
+                                          ' The radio buttons control the fine position of this indicator for inserting, replacing,'
+                                          ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
+                                          ' to delete it. Note that the delete key will always apply to text entry.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Double click a measure to select it for replacement or deletion.'
+                                          ' Note that if you double click the section type, the entire section will be'
+                                          ' available on the entry line for modification.'
+                                          ' If two sections have identical content, they will appear as multiple types for the'
+                                          ' single content. Define a different section content for one of the multiple sections'
+                                          ' and it will be separated from the others.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'In the lyrics section, anything else not recognized as a section identifier is'
+                                          ' considered lyrics to the end of the line.'
+                                          ' I suggest comments go into parenthesis.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'A trick: Select a section similar to a new section you are about to enter.'
+                                          ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
+                                          ' (I suggest the section buttons on the right).'
+                                          ' Paste the old text after the new section. Make edit adjustments in the entry text'
+                                          ' and press the keyboard enter button.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
+                                          ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
+                                      style: appTextStyle,
+                                    ),
+                                  ],
                                 ),
-                                TextSpan(
-                                  text:
-                                      'Commas (,) between measures can be used to indicate the end of a row of measures.'
-                                      ' The maximum number of measures allowed within a single row is 8.'
-                                      ' If there are no commas within a phrase of 8 or more measures, the phrase will'
-                                      ' automatically be split into rows of 4 measures.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'Minus signs (-) can be used to indicate a repeated measure.'
-                                      ' There must be a space before and after it.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'Row repeats are indicated by a lower case x followed by the number 2 or more.'
-                                      ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
-                                      ' first measure of the first row and a closing square bracket (]) after the last'
-                                      ' measure before the x and the digits.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'Comments are not allowed in the chord section.'
-                                      ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'Since you can enter the return key to create a new row for your entry,'
-                                      ' you must us the exit to stop editing.  Clicking outside the entry'
-                                      ' box or typing escape will work as well.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'The red bar or measure highlight indicate where entry text will be entered.'
-                                      ' The radio buttons control the fine position of this indicator for inserting, replacing,'
-                                      ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
-                                      ' to delete it. Note that the delete key will always apply to text entry.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'Double click a measure to select it for replacement or deletion.'
-                                      ' Note that if you double click the section type, the entire section will be'
-                                      ' available on the entry line for modification.'
-                                      ' If two sections have identical content, they will appear as multiple types for the'
-                                      ' single content. Define a different section content for one of the multiple sections'
-                                      ' and it will be separated from the others.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'In the lyrics section, anything else not recognized as a section identifier is'
-                                      ' considered lyrics to the end of the line.'
-                                      ' I suggest comments go into parenthesis.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text: 'A trick: Select a section similar to a new section you are about to enter.'
-                                      ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
-                                      ' (I suggest the section buttons on the right).'
-                                      ' Paste the old text after the new section. Make edit adjustments in the entry text'
-                                      ' and press the keyboard enter button.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
-                                      ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
-                                  style: appTextStyle,
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
-                                  style: appTextStyle,
-                                ),
-                              ],
-                            ),
-                          ),
-                        const Divider(
-                          thickness: 8,
-                        ),
-                        if (!isProEditInput)
-                          Container(
-                            alignment: .topLeft,
-                            width: .infinity,
-                            padding: const EdgeInsets.all(16.0),
-                            color: theme.colorScheme.surface,
-                            child: //  pre-configured table of edit widgets
-                                displayChordTable,
-                          ),
+                              ),
+                            const Divider(thickness: 8),
+                            if (!isProEditInput)
+                              Container(
+                                alignment: .topLeft,
+                                width: .infinity,
+                                padding: const EdgeInsets.all(16.0),
+                                color: theme.colorScheme.surface,
+                                child: //  pre-configured table of edit widgets
+                                    displayChordTable,
+                              ),
 
-                        if (isProEditInput)
-                          Container(
-                              alignment: .topLeft,
-                              padding: const EdgeInsets.all(16.0),
-                              color: theme.colorScheme.surface,
-                              child: AppTextField(
+                            if (isProEditInput)
+                              Container(
+                                alignment: .topLeft,
+                                padding: const EdgeInsets.all(16.0),
+                                color: theme.colorScheme.surface,
+                                child: AppTextField(
                                   controller: proChordTextEditingController,
                                   focusNode: proChordTextFieldFocusNode,
                                   minLines: 8,
@@ -1206,98 +1276,93 @@ class EditState extends State<Edit> {
                                   border: .none,
                                   onChanged: (value) {
                                     checkSongWhenIdle();
-                                  })),
-
-                        // lyrics
-                        Row(
-                          mainAxisAlignment: .spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              'Lyrics:',
-                              style: _titleTextStyle,
-                            ),
-                            if (!isProEditInput)
-                              editTooltip(
-                                message: 'Import lyrics from a text file',
-                                child: appButton(
-                                  'Import',
-                                  fontSize: _defaultChordFontSize,
-                                  onPressed: () {
-                                    import();
                                   },
+                                ),
+                              ),
+
+                            // lyrics
+                            Row(
+                              mainAxisAlignment: .spaceBetween,
+                              children: <Widget>[
+                                Text('Lyrics:', style: _titleTextStyle),
+                                if (!isProEditInput)
+                                  editTooltip(
+                                    message: 'Import lyrics from a text file',
+                                    child: appButton(
+                                      'Import',
+                                      fontSize: _defaultChordFontSize,
+                                      onPressed: () {
+                                        import();
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const Divider(thickness: 8),
+                            if (!isProEditInput)
+                              Container(
+                                alignment: .topLeft,
+                                padding: const EdgeInsets.all(16.0),
+                                color: theme.colorScheme.surface,
+                                child: lyricsEntryWidget(),
+                              ),
+                            if (isProEditInput)
+                              Container(
+                                alignment: .topLeft,
+                                padding: const EdgeInsets.all(16.0),
+                                color: theme.colorScheme.surface,
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  crossAxisAlignment: .start,
+                                  mainAxisSize: .max,
+                                  children: [
+                                    Text(
+                                      proChordsForLyrics(),
+                                      style: TextStyle(
+                                        fontSize: _defaultChordFontSize,
+                                        fontWeight: .normal,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      overflow: TextOverflow.fade,
+                                      softWrap: false,
+                                    ),
+                                    const AppSpace(),
+                                    AppTextField(
+                                      controller: proLyricsTextEditingController,
+                                      focusNode: proLyricsTextFieldFocusNode,
+                                      minLines: 8,
+                                      maxLines: 300,
+                                      width: MediaQuery.of(context).size.width * 0.6,
+                                      //  fixme: quite arbitrary workaround!
+                                      fontSize: _defaultChordFontSize,
+                                      fontWeight: .normal,
+                                      border: InputBorder.none,
+                                      onChanged: (value) {
+                                        checkSongWhenIdle();
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                           ],
                         ),
-                        const Divider(
-                          thickness: 8,
-                        ),
-                        if (!isProEditInput)
-                          Container(
-                              alignment: .topLeft,
-                              padding: const EdgeInsets.all(16.0),
-                              color: theme.colorScheme.surface,
-                              child: lyricsEntryWidget()),
-                        if (isProEditInput)
-                          Container(
-                            alignment: .topLeft,
-                            padding: const EdgeInsets.all(16.0),
-                            color: theme.colorScheme.surface,
-                            width: MediaQuery.of(context).size.width,
-                            child: Row(
-                              crossAxisAlignment: .start,
-                              mainAxisSize: .max,
-                              children: [
-                                Text(
-                                  proChordsForLyrics(),
-                                  style: TextStyle(
-                                    fontSize: _defaultChordFontSize,
-                                    fontWeight: .normal,
-                                    color: Colors.grey.shade400,
-                                  ),
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                ),
-                                const AppSpace(),
-                                AppTextField(
-                                  controller: proLyricsTextEditingController,
-                                  focusNode: proLyricsTextFieldFocusNode,
-                                  minLines: 8,
-                                  maxLines: 300,
-                                  width: MediaQuery.of(context).size.width * 0.6,
-                                  //  fixme: quite arbitrary workaround!
-                                  fontSize: _defaultChordFontSize,
-                                  fontWeight: .normal,
-                                  border: InputBorder.none,
-                                  onChanged: (value) {
-                                    checkSongWhenIdle();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                      ])),
+                      ),
+                    ),
+                    onTap: () {
+                      logger.t('GestureDetector.onTap():');
+                      performMeasureEntryCancel();
+                    },
+                  ),
                 ),
-                onTap: () {
-                  logger.t('GestureDetector.onTap():');
-                  performMeasureEntryCancel();
-                },
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
       floatingActionButton: !songHasChanged
           ? appFloatingActionButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: editTooltip(
-                message: 'Back to the song',
-                child: appIcon(
-                  Icons.arrow_back,
-                ),
-              ),
+              child: editTooltip(message: 'Back to the song', child: appIcon(Icons.arrow_back)),
               mini: !app.isScreenBig,
             )
           : NullWidget(), //  hide and disable the choice
@@ -1306,19 +1371,25 @@ class EditState extends State<Edit> {
 
   bool validateSongChords({select = false}) {
     if (isProEditInput) {
-      var markedString =
-          SongBase.validateChords(SongBase.entryToUppercase(proChordTextEditingController.text), song.beatsPerBar);
+      var markedString = SongBase.validateChords(
+        SongBase.entryToUppercase(proChordTextEditingController.text),
+        song.beatsPerBar,
+      );
 
       if (markedString != null) {
         var error = markedString.remainingStringLimited(markedString.getNextWhiteSpaceIndex() - markedString.getMark());
         app.errorMessage('Chord entry invalid: "$error"');
         if (select) {
-          proChordTextEditingController.selection =
-              TextSelection(baseOffset: markedString.getMark(), extentOffset: markedString.getNextWhiteSpaceIndex());
+          proChordTextEditingController.selection = TextSelection(
+            baseOffset: markedString.getMark(),
+            extentOffset: markedString.getNextWhiteSpaceIndex(),
+          );
           proChordTextFieldFocusNode.requestFocus();
-          logger.t('pro error set: ('
-              '${proChordTextEditingController.selection.baseOffset}'
-              ',${proChordTextEditingController.selection.extentOffset})');
+          logger.t(
+            'pro error set: ('
+            '${proChordTextEditingController.selection.baseOffset}'
+            ',${proChordTextEditingController.selection.extentOffset})',
+          );
         }
         return false;
       }
@@ -1338,7 +1409,8 @@ class EditState extends State<Edit> {
       var lyricParseException = song.validateLyrics(proLyricsTextEditingController.text);
       if (lyricParseException != null) {
         app.errorMessage(
-            '${lyricParseException.message} at "${lyricParseException.markedString.remainingStringLimited(15)}"');
+          '${lyricParseException.message} at "${lyricParseException.markedString.remainingStringLimited(15)}"',
+        );
         return false;
       }
     }
@@ -1378,10 +1450,14 @@ class EditState extends State<Edit> {
     addChordRowNullChildrenUpTo(1); //  skip entry column
     addChordRowChild(
       _debugWidget(
-          plusMeasureEditGridDisplayWidget(editPoint,
-              tooltip: 'append another row'
-                  '${kDebugMode ? ' $editPoint' : ''}'),
-          editPoint),
+        plusMeasureEditGridDisplayWidget(
+          editPoint,
+          tooltip:
+              'append another row'
+              '${kDebugMode ? ' $editPoint' : ''}',
+        ),
+        editPoint,
+      ),
     );
 
     addChordRowChildrenAndComplete(maxCols);
@@ -1390,11 +1466,9 @@ class EditState extends State<Edit> {
   void addChordRowChild(Widget w) {
     //assert( chordRowChildren.length < maxCols);// fixme:
     chordRowChildren.add(
-        //  add padding
-        Container(
-      padding: const EdgeInsets.all(4),
-      child: w,
-    ));
+      //  add padding
+      Container(padding: const EdgeInsets.all(4), child: w),
+    );
   }
 
   void addChordRowNullWidget() {
@@ -1412,11 +1486,12 @@ class EditState extends State<Edit> {
     for (var r = 0; r < chordGrid.getRowCount(); r++) {
       maxRowLength = max(maxRowLength, chordGrid.rowLength(r));
     }
-    int maxEntryColumns = maxRowLength //  the locations
-            +
-            maxRowLength //  the plus operators
-            +
-            2 //  row extensions
+    int maxEntryColumns =
+        maxRowLength //  the locations
+        +
+        maxRowLength //  the plus operators
+        +
+        2 //  row extensions
         ;
 
     //  entry for each row
@@ -1444,11 +1519,17 @@ class EditState extends State<Edit> {
               next = row[c + 1]?.chordSectionLocation ?? lastMeasureLocation;
             }
             var editPoint = EditPoint(next ?? lastMeasureLocation, measureEditType: .insert);
-            addChordRowChild(_debugWidget(
-                plusMeasureEditGridDisplayWidget(editPoint,
-                    tooltip: 'insert measure at the start of the row'
-                        '${kDebugMode ? ' $editPoint' : ''}'),
-                editPoint));
+            addChordRowChild(
+              _debugWidget(
+                plusMeasureEditGridDisplayWidget(
+                  editPoint,
+                  tooltip:
+                      'insert measure at the start of the row'
+                      '${kDebugMode ? ' $editPoint' : ''}',
+                ),
+                editPoint,
+              ),
+            );
           } else if (chordRowChildren.length < maxEntryColumns - 2) {
             //  fill in a blank grid row if required
             //  entry column
@@ -1475,9 +1556,9 @@ class EditState extends State<Edit> {
             chordSection.sectionVersion != lastChordSectionLocation.sectionVersion &&
             chordSection.isNotEmpty) {
           addChordRowSectionAppend(
-              maxEntryColumns,
-              EditPoint(lastChordSectionLocation.asPhraseLocation(),
-                  measureEditType: .append, onEndOfRow: true));
+            maxEntryColumns,
+            EditPoint(lastChordSectionLocation.asPhraseLocation(), measureEditType: .append, onEndOfRow: true),
+          );
         }
         lastChordSectionLocation = location;
 
@@ -1496,9 +1577,7 @@ class EditState extends State<Edit> {
               //  section entry column
               {
                 var editPoint = EditPoint(location, onEndOfRow: endOfRow);
-                addChordRowChild(
-                  _debugWidget(sectionEditGridDisplayWidget(editPoint), editPoint),
-                );
+                addChordRowChild(_debugWidget(sectionEditGridDisplayWidget(editPoint), editPoint));
               }
 
               //  plus column
@@ -1506,21 +1585,31 @@ class EditState extends State<Edit> {
                 var editPoint = EditPoint(location, measureEditType: .append);
                 addChordRowChild(
                   _debugWidget(
-                      plusMeasureEditGridDisplayWidget(editPoint,
-                          tooltip: 'append first measure'
-                              '${kDebugMode ? ' $editPoint' : ''}'),
-                      editPoint),
+                    plusMeasureEditGridDisplayWidget(
+                      editPoint,
+                      tooltip:
+                          'append first measure'
+                          '${kDebugMode ? ' $editPoint' : ''}',
+                    ),
+                    editPoint,
+                  ),
                 );
               } else if (chordSection.phrases.first.isRepeat()) {
                 //  special care to insert a new row when the section starts with a repeat
-                var editPoint = EditPoint(ChordSectionLocation(location.sectionVersion, phraseIndex: 0),
-                    measureEditType: .insert);
+                var editPoint = EditPoint(
+                  ChordSectionLocation(location.sectionVersion, phraseIndex: 0),
+                  measureEditType: .insert,
+                );
                 addChordRowChild(
                   _debugWidget(
-                      plusMeasureEditGridDisplayWidget(editPoint,
-                          tooltip: 'add a measure in front of the repeat'
-                              '${kDebugMode ? ' $editPoint' : ''}'),
-                      editPoint),
+                    plusMeasureEditGridDisplayWidget(
+                      editPoint,
+                      tooltip:
+                          'add a measure in front of the repeat'
+                          '${kDebugMode ? ' $editPoint' : ''}',
+                    ),
+                    editPoint,
+                  ),
                 );
 
                 addChordRowChildrenAndComplete(maxEntryColumns);
@@ -1529,28 +1618,39 @@ class EditState extends State<Edit> {
                 addChordRowNullChildrenUpTo(1);
                 {
                   var editPoint = EditPoint(
-                      ChordSectionLocation(location.sectionVersion, phraseIndex: 0, measureIndex: 0),
-                      measureEditType: .insert);
+                    ChordSectionLocation(location.sectionVersion, phraseIndex: 0, measureIndex: 0),
+                    measureEditType: .insert,
+                  );
                   addChordRowChild(
                     _debugWidget(
-                        plusMeasureEditGridDisplayWidget(editPoint,
-                            tooltip: 'plus section tooltip'
-                                '${kDebugMode ? ' $editPoint' : ''}'),
-                        editPoint),
+                      plusMeasureEditGridDisplayWidget(
+                        editPoint,
+                        tooltip:
+                            'plus section tooltip'
+                            '${kDebugMode ? ' $editPoint' : ''}',
+                      ),
+                      editPoint,
+                    ),
                   );
                 }
               } else {
                 //  note that the append after a section is the same as an insert before the first
                 //  note that the section is known to be non-empty
                 assert(chordSection.isNotEmpty);
-                var editPoint = EditPoint(ChordSectionLocation(location.sectionVersion, phraseIndex: 0),
-                    measureEditType: .insert);
+                var editPoint = EditPoint(
+                  ChordSectionLocation(location.sectionVersion, phraseIndex: 0),
+                  measureEditType: .insert,
+                );
                 addChordRowChild(
                   _debugWidget(
-                      plusMeasureEditGridDisplayWidget(editPoint,
-                          tooltip: 'insert measure'
-                              '${kDebugMode ? ' $editPoint' : ''}'),
-                      editPoint),
+                    plusMeasureEditGridDisplayWidget(
+                      editPoint,
+                      tooltip:
+                          'insert measure'
+                          '${kDebugMode ? ' $editPoint' : ''}',
+                    ),
+                    editPoint,
+                  ),
                 );
               }
             }
@@ -1590,9 +1690,7 @@ class EditState extends State<Edit> {
             {
               //  entry column
               var editPoint = EditPoint(location);
-              addChordRowChild(
-                _debugWidget(markerEditGridDisplayWidget(editPoint), editPoint),
-              );
+              addChordRowChild(_debugWidget(markerEditGridDisplayWidget(editPoint), editPoint));
               //  plus column
               addChordRowNullWidget();
             }
@@ -1603,34 +1701,29 @@ class EditState extends State<Edit> {
               {
                 //  entry column
                 var editPoint = EditPoint(location, onEndOfRow: endOfRow);
-                addChordRowChild(
-                  _debugWidget(measureEditGridDisplayWidget(editPoint), editPoint),
-                );
+                addChordRowChild(_debugWidget(measureEditGridDisplayWidget(editPoint), editPoint));
               }
 
               //  plus column
               {
                 var editPoint = EditPoint(location, measureEditType: .append, onEndOfRow: false);
                 List<Widget> widgets = [
-                  plusMeasureEditGridDisplayWidget(editPoint,
-                      tooltip: 'add a new measure here'
-                          '${kDebugMode ? ' $editPoint' : ''}')
+                  plusMeasureEditGridDisplayWidget(
+                    editPoint,
+                    tooltip:
+                        'add a new measure here'
+                        '${kDebugMode ? ' $editPoint' : ''}',
+                  ),
                 ];
                 if (endOfRow && selectedEditPoint == null) {
                   widgets.add(plusNewRowWidget(location));
 
-                  if (chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
-                      .phrase) {}
+                  if (chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType == .phrase) {}
                 }
-                addChordRowChild(_debugWidget(
-                    AppWrap(
-                      children: widgets,
-                    ),
-                    editPoint));
+                addChordRowChild(_debugWidget(AppWrap(children: widgets), editPoint));
                 if (endOfRow &&
                     selectedEditPoint == null &&
-                    chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
-                        .phrase) {
+                    chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType == .phrase) {
                   //  warning: bumping into next column knowing this is the end of the row
                   addChordRowChildAtRowEnd(maxEntryColumns, _debugWidget(plusRepeatWidget(location), editPoint));
                   //  plus column already used
@@ -1651,24 +1744,21 @@ class EditState extends State<Edit> {
     //  append to the last section
     if (lastChordSectionLocation != null &&
         (chordSong.findChordSectionBySectionVersion(lastChordSectionLocation.sectionVersion)?.isNotEmpty ?? false)) {
-      addChordRowSectionAppend(maxEntryColumns,
-          EditPoint(lastChordSectionLocation, measureEditType: .append, onEndOfRow: true));
+      addChordRowSectionAppend(
+        maxEntryColumns,
+        EditPoint(lastChordSectionLocation, measureEditType: .append, onEndOfRow: true),
+      );
     }
 
     //  add the append for a new section
     if (selectedEditPoint == null) {
-      var editPoint = EditPoint(
-        null,
-        measureEditType: .append,
-      );
-      addChordRowChild(_debugWidget(
+      var editPoint = EditPoint(null, measureEditType: .append);
+      addChordRowChild(
+        _debugWidget(
           Container(
             margin: marginInsets,
             padding: textPadding,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: _addColor,
-            ),
+            decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
             child: editTooltip(
               message: 'add new chord section here',
               child: AppInkWell(
@@ -1681,14 +1771,13 @@ class EditState extends State<Edit> {
                     logger.log(_editEditPoint, 'editNewChordSection: ${chordSong.toMarkup()} + $selectedEditPoint');
                   });
                 },
-                child: Icon(
-                  Icons.add,
-                  size: chordFontSize,
-                ),
+                child: Icon(Icons.add, size: chordFontSize),
               ),
             ),
           ),
-          editPoint));
+          editPoint,
+        ),
+      );
 
       addChordRowChildrenAndComplete(maxEntryColumns);
     }
@@ -1736,19 +1825,21 @@ class EditState extends State<Edit> {
     logger.log(_editLyricEntry, 'chordMaxColCount: $chordMaxColCount');
 
     //  generate the section pull down data if required
-    List<DropdownMenuItem<ChordSection>> chordSectionItems =
-        SplayTreeSet<ChordSection>.from(song.getChordSections()).map((chordSection) {
-      return appDropdownMenuItem<ChordSection>(
-        value: chordSection,
-        child: Text(
-          '${chordSection.sectionVersion}',
-          style: generateAppTextStyle(
-              fontSize: chordFontSize,
-              fontWeight: .bold,
-              backgroundColor: App.getBackgroundColorForSectionVersion(chordSection.sectionVersion)),
-        ),
-      );
-    }).toList();
+    List<DropdownMenuItem<ChordSection>> chordSectionItems = SplayTreeSet<ChordSection>.from(song.getChordSections())
+        .map((chordSection) {
+          return appDropdownMenuItem<ChordSection>(
+            value: chordSection,
+            child: Text(
+              '${chordSection.sectionVersion}',
+              style: generateAppTextStyle(
+                fontSize: chordFontSize,
+                fontWeight: .bold,
+                backgroundColor: App.getBackgroundColorForSectionVersion(chordSection.sectionVersion),
+              ),
+            ),
+          );
+        })
+        .toList();
 
     //  main entries
     var addSection = 0;
@@ -1757,36 +1848,35 @@ class EditState extends State<Edit> {
       //  insert new section above
       {
         var children = <Widget>[];
-        children.add(Row(
-          children: [
-            editTooltip(
-              message: 'Add new lyrics section here',
-              child: DropdownButton<ChordSection>(
-                key: ValueKey('addLyricsSection${addSection++}'),
-                hint: Container(
-                  margin: marginInsets,
-                  padding: textPadding,
-                  decoration: const BoxDecoration(
-                    // shape: BoxShape.circle,
-                    color: _addColor,
+        children.add(
+          Row(
+            children: [
+              editTooltip(
+                message: 'Add new lyrics section here',
+                child: DropdownButton<ChordSection>(
+                  key: ValueKey('addLyricsSection${addSection++}'),
+                  hint: Container(
+                    margin: marginInsets,
+                    padding: textPadding,
+                    decoration: const BoxDecoration(
+                      // shape: BoxShape.circle,
+                      color: _addColor,
+                    ),
+                    child: Icon(Icons.add, size: chordFontSize),
                   ),
-                  child: Icon(
-                    Icons.add,
-                    size: chordFontSize,
-                  ),
+                  items: chordSectionItems,
+                  onChanged: (value) {
+                    if (value != null) {
+                      //logger.log(_editLog, 'addChordSection(${entry.lyricSection.index}, ${value.sectionVersion});');
+                      lyricsEntries.insertChordSection(entry, value);
+                      pushLyricsEntries();
+                    }
+                  },
                 ),
-                items: chordSectionItems,
-                onChanged: (value) {
-                  if (value != null) {
-                    //logger.log(_editLog, 'addChordSection(${entry.lyricSection.index}, ${value.sectionVersion});');
-                    lyricsEntries.insertChordSection(entry, value);
-                    pushLyricsEntries();
-                  }
-                },
               ),
-            ),
-          ],
-        ));
+            ],
+          ),
+        );
         while (children.length < chordMaxColCount) {
           children.add(NullWidget());
         }
@@ -1800,33 +1890,30 @@ class EditState extends State<Edit> {
       var sectionLyricsBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
-        children.add(Container(
-          margin: marginInsets,
-          padding: textPadding,
-          color: sectionBackgroundColor,
-          child: Text(
-            entry.lyricSection.sectionVersion.toString(),
-            style: sectionLyricsBoldTextStyle,
+        children.add(
+          Container(
+            margin: marginInsets,
+            padding: textPadding,
+            color: sectionBackgroundColor,
+            child: Text(entry.lyricSection.sectionVersion.toString(), style: sectionLyricsBoldTextStyle),
           ),
-        ));
+        );
 
         while (children.length < chordMaxColCount - 1) {
           children.add(NullWidget());
         }
-        children.add(editTooltip(
-          message: 'Delete this lyric section',
-          child: AppInkWell(
-            onTap: () {
-              lyricsEntries.delete(entry);
-              pushLyricsEntries();
-            },
-            child: const Icon(
-              Icons.delete,
-              size: _defaultChordFontSize,
-              color: Colors.black,
+        children.add(
+          editTooltip(
+            message: 'Delete this lyric section',
+            child: AppInkWell(
+              onTap: () {
+                lyricsEntries.delete(entry);
+                pushLyricsEntries();
+              },
+              child: const Icon(Icons.delete, size: _defaultChordFontSize, color: Colors.black),
             ),
           ),
-        ));
+        );
 
         while (children.length < chordMaxColCount) {
           children.add(NullWidget());
@@ -1838,8 +1925,10 @@ class EditState extends State<Edit> {
       var chordRowCount = chordSection?.repeatRowCount ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
-      logger.log(_editLyricEntry,
-          '\'${chordSection?.toMarkup()}\': chord/lyrics limit: $limit = max($chordRowCount,$lineCount)');
+      logger.log(
+        _editLyricEntry,
+        '\'${chordSection?.toMarkup()}\': chord/lyrics limit: $limit = max($chordRowCount,$lineCount)',
+      );
       for (var line = 0; line < limit; line++) {
         var children = <Widget>[];
 
@@ -1851,16 +1940,14 @@ class EditState extends State<Edit> {
             var row = chordSection?.rowAt(line);
             logger.log(_editLyricEntry, '   row.length: ${row?.length}/$chordMaxColCount');
             for (final Measure measure in row ?? []) {
-              children.add(Container(
-                margin: marginInsets,
-                padding: textPadding,
-                color: sectionBackgroundColor,
-                child: Text(
-                  measure.transpose(song.key, 0),
-                  style: sectionLyricsBoldTextStyle,
-                  maxLines: 1,
+              children.add(
+                Container(
+                  margin: marginInsets,
+                  padding: textPadding,
+                  color: sectionBackgroundColor,
+                  child: Text(measure.transpose(song.key, 0), style: sectionLyricsBoldTextStyle, maxLines: 1),
                 ),
-              ));
+              );
             }
           }
           while (children.length < chordMaxColCount - 1) {
@@ -1883,19 +1970,14 @@ class EditState extends State<Edit> {
                     pushLyricsEntries();
                   },
                   child: Container(
-                      margin: appendInsets,
-                      padding: textPadding,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _addColor,
-                      ),
-                      child: editTooltip(
-                        message: 'add a lyric line here',
-                        child: Icon(
-                          Icons.add,
-                          size: chordFontSize,
-                        ),
-                      )),
+                    margin: appendInsets,
+                    padding: textPadding,
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+                    child: editTooltip(
+                      message: 'add a lyric line here',
+                      child: Icon(Icons.add, size: chordFontSize),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -1903,76 +1985,58 @@ class EditState extends State<Edit> {
         } else if (line < lineCount) {
           var lyricsTextField = entry.textFieldAt(line);
 
-          children.add(Row(
-            children: [
-              AppInkWell(
-                value: line,
-                onTap: () {
-                  lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: true);
-                  pushLyricsEntries();
-                },
-                child: Container(
-                    margin: appendInsets,
-                    padding: textPadding,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _addColor,
-                    ),
-                    child: editTooltip(
-                      message: 'move the lyric line upwards a section',
-                      child: Icon(
-                        Icons.arrow_upward,
-                        size: chordFontSize,
-                      ),
-                    )),
-              ),
-              AppInkWell(
-                value: line,
-                onTap: () {
-                  lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: false);
-                  pushLyricsEntries();
-                },
-                child: Container(
-                    margin: appendInsets,
-                    padding: textPadding,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _addColor,
-                    ),
-                    child: editTooltip(
-                      message: 'move the lyric line downwards a section',
-                      child: Icon(
-                        Icons.arrow_downward,
-                        size: chordFontSize,
-                      ),
-                    )),
-              ),
-              const Spacer(),
-              Expanded(
-                flex: 30,
-                child: lyricsTextField,
-              ),
-              const Spacer(),
-              editTooltip(
-                message: 'Delete this lyric line',
-                child: AppInkWell(
+          children.add(
+            Row(
+              children: [
+                AppInkWell(
                   value: line,
                   onTap: () {
-                    lyricsEntries.deleteLyricLine(
-                      entry,
-                      line,
-                    );
+                    lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: true);
                     pushLyricsEntries();
                   },
-                  child: const Icon(
-                    Icons.delete,
-                    size: _defaultChordFontSize,
-                    color: Colors.black,
+                  child: Container(
+                    margin: appendInsets,
+                    padding: textPadding,
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+                    child: editTooltip(
+                      message: 'move the lyric line upwards a section',
+                      child: Icon(Icons.arrow_upward, size: chordFontSize),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ));
+                AppInkWell(
+                  value: line,
+                  onTap: () {
+                    lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: false);
+                    pushLyricsEntries();
+                  },
+                  child: Container(
+                    margin: appendInsets,
+                    padding: textPadding,
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+                    child: editTooltip(
+                      message: 'move the lyric line downwards a section',
+                      child: Icon(Icons.arrow_downward, size: chordFontSize),
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Expanded(flex: 30, child: lyricsTextField),
+                const Spacer(),
+                editTooltip(
+                  message: 'Delete this lyric line',
+                  child: AppInkWell(
+                    value: line,
+                    onTap: () {
+                      lyricsEntries.deleteLyricLine(entry, line);
+                      pushLyricsEntries();
+                    },
+                    child: const Icon(Icons.delete, size: _defaultChordFontSize, color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          );
         }
         while (children.length < chordMaxColCount) {
           children.add(NullWidget());
@@ -1998,10 +2062,7 @@ class EditState extends State<Edit> {
                 // shape: BoxShape.circle,
                 color: _addColor,
               ),
-              child: Icon(
-                Icons.add,
-                size: chordFontSize,
-              ),
+              child: Icon(Icons.add, size: chordFontSize),
             ),
             items: chordSectionItems,
             onChanged: (value) {
@@ -2048,12 +2109,7 @@ class EditState extends State<Edit> {
   Widget _debugWidget(Widget w, EditPoint editPoint) {
     //  debug only
     if (_editDebugVerbose) {
-      return AppWrap(
-        children: [
-          Text('$editPoint'),
-          w,
-        ],
-      );
+      return AppWrap(children: [Text('$editPoint'), w]);
     }
     return w;
   }
@@ -2061,9 +2117,10 @@ class EditState extends State<Edit> {
   /// convenience method to push lyrics changes to the song and the display
   void pushLyricsEntries() {
     logger.log(
-        _editLyricEntry,
-        '_pushLyricsEntries(): _lyricsEntries.asRawLyrics(): ${identityHashCode(song)}:'
-        ' \'<${lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>\'');
+      _editLyricEntry,
+      '_pushLyricsEntries(): _lyricsEntries.asRawLyrics(): ${identityHashCode(song)}:'
+      ' \'<${lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>\'',
+    );
     updateRawLyrics(lyricsEntries.asRawLyrics());
     logger.log(_editLyricEntry, '_pushLyricsEntries(): rawLyrics: ${song.rawLyrics.replaceAll('\n', '\\n')}');
   }
@@ -2076,8 +2133,11 @@ class EditState extends State<Edit> {
   }
 
   LyricsEntries lyricsEntriesFromSong(Song entrySong) {
-    LyricsEntries ret = LyricsEntries.fromSong(entrySong,
-        onLyricsLineChangedCallback: onLyricsLineChangedCallback, textStyle: lyricsTextStyle);
+    LyricsEntries ret = LyricsEntries.fromSong(
+      entrySong,
+      onLyricsLineChangedCallback: onLyricsLineChangedCallback,
+      textStyle: lyricsTextStyle,
+    );
     ret.addListener(lyricsEntriesListener);
     return ret;
   }
@@ -2103,9 +2163,13 @@ class EditState extends State<Edit> {
         if (lastSectionVersion != null) {
           logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
           //  limit the horizontal space used by the chords
-          sb.write(Util.limitLineLength(
-              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount) ?? '', 35,
-              ellipsis: true));
+          sb.write(
+            Util.limitLineLength(
+              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount) ?? '',
+              35,
+              ellipsis: true,
+            ),
+          );
           lineCount = 1;
         }
 
@@ -2158,11 +2222,13 @@ class EditState extends State<Edit> {
     //  fixme: edit screen does not respond to escape after the detail screen
     if (e is KeyDownEvent || e is KeyRepeatEvent) {
       logger.d(
-          'isControlPressed?: keyLabel:\'${e.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
+        'isControlPressed?: keyLabel:\'${e.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}',
+      );
       var keyboard = HardwareKeyboard();
       if (keyboard.isControlPressed) {
         logger.d(
-            'isControlPressed: keyLabel:\'${e.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
+          'isControlPressed: keyLabel:\'${e.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}',
+        );
         if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
           if (selectedEditPoint != null && measureEntryValid) {
             performEdit(endOfRow: true);
@@ -2238,7 +2304,8 @@ class EditState extends State<Edit> {
           int loc = editTextController.selection.baseOffset;
 
           //  selection in a range
-          editTextController.text = (editTextController.selection.baseOffset > 0
+          editTextController.text =
+              (editTextController.selection.baseOffset > 0
                   ? editTextController.text.substring(0, editTextController.selection.baseOffset)
                   : '') +
               editTextController.text.substring(editTextController.selection.extentOffset);
@@ -2277,8 +2344,10 @@ class EditState extends State<Edit> {
         logger.log(_editKeyboard, 'main onKey: space: "${editTextController.text}", ${editTextController.selection}');
         int extentOffset = editTextController.selection.extentOffset;
 
-        editTextController.selection =
-            TextSelection(baseOffset: 0, extentOffset: extentOffset); // fixme:!!!!!!!!!!!!!!!!!!!!
+        editTextController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: extentOffset,
+        ); // fixme:!!!!!!!!!!!!!!!!!!!!
         preProcessMeasureEntry(editTextController.text);
         if (measureEntryValid && selectedEditPoint != null) {
           performEdit();
@@ -2324,9 +2393,7 @@ class EditState extends State<Edit> {
           maxLength: null,
           style: _textFieldStyle,
           decoration: const InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(14)),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
             hintText: 'Enter the section.',
           ),
           autofocus: true,
@@ -2344,14 +2411,7 @@ class EditState extends State<Edit> {
           DropdownMenuItem<int>(
             key: ValueKey('sectionVersionNumber.$i'),
             value: i,
-            child: Row(
-              children: <Widget>[
-                Text(
-                  (i == 0 ? 'Default' : i.toString()),
-                  style: sectionChordTextStyle,
-                ),
-              ],
-            ),
+            child: Row(children: <Widget>[Text((i == 0 ? 'Default' : i.toString()), style: sectionChordTextStyle)]),
           ),
         );
       }
@@ -2360,123 +2420,114 @@ class EditState extends State<Edit> {
         color: sectionColor,
         width: _entryWidth,
         child: Column(
-            mainAxisAlignment: .spaceAround,
-            crossAxisAlignment: .start,
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              //  section entry text field
-              Container(margin: marginInsets, padding: textPadding, color: sectionColor, child: editTextField),
-              if (measureEntryCorrection != null)
-                editTooltip(
-                  message: measureEntryValid
-                      ? 'This is your adjusted section'
-                      : 'Your entry error is in parentheses'
+          mainAxisAlignment: .spaceAround,
+          crossAxisAlignment: .start,
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            //  section entry text field
+            Container(margin: marginInsets, padding: textPadding, color: sectionColor, child: editTextField),
+            if (measureEntryCorrection != null)
+              editTooltip(
+                message: measureEntryValid
+                    ? 'This is your adjusted section'
+                    : 'Your entry error is in parentheses'
                           '${kDebugMode ? ' $editPoint' : ''}',
-                  child: AppWrap(
-                    children: <Widget>[
-                      Text(
-                        measureEntryCorrection ?? '',
-                        style: measureEntryValid
-                            ? sectionChordTextStyle
-                            : sectionChordTextStyle.copyWith(color: Colors.red),
-                      ),
-                    ],
+                child: AppWrap(
+                  children: <Widget>[
+                    Text(
+                      measureEntryCorrection ?? '',
+                      style: measureEntryValid
+                          ? sectionChordTextStyle
+                          : sectionChordTextStyle.copyWith(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+            //  section entry pull downs
+            Row(
+              mainAxisAlignment: .spaceBetween,
+              crossAxisAlignment: .center,
+              children: <Widget>[
+                //  section selection
+                chordSectionVersionDropdownButton(),
+
+                //  section version selection
+                DropdownButton<int>(
+                  value: sectionVersion.version,
+                  items: sectionVersionNumberDropdownMenuList,
+                  onChanged: (value) {
+                    setState(() {
+                      if (value != null) {
+                        sectionVersion = SectionVersion(sectionVersion.section, value);
+                        editTextController.text = sectionVersion.toString();
+                      }
+                    });
+                    logger.t('_sectionVersion = ${sectionVersion.toString()}');
+                  },
+                  style: sectionChordTextStyle,
+                  itemHeight: null,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: .spaceAround,
+              crossAxisAlignment: .baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: <Widget>[
+                //  section delete
+                editTooltip(
+                  message: 'Delete this section',
+                  child: AppInkWell(
+                    value: chordSection,
+                    onTap: () {
+                      performDelete();
+                    },
+                    child: const Icon(Icons.delete, size: _defaultChordFontSize, color: Colors.black),
                   ),
                 ),
-              //  section entry pull downs
-              Row(
-                mainAxisAlignment: .spaceBetween,
-                crossAxisAlignment: .center,
-                children: <Widget>[
-                  //  section selection
-                  chordSectionVersionDropdownButton(),
-
-                  //  section version selection
-                  DropdownButton<int>(
-                    value: sectionVersion.version,
-                    items: sectionVersionNumberDropdownMenuList,
-                    onChanged: (value) {
-                      setState(() {
-                        if (value != null) {
-                          sectionVersion = SectionVersion(sectionVersion.section, value);
-                          editTextController.text = sectionVersion.toString();
-                        }
-                      });
-                      logger.t('_sectionVersion = ${sectionVersion.toString()}');
+                editTooltip(
+                  message: 'Cancel the modification.',
+                  child: AppInkWell(
+                    value: chordSection,
+                    onTap: () {
+                      performMeasureEntryCancel();
                     },
-                    style: sectionChordTextStyle,
-                    itemHeight: null,
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: .spaceAround,
-                crossAxisAlignment: .baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: <Widget>[
-                  //  section delete
+                    child: Icon(
+                      Icons.cancel,
+                      size: _defaultChordFontSize,
+                      color: measureEntryValid ? Colors.black : Colors.red,
+                    ),
+                  ),
+                ),
+                if (isValidSectionEntry)
                   editTooltip(
-                    message: 'Delete this section',
+                    message: 'Accept the modification and add measures to the section.',
                     child: AppInkWell(
                       value: chordSection,
                       onTap: () {
-                        performDelete();
+                        performEdit();
                       },
-                      child: const Icon(
-                        Icons.delete,
-                        size: _defaultChordFontSize,
-                        color: Colors.black,
-                      ),
+                      child: const Icon(Icons.arrow_forward, size: _defaultChordFontSize),
                     ),
                   ),
+                //  section enter
+                if (isValidSectionEntry)
                   editTooltip(
-                    message: 'Cancel the modification.',
+                    message: 'Accept the modification',
                     child: AppInkWell(
                       value: chordSection,
                       onTap: () {
-                        performMeasureEntryCancel();
+                        logger.d('sectionVersion measureEditType: ${selectedEditPoint?.measureEditType.toString()}');
+                        performEdit(done: true, endOfRow: selectedEditPoint!.onEndOfRow); //  section enter
                       },
-                      child: Icon(
-                        Icons.cancel,
-                        size: _defaultChordFontSize,
-                        color: measureEntryValid ? Colors.black : Colors.red,
-                      ),
+                      child: const Icon(Icons.check, size: _defaultChordFontSize),
                     ),
                   ),
-                  if (isValidSectionEntry)
-                    editTooltip(
-                      message: 'Accept the modification and add measures to the section.',
-                      child: AppInkWell(
-                        value: chordSection,
-                        onTap: () {
-                          performEdit();
-                        },
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          size: _defaultChordFontSize,
-                        ),
-                      ),
-                    ),
-                  //  section enter
-                  if (isValidSectionEntry)
-                    editTooltip(
-                      message: 'Accept the modification',
-                      child: AppInkWell(
-                        value: chordSection,
-                        onTap: () {
-                          logger.d('sectionVersion measureEditType: ${selectedEditPoint?.measureEditType.toString()}');
-                          performEdit(done: true, endOfRow: selectedEditPoint!.onEndOfRow); //  section enter
-                        },
-                        child: const Icon(
-                          Icons.check,
-                          size: _defaultChordFontSize,
-                        ),
-                      ),
-                    ),
-                  //  can't cancel some chordSection that has already been added!
-                ],
-              ),
-            ]),
+                //  can't cancel some chordSection that has already been added!
+              ],
+            ),
+          ],
+        ),
       );
     }
 
@@ -2495,16 +2546,16 @@ class EditState extends State<Edit> {
         setEditPoint(editPoint);
       },
       child: Container(
-          margin: marginInsets,
-          padding: textPadding,
-          color: sectionColor,
-          child: editTooltip(
-              message: 'modify or delete the section'
-                  '${kDebugMode ? ' $editPoint' : ''}',
-              child: Text(
-                matchingVersionsString,
-                style: sectionChordTextStyle,
-              ))),
+        margin: marginInsets,
+        padding: textPadding,
+        color: sectionColor,
+        child: editTooltip(
+          message:
+              'modify or delete the section'
+              '${kDebugMode ? ' $editPoint' : ''}',
+          child: Text(matchingVersionsString, style: sectionChordTextStyle),
+        ),
+      ),
     );
   }
 
@@ -2545,10 +2596,11 @@ class EditState extends State<Edit> {
     if (editPoint.matches(selectedEditPoint)) {
       //  editing this measure
       logger.log(
-          _editEditPoint,
-          '_measureEditGridDisplayWidget pre: (${editTextController.selection.baseOffset}'
-          ',${editTextController.selection.extentOffset})'
-          ' "${editTextController.text}"');
+        _editEditPoint,
+        '_measureEditGridDisplayWidget pre: (${editTextController.selection.baseOffset}'
+        ',${editTextController.selection.extentOffset})'
+        ' "${editTextController.text}"',
+      );
       if (editTextField == null) {
         if (editTextFieldFocusNode != null) {
           disposeList.add(editTextFieldFocusNode!); //  fixme: dispose of the old?
@@ -2564,14 +2616,11 @@ class EditState extends State<Edit> {
           maxLength: null,
           style: _textFieldStyle,
           decoration: InputDecoration(
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(14)),
-            ),
-            hintText:
-                (editTextController.text.isEmpty && (selectedEditPoint?.measureEditType == .replace))
-                    //  fixme: delete of last measure in section should warn about second delete
-                    ? 'A second delete will delete this measure' //  fixme: not working?
-                    : 'Enter the measure.',
+            border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+            hintText: (editTextController.text.isEmpty && (selectedEditPoint?.measureEditType == .replace))
+                //  fixme: delete of last measure in section should warn about second delete
+                ? 'A second delete will delete this measure' //  fixme: not working?
+                : 'Enter the measure.',
             contentPadding: const EdgeInsets.all(_defaultFontSize / 2),
           ),
           autofocus: true,
@@ -2581,9 +2630,10 @@ class EditState extends State<Edit> {
       }
 
       logger.log(
-          _editEditPoint,
-          '_measureEditGridDisplayWidget post: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
-          ' "${editTextController.text}", ${editTextController.text.isEmpty}');
+        _editEditPoint,
+        '_measureEditGridDisplayWidget post: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
+        ' "${editTextController.text}", ${editTextController.text.isEmpty}',
+      );
 
       if (measureEntryIsClear) {
         measureEntryIsClear = false;
@@ -2592,10 +2642,11 @@ class EditState extends State<Edit> {
         editTextController.selection = TextSelection(baseOffset: 0, extentOffset: editTextController.text.length);
         editTextFieldFocusNode?.requestFocus();
         logger.log(
-            _editEditPoint,
-            '_measureEditGridDisplayWidget post clear: ${editPoint.location}: $measure'
-            '  selection: (${editTextController.selection.baseOffset}, ${editTextController.selection.extentOffset})'
-            ', ${chordSong.toMarkup()}');
+          _editEditPoint,
+          '_measureEditGridDisplayWidget post clear: ${editPoint.location}: $measure'
+          '  selection: (${editTextController.selection.baseOffset}, ${editTextController.selection.extentOffset})'
+          ', ${chordSong.toMarkup()}',
+        );
       }
 
       //  make the key selection drop down list
@@ -2619,63 +2670,58 @@ class EditState extends State<Edit> {
               "${s.padRight(2)} ${ChordComponent.getByHalfStep(scaleNote.halfStep - song.key.getHalfStep()).shortName.padLeft(2)}";
           DropdownMenuItem<ScaleNote> item = appDropdownMenuItem(
             value: scaleNote,
-            child: Text(
-              label,
-              style: sectionAppTextStyle,
-            ),
+            child: Text(label, style: sectionAppTextStyle),
           );
           keyChordDropDownMenuList.add(item);
-          ButtonTheme(
-            child: item,
-          );
+          ButtonTheme(child: item);
         }
       }
 
       Widget majorChordButton = editTooltip(
-          message: 'Enter the major chord.',
-          child: appButton(
-            keyChordNote.toString(),
+        message: 'Enter the major chord.',
+        child: appButton(
+          keyChordNote.toString(),
 
+          onPressed: () {
+            setState(() {
+              updateChordText(keyChordNote.toMarkup());
+            });
+          },
+          fontSize: _defaultChordFontSize,
+          // backgroundColor: fixme,
+        ),
+      );
+      Widget minorChordButton;
+      {
+        ScaleChord sc = ScaleChord(keyChordNote, ChordDescriptor.minor);
+        minorChordButton = editTooltip(
+          message: 'Enter the minor chord.',
+          child: appButton(
+            sc.toString(),
             onPressed: () {
               setState(() {
-                updateChordText(keyChordNote.toMarkup());
+                updateChordText(sc.toMarkup());
               });
             },
             fontSize: _defaultChordFontSize,
-            // backgroundColor: fixme,
-          ));
-      Widget minorChordButton;
-      {
-        ScaleChord sc = ScaleChord(
-          keyChordNote,
-          ChordDescriptor.minor,
+          ),
         );
-        minorChordButton = editTooltip(
-            message: 'Enter the minor chord.',
-            child: appButton(
-              sc.toString(),
-              onPressed: () {
-                setState(() {
-                  updateChordText(sc.toMarkup());
-                });
-              },
-              fontSize: _defaultChordFontSize,
-            ));
       }
       Widget dominant7ChordButton;
       {
         ScaleChord sc = ScaleChord(keyChordNote, ChordDescriptor.dominant7);
         dominant7ChordButton = editTooltip(
-            message: 'Enter the dominant7 chord.',
-            child: appButton(
-              sc.toString(),
-              onPressed: () {
-                setState(() {
-                  updateChordText(sc.toMarkup());
-                });
-              },
-              fontSize: _defaultChordFontSize,
-            ));
+          message: 'Enter the dominant7 chord.',
+          child: appButton(
+            sc.toString(),
+            onPressed: () {
+              setState(() {
+                updateChordText(sc.toMarkup());
+              });
+            },
+            fontSize: _defaultChordFontSize,
+          ),
+        );
       }
 
       List<DropdownMenuItem<ScaleChord>> otherChordDropDownMenuList = [];
@@ -2683,17 +2729,12 @@ class EditState extends State<Edit> {
         // other chords
         for (ChordDescriptor cd in ChordDescriptor.otherChordDescriptorsOrdered) {
           ScaleChord sc = ScaleChord(keyChordNote, cd);
-          otherChordDropDownMenuList.add(appDropdownMenuItem<ScaleChord>(
-            value: sc,
-            child: Row(
-              children: <Widget>[
-                Text(
-                  sc.toMarkup(),
-                  style: appDropdownListItemTextStyle,
-                ),
-              ],
+          otherChordDropDownMenuList.add(
+            appDropdownMenuItem<ScaleChord>(
+              value: sc,
+              child: Row(children: <Widget>[Text(sc.toMarkup(), style: appDropdownListItemTextStyle)]),
             ),
-          ));
+          );
         }
       }
 
@@ -2702,262 +2743,253 @@ class EditState extends State<Edit> {
         // slash chords
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
           final sc = song.key.getScaleNoteByHalfStep(i);
-          slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
-            key: ValueKey('scaleNote$sc'),
-            value: sc,
-            child: Row(
-              children: <Widget>[
-                Text(
-                  sc.toMarkup(),
-                  style: appDropdownListItemTextStyle,
-                ),
-              ],
+          slashNoteDropDownMenuList.add(
+            DropdownMenuItem<ScaleNote>(
+              key: ValueKey('scaleNote$sc'),
+              value: sc,
+              child: Row(children: <Widget>[Text(sc.toMarkup(), style: appDropdownListItemTextStyle)]),
             ),
-          ));
+          );
         }
       }
 
       ret = Container(
-          color: sectionColor,
-          width: _entryWidth,
-          margin: marginInsets,
-          child: Column(
-              mainAxisAlignment: .spaceAround,
-              crossAxisAlignment: .start,
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                //  measure edit text field
-                editTooltip(
-                  message: 'Enter new chords here'
-                      '${kDebugMode ? ' $editPoint' : ''}',
-                  child: Container(
-                    margin: const EdgeInsets.all(2),
-                    color: sectionColor,
-                    child: editTextField,
+        color: sectionColor,
+        width: _entryWidth,
+        margin: marginInsets,
+        child: Column(
+          mainAxisAlignment: .spaceAround,
+          crossAxisAlignment: .start,
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            //  measure edit text field
+            editTooltip(
+              message:
+                  'Enter new chords here'
+                  '${kDebugMode ? ' $editPoint' : ''}',
+              child: Container(margin: const EdgeInsets.all(2), color: sectionColor, child: editTextField),
+            ),
+            if (measureEntryCorrection != null)
+              editTooltip(
+                message: measureEntryValid
+                    ? 'These are your adjusted chords'
+                    : 'Your chord entry error is in parentheses'
+                          '${kDebugMode ? ' $editPoint' : ''}',
+                child: Container(
+                  margin: doubleMarginInsets,
+                  child: Row(
+                    crossAxisAlignment: .center,
+                    children: <Widget>[
+                      Text(
+                        measureEntryCorrection ?? '',
+                        style: measureEntryValid
+                            ? sectionChordBoldTextStyle
+                            : sectionChordBoldTextStyle.copyWith(color: Colors.red),
+                      ),
+                    ],
                   ),
                 ),
-                if (measureEntryCorrection != null)
-                  editTooltip(
-                    message: measureEntryValid
-                        ? 'These are your adjusted chords'
-                        : 'Your chord entry error is in parentheses'
-                            '${kDebugMode ? ' $editPoint' : ''}',
-                    child: Container(
-                      margin: doubleMarginInsets,
-                      child: Row(crossAxisAlignment: .center, children: <Widget>[
-                        Text(
-                          measureEntryCorrection ?? '',
-                          style: measureEntryValid
-                              ? sectionChordBoldTextStyle
-                              : sectionChordBoldTextStyle.copyWith(color: Colors.red),
-                        ),
-                      ]),
+              ),
+            //  measure edit chord selection
+            Row(
+              mainAxisAlignment: .spaceEvenly,
+              children: <Widget>[
+                editTooltip(
+                  message: 'Select other notes from the key scale.',
+                  child: ButtonTheme(
+                    alignedDropdown: true,
+                    child: DropdownButton<ScaleNote>(
+                      items: keyChordDropDownMenuList,
+                      onChanged: (value) {
+                        setState(() {
+                          if (value != null) {
+                            keyChordNote = value;
+                          }
+                        });
+                      },
+                      value: keyChordNote,
+                      style: sectionAppTextStyle,
+                      itemHeight: null,
                     ),
                   ),
-                //  measure edit chord selection
-                Row(mainAxisAlignment: .spaceEvenly, children: <Widget>[
+                ),
+                majorChordButton,
+                minorChordButton,
+                dominant7ChordButton,
+                editTooltip(
+                  message: 'Enter a silent chord.',
+                  child: appButton(
+                    'X',
+                    onPressed: () {
+                      setState(() {
+                        updateChordText('X');
+                      });
+                    },
+                    fontSize: _defaultChordFontSize,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: .spaceAround,
+              crossAxisAlignment: .center,
+              children: <Widget>[
+                editTooltip(
+                  message: 'Select from other chord descriptors.',
+                  child: ButtonTheme(
+                    alignedDropdown: true,
+                    child: DropdownButton<ScaleChord>(
+                      hint: Text('Other chords', style: sectionAppTextStyle),
+                      items: otherChordDropDownMenuList,
+                      onChanged: (value) {
+                        setState(() {
+                          updateChordText(value?.toMarkup());
+                        });
+                      },
+                      style: sectionAppTextStyle,
+                      itemHeight: null,
+                    ),
+                  ),
+                ),
+                editTooltip(
+                  message: 'Select a slash note',
+                  child: ButtonTheme(
+                    alignedDropdown: true,
+                    child: DropdownButton<ScaleNote>(
+                      hint: Text("/note", style: sectionAppTextStyle),
+                      items: slashNoteDropDownMenuList,
+                      onChanged: (value) {
+                        setState(() {
+                          updateChordText('/${value?.toMarkup() ?? ''}');
+                        });
+                      },
+                      style: sectionAppTextStyle,
+                      itemHeight: null,
+                    ),
+                  ),
+                ),
+                if ((measure?.endOfRow ?? false) &&
+                    phrase != null &&
+                    editPoint.location.measureIndex != phrase.length - 1)
                   editTooltip(
-                      message: 'Select other notes from the key scale.',
-                      child: ButtonTheme(
-                        alignedDropdown: true,
-                        child: DropdownButton<ScaleNote>(
-                          items: keyChordDropDownMenuList,
-                          onChanged: (value) {
-                            setState(() {
-                              if (value != null) {
-                                keyChordNote = value;
-                              }
-                            });
-                          },
-                          value: keyChordNote,
-                          style: sectionAppTextStyle,
-                          itemHeight: null,
-                        ),
-                      )),
-                  majorChordButton,
-                  minorChordButton,
-                  dominant7ChordButton,
-                  editTooltip(
-                    message: 'Enter a silent chord.',
+                    message:
+                        'Join the row with the row below'
+                        '${kDebugMode ? ' $editPoint' : ''}',
                     child: appButton(
-                      'X',
+                      'Join',
                       onPressed: () {
                         setState(() {
-                          updateChordText('X');
+                          song.setCurrentChordSectionLocation(editPoint.location);
+                          song.setCurrentChordSectionLocationMeasureEndOfRow(false);
+                          undoStackPushIfDifferent();
                         });
                       },
                       fontSize: _defaultChordFontSize,
                     ),
                   ),
-                ]),
-                Row(
-                  mainAxisAlignment: .spaceAround,
-                  crossAxisAlignment: .center,
-                  children: <Widget>[
-                    editTooltip(
-                      message: 'Select from other chord descriptors.',
-                      child: ButtonTheme(
-                        alignedDropdown: true,
-                        child: DropdownButton<ScaleChord>(
-                          hint: Text(
-                            'Other chords',
-                            style: sectionAppTextStyle,
-                          ),
-                          items: otherChordDropDownMenuList,
-                          onChanged: (value) {
-                            setState(() {
-                              updateChordText(value?.toMarkup());
-                            });
-                          },
-                          style: sectionAppTextStyle,
-                          itemHeight: null,
-                        ),
-                      ),
+                if (!(measure?.endOfRow ?? false) &&
+                    phrase != null &&
+                    editPoint.location.measureIndex != phrase.length - 1)
+                  editTooltip(
+                    message:
+                        'Add new chord row after this measure'
+                        '${kDebugMode ? ' $editPoint' : ''}',
+                    child: appButton(
+                      'Split',
+                      onPressed: () {
+                        setState(() {
+                          song.setCurrentChordSectionLocation(editPoint.location);
+                          song.setCurrentChordSectionLocationMeasureEndOfRow(true);
+                          undoStackPushIfDifferent();
+                        });
+                      },
+                      fontSize: _defaultChordFontSize,
                     ),
-                    editTooltip(
-                      message: 'Select a slash note',
-                      child: ButtonTheme(
-                        alignedDropdown: true,
-                        child: DropdownButton<ScaleNote>(
-                          hint: Text(
-                            "/note",
-                            style: sectionAppTextStyle,
-                          ),
-                          items: slashNoteDropDownMenuList,
-                          onChanged: (value) {
-                            setState(() {
-                              updateChordText('/${value?.toMarkup() ?? ''}');
-                            });
-                          },
-                          style: sectionAppTextStyle,
-                          itemHeight: null,
-                        ),
-                      ),
+                  ),
+              ],
+            ),
+            const AppSpace(space: 20),
+            Row(
+              mainAxisAlignment: .spaceAround,
+              crossAxisAlignment: .center,
+              children: <Widget>[
+                if (editPoint.measureEditType == .replace)
+                  editTooltip(
+                    message:
+                        'Delete this measure'
+                        '${kDebugMode ? ' $editPoint' : ''}',
+                    child: AppInkWell(
+                      onTap: () {
+                        performDelete();
+                      },
+                      child: const Icon(Icons.delete, size: _defaultChordFontSize, color: Colors.black),
                     ),
-                    if ((measure?.endOfRow ?? false) &&
-                        phrase != null &&
-                        editPoint.location.measureIndex != phrase.length - 1)
-                      editTooltip(
-                        message: 'Join the row with the row below'
-                            '${kDebugMode ? ' $editPoint' : ''}',
-                        child: appButton(
-                          'Join',
-                          onPressed: () {
-                            setState(() {
-                              song.setCurrentChordSectionLocation(editPoint.location);
-                              song.setCurrentChordSectionLocationMeasureEndOfRow(false);
-                              undoStackPushIfDifferent();
-                            });
-                          },
-                          fontSize: _defaultChordFontSize,
-                        ),
-                      ),
-                    if (!(measure?.endOfRow ?? false) &&
-                        phrase != null &&
-                        editPoint.location.measureIndex != phrase.length - 1)
-                      editTooltip(
-                        message: 'Add new chord row after this measure'
-                            '${kDebugMode ? ' $editPoint' : ''}',
-                        child: appButton(
-                          'Split',
-                          onPressed: () {
-                            setState(() {
-                              song.setCurrentChordSectionLocation(editPoint.location);
-                              song.setCurrentChordSectionLocationMeasureEndOfRow(true);
-                              undoStackPushIfDifferent();
-                            });
-                          },
-                          fontSize: _defaultChordFontSize,
-                        ),
-                      ),
-                  ],
+                  ),
+                editTooltip(
+                  message:
+                      'Cancel the modification.'
+                      '${kDebugMode ? ' $editPoint' : ''}',
+                  child: AppInkWell(
+                    onTap: () {
+                      performMeasureEntryCancel();
+                    },
+                    child: Icon(
+                      Icons.cancel,
+                      size: _defaultChordFontSize,
+                      color: measureEntryValid ? Colors.black : Colors.red,
+                    ),
+                  ),
                 ),
-                const AppSpace(space: 20),
-                Row(
-                    mainAxisAlignment: .spaceAround,
-                    crossAxisAlignment: .center,
-                    children: <Widget>[
-                      if (editPoint.measureEditType == .replace)
-                        editTooltip(
-                          message: 'Delete this measure'
-                              '${kDebugMode ? ' $editPoint' : ''}',
-                          child: AppInkWell(
-                            onTap: () {
-                              performDelete();
-                            },
-                            child: const Icon(
-                              Icons.delete,
-                              size: _defaultChordFontSize,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      editTooltip(
-                        message: 'Cancel the modification.'
-                            '${kDebugMode ? ' $editPoint' : ''}',
-                        child: AppInkWell(
-                          onTap: () {
-                            performMeasureEntryCancel();
-                          },
-                          child: Icon(
-                            Icons.cancel,
-                            size: _defaultChordFontSize,
-                            color: measureEntryValid ? Colors.black : Colors.red,
-                          ),
-                        ),
-                      ),
-                      if (measureEntryValid)
-                        editTooltip(
-                          message: 'Accept the modification and extend the row.'
-                              '${kDebugMode ? ' $editPoint' : ''}',
-                          child: AppInkWell(
-                            onTap: () {
-                              performEdit(endOfRow: false);
-                            },
-                            child: const Icon(
-                              Icons.arrow_forward,
-                              size: _defaultChordFontSize,
-                            ),
-                          ),
-                        ),
-                      if (measureEntryValid)
-                        editTooltip(
-                          message: 'Accept the modification, end the row, and continue editing.'
-                              '${kDebugMode ? ' $editPoint' : ''}',
-                          child: AppInkWell(
-                            onTap: () {
-                              performEdit(done: false, endOfRow: true);
-                            },
-                            child: const Icon(
-                              Icons.call_received,
-                              size: _defaultChordFontSize,
-                            ),
-                          ),
-                        ),
-                      if (measureEntryValid)
-                        editTooltip(
-                          message: 'Accept the modification.\nFinish adding measures.'
-                              '${kDebugMode ? ' $editPoint' : ''}',
-                          child: AppInkWell(
-                            onTap: () {
-                              logger.t(
-                                  'endOfRow?:  ${chordSong.findMeasureByChordSectionLocation(selectedEditPoint?.location)?.endOfRow} ');
-                              performEdit(
-                                  done: true,
-                                  endOfRow: chordSong
-                                          .findMeasureByChordSectionLocation(selectedEditPoint?.location)
-                                          ?.endOfRow ??
-                                      false);
-                            },
-                            child: const Icon(
-                              Icons.check,
-                              size: _defaultChordFontSize,
-                            ),
-                          ),
-                        ),
-                    ]),
-                const AppSpace(),
-              ]));
+                if (measureEntryValid)
+                  editTooltip(
+                    message:
+                        'Accept the modification and extend the row.'
+                        '${kDebugMode ? ' $editPoint' : ''}',
+                    child: AppInkWell(
+                      onTap: () {
+                        performEdit(endOfRow: false);
+                      },
+                      child: const Icon(Icons.arrow_forward, size: _defaultChordFontSize),
+                    ),
+                  ),
+                if (measureEntryValid)
+                  editTooltip(
+                    message:
+                        'Accept the modification, end the row, and continue editing.'
+                        '${kDebugMode ? ' $editPoint' : ''}',
+                    child: AppInkWell(
+                      onTap: () {
+                        performEdit(done: false, endOfRow: true);
+                      },
+                      child: const Icon(Icons.call_received, size: _defaultChordFontSize),
+                    ),
+                  ),
+                if (measureEntryValid)
+                  editTooltip(
+                    message:
+                        'Accept the modification.\nFinish adding measures.'
+                        '${kDebugMode ? ' $editPoint' : ''}',
+                    child: AppInkWell(
+                      onTap: () {
+                        logger.t(
+                          'endOfRow?:  ${chordSong.findMeasureByChordSectionLocation(selectedEditPoint?.location)?.endOfRow} ',
+                        );
+                        performEdit(
+                          done: true,
+                          endOfRow:
+                              chordSong.findMeasureByChordSectionLocation(selectedEditPoint?.location)?.endOfRow ??
+                              false,
+                        );
+                      },
+                      child: const Icon(Icons.check, size: _defaultChordFontSize),
+                    ),
+                  ),
+              ],
+            ),
+            const AppSpace(),
+          ],
+        ),
+      );
     } else {
       //  not editing this measure
       ret = AppInkWell(
@@ -2966,16 +2998,16 @@ class EditState extends State<Edit> {
           setEditPoint(editPoint);
         },
         child: Container(
-            margin: marginInsets,
-            padding: textPadding,
-            color: sectionColor,
-            child: editTooltip(
-                message: 'modify or delete the measure'
-                    '${kDebugMode ? ' $editPoint ${chordSong.findMeasureNodeByLocation(editPoint.location)}' : ''}',
-                child: Text(
-                  measure?.transpose(song.key, transpositionOffset) ?? '',
-                  style: sectionChordBoldTextStyle,
-                ))),
+          margin: marginInsets,
+          padding: textPadding,
+          color: sectionColor,
+          child: editTooltip(
+            message:
+                'modify or delete the measure'
+                '${kDebugMode ? ' $editPoint ${chordSong.findMeasureNodeByLocation(editPoint.location)}' : ''}',
+            child: Text(measure?.transpose(song.key, transpositionOffset) ?? '', style: sectionChordBoldTextStyle),
+          ),
+        ),
       );
     }
 
@@ -2998,18 +3030,17 @@ class EditState extends State<Edit> {
         color: sectionColor,
         width: _entryWidth,
         child: Column(
-            mainAxisAlignment: .spaceAround,
-            crossAxisAlignment: .start,
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              //  measure edit chord selection
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(mainAxisAlignment: .spaceBetween, children: <Widget>[
-                  Text(
-                    'Repeat: ',
-                    style: sectionAppTextStyle,
-                  ),
+          mainAxisAlignment: .spaceAround,
+          crossAxisAlignment: .start,
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            //  measure edit chord selection
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: .spaceBetween,
+                children: <Widget>[
+                  Text('Repeat: ', style: sectionAppTextStyle),
                   appButton(
                     'x2',
                     value: editPoint.location,
@@ -3040,53 +3071,52 @@ class EditState extends State<Edit> {
                       performMeasureEntryCancel();
                     },
                   ),
-                ]),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                    mainAxisAlignment: .spaceAround,
-                    crossAxisAlignment: .center,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: .spaceAround,
+                crossAxisAlignment: .center,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: .start,
+                    crossAxisAlignment: .end,
                     children: <Widget>[
-                      Row(
-                        mainAxisAlignment: .start,
-                        crossAxisAlignment: .end,
-                        children: <Widget>[
-                          editTooltip(
-                            message: 'Delete this repeat',
-                            child: AppInkWell(
-                              value: editPoint.location,
-                              onTap: () {
-                                song.setRepeat(editPoint.location, 1);
-                                undoStackPush();
-                                performMeasureEntryCancel();
-                              },
-                              child: const Icon(
-                                Icons.delete,
-                                size: _defaultChordFontSize,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                       editTooltip(
-                        message: 'Cancel the modification',
+                        message: 'Delete this repeat',
                         child: AppInkWell(
                           value: editPoint.location,
                           onTap: () {
+                            song.setRepeat(editPoint.location, 1);
+                            undoStackPush();
                             performMeasureEntryCancel();
                           },
-                          child: Icon(
-                            Icons.cancel,
-                            size: _defaultChordFontSize,
-                            color: measureEntryValid ? Colors.black : Colors.red,
-                          ),
+                          child: const Icon(Icons.delete, size: _defaultChordFontSize, color: Colors.black),
                         ),
                       ),
-                    ]),
-              )
-            ]),
+                    ],
+                  ),
+                  editTooltip(
+                    message: 'Cancel the modification',
+                    child: AppInkWell(
+                      value: editPoint.location,
+                      onTap: () {
+                        performMeasureEntryCancel();
+                      },
+                      child: Icon(
+                        Icons.cancel,
+                        size: _defaultChordFontSize,
+                        color: measureEntryValid ? Colors.black : Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -3098,15 +3128,14 @@ class EditState extends State<Edit> {
         setEditPoint(editPoint);
       },
       child: Container(
-          margin: marginInsets,
-          padding: textPadding,
-          color: sectionColor,
-          child: editTooltip(
-              message: 'modify or delete the measure',
-              child: Text(
-                'x${repeat.repeats}',
-                style: sectionChordBoldTextStyle,
-              ))),
+        margin: marginInsets,
+        padding: textPadding,
+        color: sectionColor,
+        child: editTooltip(
+          message: 'modify or delete the measure',
+          child: Text('x${repeat.repeats}', style: sectionChordBoldTextStyle),
+        ),
+      ),
     );
   }
 
@@ -3130,10 +3159,7 @@ class EditState extends State<Edit> {
       margin: marginInsets,
       padding: textPadding,
       color: sectionColor,
-      child: Text(
-        measureNode.toString(),
-        style: sectionChordBoldTextStyle,
-      ),
+      child: Text(measureNode.toString(), style: sectionChordBoldTextStyle),
     );
   }
 
@@ -3150,9 +3176,10 @@ class EditState extends State<Edit> {
       //  append the string
       editTextController.text = text + s;
       logger.log(
-          _editLog,
-          '_updateChordText: _lastEditTextSelection is null: '
-          '"$text"+"$s"');
+        _editLog,
+        '_updateChordText: _lastEditTextSelection is null: '
+        '"$text"+"$s"',
+      );
 
       return;
     }
@@ -3171,10 +3198,11 @@ class EditState extends State<Edit> {
     }
 
     logger.log(
-        _editLog,
-        '>=0: "${text.substring(0, minOffset)}"'
-        '+"$s"'
-        '+"${text.substring(maxOffset)}"');
+      _editLog,
+      '>=0: "${text.substring(0, minOffset)}"'
+      '+"$s"'
+      '+"${text.substring(maxOffset)}"',
+    );
 
     editTextController.text = text.substring(0, minOffset) + s + text.substring(maxOffset);
     int len = minOffset + s.length;
@@ -3184,87 +3212,79 @@ class EditState extends State<Edit> {
   Widget plusRowWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc?.asPhraseLocation(), measureEditType: .insert);
     return AppInkWell(
-        value: editPoint.location,
-        onTap: () {
-          if (loc != null) {
-            setEditPoint(editPoint);
-            logger.d('insert new row above: $selectedEditPoint');
-          }
-        },
-        child: Container(
-            margin: appendInsets,
-            padding: appendPadding,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: _addColor,
-            ),
-            child: editTooltip(
-              message: 'insert new row above'
-                  '${kDebugMode ? ' $editPoint' : ''}',
-              child: Icon(
-                Icons.add,
-                size: appendFontSize,
-              ),
-            )));
+      value: editPoint.location,
+      onTap: () {
+        if (loc != null) {
+          setEditPoint(editPoint);
+          logger.d('insert new row above: $selectedEditPoint');
+        }
+      },
+      child: Container(
+        margin: appendInsets,
+        padding: appendPadding,
+        decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+        child: editTooltip(
+          message:
+              'insert new row above'
+              '${kDebugMode ? ' $editPoint' : ''}',
+          child: Icon(Icons.add, size: appendFontSize),
+        ),
+      ),
+    );
   }
 
   Widget plusRepeatWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc, measureEditType: .insert);
     return AppInkWell(
-        value: loc,
-        onTap: () {
-          if (loc != null) {
-            setEditPoint(editPoint);
-            song.setRepeat(editPoint.location, 2);
-            undoStackPushIfDifferent();
-            clearMeasureEntry();
-          }
-        },
-        child: Container(
-            margin: appendInsets,
-            padding: appendPadding,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: _addColor,
-            ),
-            child: editTooltip(
-              message: 'add repeat to this chord row'
-                  '${kDebugMode ? ' $editPoint' : ''}',
-              child: Icon(
-                Icons.repeat,
-                size: appendFontSize,
-              ),
-              //  Text('+x', style: addRowRepeatTextStyle,),
-            )));
+      value: loc,
+      onTap: () {
+        if (loc != null) {
+          setEditPoint(editPoint);
+          song.setRepeat(editPoint.location, 2);
+          undoStackPushIfDifferent();
+          clearMeasureEntry();
+        }
+      },
+      child: Container(
+        margin: appendInsets,
+        padding: appendPadding,
+        decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+        child: editTooltip(
+          message:
+              'add repeat to this chord row'
+              '${kDebugMode ? ' $editPoint' : ''}',
+          child: Icon(Icons.repeat, size: appendFontSize),
+          //  Text('+x', style: addRowRepeatTextStyle,),
+        ),
+      ),
+    );
   }
 
   Widget plusNewRowWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc, measureEditType: .append, onEndOfRow: true);
 
     return _debugWidget(
-        AppInkWell(
-            value: loc,
-            onTap: () {
-              setState(() {
-                selectedEditPoint = editPoint;
-              });
-            },
-            child: Container(
-                margin: appendInsets,
-                padding: appendPadding,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _addColor,
-                ),
-                child: editTooltip(
-                  message: 'add a measure on a new chord row'
-                      '${kDebugMode ? ' $editPoint' : ''}',
-                  child: Icon(
-                    Icons.call_received,
-                    size: appendFontSize,
-                  ),
-                ))),
-        editPoint);
+      AppInkWell(
+        value: loc,
+        onTap: () {
+          setState(() {
+            selectedEditPoint = editPoint;
+          });
+        },
+        child: Container(
+          margin: appendInsets,
+          padding: appendPadding,
+          decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+          child: editTooltip(
+            message:
+                'add a measure on a new chord row'
+                '${kDebugMode ? ' $editPoint' : ''}',
+            child: Icon(Icons.call_received, size: appendFontSize),
+          ),
+        ),
+      ),
+      editPoint,
+    );
   }
 
   Widget plusMeasureEditGridDisplayWidget(EditPoint editPoint, {String? tooltip}) {
@@ -3282,26 +3302,23 @@ class EditState extends State<Edit> {
     }
 
     return AppInkWell(
-        value: editPoint.location,
-        onTap: () {
-          setEditPoint(editPoint);
-        },
-        child: Container(
-            margin: appendInsets,
-            padding: appendPadding,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: _addColor,
-            ),
-            child: editTooltip(
-              message: tooltip ??
-                  ('add new measure on this row'
-                      '${kDebugMode ? ' loc: $editPoint' : ''}'),
-              child: Icon(
-                Icons.add,
-                size: appendFontSize,
-              ),
-            )));
+      value: editPoint.location,
+      onTap: () {
+        setEditPoint(editPoint);
+      },
+      child: Container(
+        margin: appendInsets,
+        padding: appendPadding,
+        decoration: const BoxDecoration(shape: BoxShape.circle, color: _addColor),
+        child: editTooltip(
+          message:
+              tooltip ??
+              ('add new measure on this row'
+                  '${kDebugMode ? ' loc: $editPoint' : ''}'),
+          child: Icon(Icons.add, size: appendFontSize),
+        ),
+      ),
+    );
   }
 
   /// make a drop down list for the next most available, new sectionVersion
@@ -3340,8 +3357,9 @@ class EditState extends State<Edit> {
     //  generate the widgets
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
-      var sectionChordTextStyle =
-          chordTextStyle.copyWith(backgroundColor: App.getBackgroundColorForSectionVersion(sectionVersion));
+      var sectionChordTextStyle = chordTextStyle.copyWith(
+        backgroundColor: App.getBackgroundColorForSectionVersion(sectionVersion),
+      );
 
       //fixme: deal with selectedSectionVersion;
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
@@ -3351,10 +3369,7 @@ class EditState extends State<Edit> {
           child: Row(
             mainAxisAlignment: .spaceBetween,
             children: [
-              Text(
-                sectionVersion.toString(),
-                style: sectionChordTextStyle,
-              ),
+              Text(sectionVersion.toString(), style: sectionChordTextStyle),
               Text(
                 '${sectionVersion.section.formalName} '
                 '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
@@ -3428,8 +3443,12 @@ class EditState extends State<Edit> {
     //  construct a properly capitalized version of the entry
     String upperEntry = MeasureNode.concatMarkup(validateMeasureEntry(entry));
     upperEntry = upperEntry.trim();
-    String minEntry =
-        entry.trim().replaceAll("\t", " ").replaceAll(":\n", ":").replaceAll("  ", " ").replaceAll("\n", ",");
+    String minEntry = entry
+        .trim()
+        .replaceAll("\t", " ")
+        .replaceAll(":\n", ":")
+        .replaceAll("  ", " ")
+        .replaceAll("\n", ",");
     logger.log(_editLog, 'entry: "$minEntry" vs "$upperEntry"');
 
     //  suggest the corrected input if different
@@ -3503,16 +3522,18 @@ class EditState extends State<Edit> {
       //  commit to the edit
       song = chordSong;
       logger.log(
-          _editLog,
-          'pre  _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
-          ', entry: $measureEntryNodes'
-          ', song: ${song.toMarkup()}');
+        _editLog,
+        'pre  _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
+        ', entry: $measureEntryNodes'
+        ', song: ${song.toMarkup()}',
+      );
       edit(done: done, endOfRow: endOfRow);
       logger.log(
-          _editLog,
-          'post _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
-          ', entry: $measureEntryNodes'
-          ', song: ${song.toMarkup()}');
+        _editLog,
+        'post _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
+        ', entry: $measureEntryNodes'
+        ', song: ${song.toMarkup()}',
+      );
     });
   }
 
@@ -3589,11 +3610,13 @@ class EditState extends State<Edit> {
       //  output to match the TestSong() tests from the library. i.e. bsteeleMusicLib
       logger.t('//  from ${Util.utcNow()}');
       logger.t('ts.startingChords(\'${logSong.toMarkup()}\');');
-      logger.t('ts.edit(${logSong.currentMeasureEditType}, \'${logSong.currentChordSectionLocation}\''
-          ', \'${logSong.getCurrentMeasureNode()?.toMarkup()}\'' //  measure string
-          ', SongBase.entryToUppercase(\'${measureEntryNodes?.toString()}\')'
-          ');'
-          ' // endOfRow: $endOfRow');
+      logger.t(
+        'ts.edit(${logSong.currentMeasureEditType}, \'${logSong.currentChordSectionLocation}\''
+        ', \'${logSong.getCurrentMeasureNode()?.toMarkup()}\'' //  measure string
+        ', SongBase.entryToUppercase(\'${measureEntryNodes?.toString()}\')'
+        ');'
+        ' // endOfRow: $endOfRow',
+      );
     }
   }
 
@@ -3601,9 +3624,11 @@ class EditState extends State<Edit> {
     if (_editDebug) {
       //  output to match the TestSong() tests from the library. i.e. bsteeleMusicLib
       logger.t('ts.resultChords(\'${logSong.toMarkup()}\');');
-      logger.t('ts.post(${logSong.currentMeasureEditType},\'${logSong.getCurrentChordSectionLocation()}\''
-          ',\'${logSong.getCurrentMeasureNode()?.toMarkup()}\' );'
-          ' // endOfRow: $endOfRow');
+      logger.t(
+        'ts.post(${logSong.currentMeasureEditType},\'${logSong.getCurrentChordSectionLocation()}\''
+        ',\'${logSong.getCurrentMeasureNode()?.toMarkup()}\' );'
+        ' // endOfRow: $endOfRow',
+      );
     }
   }
 
@@ -3748,16 +3773,8 @@ class EditState extends State<Edit> {
   }
 
   /// helper function to generate tool tips
-  Widget editTooltip({
-    Key? key,
-    required String message,
-    required Widget child,
-  }) {
-    return AppTooltip(
-      key: key,
-      message: message,
-      child: child,
-    );
+  Widget editTooltip({Key? key, required String message, required Widget child}) {
+    return AppTooltip(key: key, message: message, child: child);
   }
 
   void import() async {
@@ -3770,10 +3787,7 @@ class EditState extends State<Edit> {
   _navigateToDetail(BuildContext context) async {
     app.selectedSong = song;
     app.selectedMomentNumber = 0;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Detail()),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const Detail()));
   }
 
   bool _wasSongLoaded = false;
@@ -3798,7 +3812,8 @@ class EditState extends State<Edit> {
   int transpositionOffset = 0;
 
   bool isProEditInput = false;
-  static const proMessage = 'Select pro input mode.\nThis requires that you know what you are doing,\n'
+  static const proMessage =
+      'Select pro input mode.\nThis requires that you know what you are doing,\n'
       'and will not get frustrated if you don\'t.';
   Timer? _idleTimer;
   bool measureEntryIsClear = true;
@@ -3857,8 +3872,6 @@ class EditState extends State<Edit> {
 
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();
-
-  final AppOptions appOptions = AppOptions();
 }
 
 /*

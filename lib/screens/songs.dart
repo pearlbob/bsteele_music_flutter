@@ -4,7 +4,6 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -176,7 +175,7 @@ class SongsState extends State<Songs> {
     app.warningMessage = '$songsReadCount new song${songsReadCount == 1 ? '' : 's'} read$dupString out of $songsInFile';
 
     setState(() {
-      AllSongPerformances().loadSongs(app.allSongs);
+      appOptions.allSongPerformances.loadSongs(app.allSongs);
     });
   }
 
@@ -253,7 +252,7 @@ class SongsState extends State<Songs> {
     app.clearMessage();
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Edit(initialSong: AppOptions().lastSongEdited)),
+      MaterialPageRoute(builder: (context) => Edit(initialSong: appOptions.lastSongEdited)),
     );
     if (!mounted) {
       return;

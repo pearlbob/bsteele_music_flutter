@@ -433,7 +433,7 @@ class LyricsTable {
 
             MeasureNode? mn = displayGrid.get(banner.index, momentNumber);
             switch (banner) {
-              case BannerColumn.chordSections:
+              case .chordSections:
                 var chordSection = mn is ChordSection ? mn : null;
                 _cellGrid.set(
                   banner.index,
@@ -452,7 +452,7 @@ class LyricsTable {
                         ),
                 );
                 break;
-              case BannerColumn.repeats:
+              case .repeats:
                 var marker = mn is MeasureRepeatMarker ? mn : null;
                 _cellGrid.set(
                   banner.index,
@@ -474,7 +474,7 @@ class LyricsTable {
                         ),
                 );
                 break;
-              case BannerColumn.lyrics:
+              case .lyrics:
                 var lyric = mn is Lyric ? mn : null;
                 _cellGrid.set(
                   banner.index,
@@ -1808,11 +1808,7 @@ class LyricsTable {
       ', black: ${Colors.black}, ==: ${style.color == Colors.black}',
     );
     var slashColor = style.color == Colors.black ? _slashColor : _fadedSlashColor;
-    final TextStyle slashStyle = style.copyWith(
-      color: slashColor,
-      fontWeight: .bold,
-      fontStyle: FontStyle.italic,
-    );
+    final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: .bold, fontStyle: FontStyle.italic);
 
     TextStyle chordDescriptorStyle = style
         .copyWith(fontSize: (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: .normal)
@@ -1912,11 +1908,7 @@ class LyricsTable {
 
     style = style ?? _coloredChordTextStyle;
     var slashColor = style.color == Colors.black ? _slashColor : _fadedSlashColor;
-    final TextStyle slashStyle = style.copyWith(
-      color: slashColor,
-      fontWeight: .bold,
-      fontStyle: FontStyle.italic,
-    );
+    final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: .bold, fontStyle: FontStyle.italic);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
       fontSize: (style.fontSize ?? _chordFontSizeUnscaled),
@@ -2463,7 +2455,8 @@ class _SongCellWidget extends StatefulWidget {
     var ret = (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText, maxWidth: width) +
-              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
+              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize)
+    ;
     return ret;
   }
 
@@ -2534,17 +2527,17 @@ class _SongCellState extends State<_SongCellWidget> {
             repeat = marker.repeats - 1;
           }
 
-          if (widget.row == 3 && playMomentNumber >= 19 && playMomentNumber < 29) {
-            logger.log(
-              _logSongCellStateBuild,
-              'cellState Build: (${widget.row},${widget.column}):'
-              ' playMomentNumber: $playMomentNumber'
-              ', firstMomentNumber: ${widget.firstMomentNumber}'
-              ', lastMomentNumber: ${widget.lastMomentNumber}'
-              ', byMoment: $byMoment'
-              ', repeat: $repeat',
-            );
-          }
+          // if (widget.row == 3 && playMomentNumber >= 19 && playMomentNumber < 29) {
+          //   logger.log(
+          //     _logSongCellStateBuild,
+          //     'cellState Build: (${widget.row},${widget.column}):'
+          //     ' playMomentNumber: $playMomentNumber'
+          //     ', firstMomentNumber: ${widget.firstMomentNumber}'
+          //     ', lastMomentNumber: ${widget.lastMomentNumber}'
+          //     ', byMoment: $byMoment'
+          //     ', repeat: $repeat',
+          //   );
+          // }
         }
 
         if (byMoment) {
@@ -2630,8 +2623,8 @@ class _SongCellState extends State<_SongCellWidget> {
         ? RichText(
             text: TextSpan(
               text:
-                  'x${lastRepeat! + 1}'
-                  '/${(widget.measureNode! as MeasureRepeatMarker).repeats}',
+                  'x${appOptions.showRepeatCounts ? '${lastRepeat! + 1}/' : ''}'
+                      '${(widget.measureNode! as MeasureRepeatMarker).repeats}',
               style: widget.richText.text.style,
             ),
             textScaler: widget.richText.textScaler,

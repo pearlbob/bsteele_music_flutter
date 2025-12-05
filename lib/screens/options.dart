@@ -401,6 +401,44 @@ class OptionsState extends State<Options> {
                   ],
                 ),
 
+                // show Repeat Counts
+                const AppSpace(verticalSpace: 30),
+                AppWrapFullWidth(
+                  spacing: 15,
+                  children: [
+                    const Text('Show Repeat Counts:'),
+                    SegmentedButton<bool>(
+                      selectedIcon: appIcon(Icons.check),
+                      style: ButtonStyle(),
+                      segments: <ButtonSegment<bool>>[
+                        ButtonSegment<bool>(
+                          value: false,
+                          label: Text('No Repeats', style: buttonTextStyle()),
+                          tooltip: appOptions.toolTips
+                              ? 'Do not show repeat counts on repeats.'
+                              : null,
+                        ),
+                        ButtonSegment<bool>(
+                          value: true,
+                          label: Text('Show Repeats', style: buttonTextStyle()),
+                          tooltip: appOptions.toolTips
+                              ? 'Show repeat counts on repeats.  For example: x2/4'
+                              : null,
+                        ),
+                      ],
+                      selected: <bool>{appOptions.showRepeatCounts},
+                      onSelectionChanged: (Set<bool> newSelection) {
+                        setState(() {
+                          // By default there is only a single segment that can be
+                          // selected at one time, so its value is always the first
+                          // item in the selected set.
+                          appOptions.showRepeatCounts = newSelection.first;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
                 const AppSpace(verticalSpace: 30),
                 AppWrap(
                   children: [

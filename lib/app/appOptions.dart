@@ -43,6 +43,7 @@ enum StorageValue {
   accidentalExpressionChoice,
   reducedNashvilleDots,
   simplifiedChords,
+  showRepeatCounts,
 }
 
 enum TapToAdvance { never, upOrDown }
@@ -118,6 +119,7 @@ class AppOptions extends ChangeNotifier {
     _playWithBouncingBall = await _readBool('playWithBouncingBall', defaultValue: _playWithBouncingBall);
     _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
     _simplifiedChords = await _readBool(StorageValue.simplifiedChords.name, defaultValue: _simplifiedChords);
+    _showRepeatCounts = await _readBool(StorageValue.showRepeatCounts.name, defaultValue: _showRepeatCounts);
     _alwaysUseTheNewestSongOnRead = await _readBool(
       'alwaysUseTheNewestSongOnRead',
       defaultValue: _alwaysUseTheNewestSongOnRead,
@@ -447,6 +449,19 @@ class AppOptions extends ChangeNotifier {
   /// True if the user wants the app to play chords when in play mode.
   bool get simplifiedChords => _simplifiedChords;
   bool _simplifiedChords = false;
+
+
+  set showRepeatCounts(bool value) {
+    if (_showRepeatCounts == value) {
+      return;
+    }
+    _showRepeatCounts = value;
+    _saveBool(StorageValue.showRepeatCounts.name, value);
+  }
+
+  /// True if the user wants the app to repeat counts on the player screen
+  bool get showRepeatCounts => _showRepeatCounts;
+  bool _showRepeatCounts = false;
 
   /// The current selected web socket host.
   /// An empty string will indicate the web socket should remain idle.

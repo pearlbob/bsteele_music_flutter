@@ -823,7 +823,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _performHoldContinue();
             break;
           case .pause:
-            _performPause();
+            _performPause(force: true);
             break;
         }
       },
@@ -921,8 +921,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   ),
 
                   //  other top sections when idle
-                  if (_showCapo &&
-                      (songUpdateState == .idle || songUpdateState == .drumTempo))
+                  if (_showCapo && (songUpdateState == .idle || songUpdateState == .drumTempo))
                     //  capo
                     AppWrapFullWidth(
                       alignment: .spaceBetween,
@@ -1153,10 +1152,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   //   ),
 
                   //  ninjam aid
-                  if (app.isScreenBig &&
-                      appOptions.ninJam &&
-                      _ninJam.isNinJamReady &&
-                      songUpdateState == .idle)
+                  if (app.isScreenBig && appOptions.ninJam && _ninJam.isNinJamReady && songUpdateState == .idle)
                     AppWrapFullWidth(
                       spacing: 20,
                       children: [
@@ -1338,10 +1334,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     );
 
     if (!_songUpdateService.isFollowing) {
-      if (e.logicalKey == LogicalKeyboardKey.keyM) {
-        _tempoTap();
-        return KeyEventResult.handled;
-      } else if (e.logicalKey == LogicalKeyboardKey.space) {
+      //  do the always available keys first, i.e. those that work in pause
+      if (e.logicalKey == LogicalKeyboardKey.space) {
         if (true) {
           //  space to pause
           switch (_songUpdateState) {
@@ -1385,16 +1379,32 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         //   }
         // }
         return KeyEventResult.handled;
-      } else if (
-      //  workaround for cheap foot pedal... only outputs b
-      e.logicalKey == LogicalKeyboardKey.keyB) {
-        _forwardSwitchPressed();
-        return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowDown || e.logicalKey == LogicalKeyboardKey.numpadAdd) {
         _bump(1);
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowUp || e.logicalKey == LogicalKeyboardKey.numpadSubtract) {
         _bump(-1);
+        return KeyEventResult.handled;
+      }
+
+      //  consume all keys if in manual pause
+      switch (_songUpdateState) {
+        case .pause:
+          //  ignore all other keys!
+          logger.log(_logKeyboard, 'key ignored in pause: ${e.logicalKey}');
+          return KeyEventResult.handled;
+        default:
+          break;
+      }
+
+      //  process the keys while in a non-pause mode
+      if (e.logicalKey == LogicalKeyboardKey.keyM) {
+        _tempoTap();
+        return KeyEventResult.handled;
+      } else if (
+      //  workaround for cheap foot pedal... only outputs b
+      e.logicalKey == LogicalKeyboardKey.keyB) {
+        _forwardSwitchPressed();
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         _bpmBump(1);
@@ -1448,8 +1458,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     } else {
       setState(() {
         //  short cuts used in following mode
-        app.error =
-            'No short cuts while following host ${appOptions.websocketHost}. Set options to no host or leader.';
+        app.error = 'No short cuts while following host ${appOptions.websocketHost}. Set options to no host or leader.';
       });
     }
     logger.log(_logKeyboard, '_playerOnKey(): ignored');
@@ -2885,7 +2894,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   DrumParts? _drumParts;
 
   late AppWidgetHelper _appWidgetHelper;
-  
+
   final AppSongUpdateService _songUpdateService = AppSongUpdateService();
 }
 

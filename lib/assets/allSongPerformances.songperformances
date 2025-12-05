@@ -37497,12 +37497,28 @@
    "key": "C"
   },
   {
-   "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
    "singer": "Angela C.",
    "bpm": 108,
    "firstSung": 1736033598456,
    "lastSung": 1736033598456,
    "key": "E"
+  },
+  {
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
+   "singer": "Matt K.",
+   "bpm": 108,
+   "firstSung": 1763329275294,
+   "lastSung": 1763329275294,
+   "key": "D"
+  },
+  {
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
+   "singer": "Matthew K.",
+   "bpm": 108,
+   "firstSung": 1748206381459,
+   "lastSung": 1748206381459,
+   "key": "D"
   },
   {
    "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
@@ -97275,7 +97291,7 @@
    "key": "D"
   },
   {
-   "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
    "singer": "Angela C.",
    "bpm": 108,
    "firstSung": 1736033598456,
@@ -100707,7 +100723,7 @@
    "key": "D"
   },
   {
-   "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
    "singer": "Matt K.",
    "bpm": 108,
    "firstSung": 1737694620203,
@@ -100715,7 +100731,7 @@
    "key": "D"
   },
   {
-   "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
    "singer": "Matthew K.",
    "bpm": 108,
    "firstSung": 1737694620203,
@@ -121995,6 +122011,14 @@
    "key": "G"
   },
   {
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
+   "singer": "Matthew K.",
+   "bpm": 108,
+   "firstSung": 1748206381459,
+   "lastSung": 1748206381459,
+   "key": "D"
+  },
+  {
    "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
    "singer": "Matthew K.",
    "bpm": 108,
@@ -122009,6 +122033,14 @@
    "firstSung": 1748207617504,
    "lastSung": 1748207617504,
    "key": "G"
+  },
+  {
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
+   "singer": "Matt K.",
+   "bpm": 108,
+   "firstSung": 1748207760227,
+   "lastSung": 1748207760227,
+   "key": "D"
   },
   {
    "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",
@@ -140433,6 +140465,14 @@
    "firstSung": 1763328976827,
    "lastSung": 1763328976827,
    "key": "A"
+  },
+  {
+   "songId": "Song_Tennessee_Waltz_by_Patti_Page_coverBy_CJ",
+   "singer": "Matt K.",
+   "bpm": 108,
+   "firstSung": 1763329275294,
+   "lastSung": 1763329275294,
+   "key": "D"
   },
   {
    "songId": "Song_Tennessee_Waltz_by_Patti_Page_et_al_written_by_Redd_Stewart_Pee_Wee_King",

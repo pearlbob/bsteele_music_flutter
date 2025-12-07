@@ -73,6 +73,7 @@ enum PlayListSortType {
   bySinger('Order by the song performance\'s singer.'),
   byTitle('Order by the song\'s title.'),
   byArtist('Order by the song\'s artist.'),
+  byDateCreated('Order by the song\'s original date of addition to the list.'),
   byLastChange('Order by the date of the most recent edit.'),
   byComplexity('Order by the song\'s complexity when compared to other songs.'),
   byYear('Order by the song\'s year.');

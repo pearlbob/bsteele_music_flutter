@@ -36,6 +36,8 @@ double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
 late TextStyle _indexTextStyle;
 
+PlayListSortType _selectedSortType = .byTitle;
+
 typedef PlayListItemAction = Function(BuildContext context, PlayListItem playListItem);
 
 class PlayListRefreshNotifier extends ChangeNotifier {
@@ -158,6 +160,19 @@ class SongPlayListItem implements PlayListItem {
       );
     }
 
+    //  select the proper date to show
+    String dateString;
+    switch (_selectedSortType) {
+      case .byDateCreated:
+        dateString = intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.dateCreated));
+        break;
+      default:
+        dateString = songPerformance != null
+            ? intl.DateFormat.yMMMd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
+            : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime));
+        break;
+    }
+
     return AppInkWell(
       value: Id(song.songId.toString()),
       onTap: () {
@@ -189,15 +204,7 @@ class SongPlayListItem implements PlayListItem {
               spacing: _textFontSize,
               alignment: isEditing ? WrapAlignment.end : WrapAlignment.spaceBetween,
               children: [
-                if (!isEditing)
-                  Text(
-                    songPerformance != null
-                        ? intl.DateFormat.yMMMd().add_jm().format(
-                          DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung),
-                        )
-                        : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                    style: _indexTextStyle,
-                  ),
+                if (!isEditing) Text(dateString, style: _indexTextStyle),
                 if (isEditing)
                   Consumer<PlayListRefreshNotifier>(
                     builder: (context, playListRefreshNotifier, child) {
@@ -286,13 +293,13 @@ class PlayListItemList {
       return label.isEmpty
           ? NullWidget()
           : Column(
-            crossAxisAlignment: .start,
-            children: [
-              const AppSpace(verticalSpace: 20),
-              Text(label, style: _indexTitleStyle.copyWith(color: color ?? _indexTitleStyle.color)),
-              Divider(thickness: 10, color: color),
-            ],
-          );
+              crossAxisAlignment: .start,
+              children: [
+                const AppSpace(verticalSpace: 20),
+                Text(label, style: _indexTitleStyle.copyWith(color: color ?? _indexTitleStyle.color)),
+                Divider(thickness: 10, color: color),
+              ],
+            );
     }
 
     if (bunch) {
@@ -465,6 +472,7 @@ class PlayListState extends State<PlayList> {
         case .byLastChange:
         case .byComplexity:
         case .byYear:
+        case .byDateCreated:
           break;
       }
     }
@@ -486,6 +494,7 @@ class PlayListState extends State<PlayList> {
             case .byLastChange:
             case .byComplexity:
             case .byYear:
+            case .byDateCreated:
               break;
           }
         }
@@ -544,6 +553,17 @@ class PlayListState extends State<PlayList> {
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   var ret = item1.song.artist.compareTo(item2.song.artist);
+                  if (ret != 0) {
+                    return ret;
+                  }
+                }
+                return item1.compareTo(item2);
+              };
+              break;
+            case .byDateCreated:
+              compare = (PlayListItem item1, PlayListItem item2) {
+                if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
+                  var ret = -item1.song.dateCreated.compareTo(item2.song.dateCreated);
                   if (ret != 0) {
                     return ret;
                   }
@@ -822,10 +842,9 @@ class PlayListState extends State<PlayList> {
                           ),
                           //  search clear
                           AppTooltip(
-                            message:
-                                _searchTextFieldController.text.isEmpty
-                                    ? 'Scroll the list some.'
-                                    : 'Clear the search text.',
+                            message: _searchTextFieldController.text.isEmpty
+                                ? 'Scroll the list some.'
+                                : 'Clear the search text.',
                             child: appIconButton(
                               icon: const Icon(Icons.clear),
                               iconSize: 1.25 * widget.titleFontSize,
@@ -920,6 +939,7 @@ class PlayListState extends State<PlayList> {
                       itemCount: filteredGroup.length,
                       itemScrollController: _itemScrollController,
                       itemPositionsListener: _itemPositionsListener,
+                      scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
                         logger.log(
                           _logPosition,
@@ -934,7 +954,6 @@ class PlayListState extends State<PlayList> {
                           focus(context);
                         });
                       },
-                      scrollDirection: Axis.vertical,
                     ),
                   ),
                 ],
@@ -951,12 +970,12 @@ class PlayListState extends State<PlayList> {
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
     if (_itemScrollController.isAttached && (event is KeyDownEvent || event is KeyRepeatEvent)) {
       //  filter the indexes to those that are fully seen
-      SplayTreeSet<int> itemIndexes =
-          SplayTreeSet()..addAll(
-            _itemPositionsListener.itemPositions.value
-                .where((e) => e.itemLeadingEdge >= 0 && e.itemTrailingEdge < 1.0)
-                .map((e) => e.index),
-          );
+      SplayTreeSet<int> itemIndexes = SplayTreeSet()
+        ..addAll(
+          _itemPositionsListener.itemPositions.value
+              .where((e) => e.itemLeadingEdge >= 0 && e.itemTrailingEdge < 1.0)
+              .map((e) => e.index),
+        );
 
       //  react to the paging requests
       switch (event.logicalKey) {
@@ -1005,7 +1024,6 @@ class PlayListState extends State<PlayList> {
   static final _allNameValue = NameValue('All', '');
 
   final List<DropdownMenuItem<PlayListSortType>> _sortTypesDropDownMenuList = [];
-  var _selectedSortType = PlayListSortType.byTitle;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();

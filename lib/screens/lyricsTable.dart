@@ -1120,6 +1120,30 @@ class LyricsTable {
         break;
     }
 
+    //  adjust for vertical scale constraints
+    {
+        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+          var row = displayGrid.getRow(r);
+          assert(row != null);
+          row = row!;
+
+          for (var c = 0; c < row.length; c++) {
+            var mn = displayGrid.get(r, c);
+            switch ( mn?.measureNodeType){
+              case .lyricSection:
+                logger.i( 'lyricSection: $mn: ${(mn as LyricSection).lyricsLines.length}');
+                default:
+                  break;
+            }
+            if ( mn != null ){
+
+
+            }
+          }
+        }
+    }
+    _scaleFactor *= 0.84;
+
     switch (appOptions.userDisplayStyle) {
       case .proPlayer:
         //  fit everything vertically

@@ -35,6 +35,7 @@ final SplayTreeSet<NameValueMatcher> _filterNameValues = SplayTreeSet();
 double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
 late TextStyle _indexTextStyle;
+late TextStyle _indexBunchStyle;
 
 PlayListSortType _selectedSortType = .byTitle;
 
@@ -105,9 +106,9 @@ class SongPlayListItem implements PlayListItem {
           children: [
             Text(
               song.title,
-              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: .normal),
+              style: _indexBunchStyle.copyWith(decoration: TextDecoration.underline, fontWeight: .normal),
             ),
-            Text('   ', style: _indexTitleStyle),
+            Text('   ', style: _indexBunchStyle),
           ],
         );
       } else {
@@ -128,9 +129,9 @@ class SongPlayListItem implements PlayListItem {
           children: [
             Text(
               song.title,
-              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: .normal),
+              style: _indexBunchStyle.copyWith(decoration: TextDecoration.underline, fontWeight: .normal),
             ),
-            Text('   ', style: _indexTitleStyle),
+            Text('   ', style: _indexBunchStyle),
           ],
         );
       } else {
@@ -399,6 +400,8 @@ class PlayList extends StatefulWidget {
 
     searchDropDownStyle = artistStyle;
     searchTextStyle = titleStyle;
+
+    _indexBunchStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize * 1.25);
 
     logger.log(_logConstruct, 'PlayList.byGroup(): constructor: _isEditing: $isEditing');
   }

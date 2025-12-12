@@ -11,6 +11,13 @@
 ### Fixes Completed
 
 ### Fix
+* Bunch font smaller
+* In no repeat counts,  don't move chords down
+* Easy jump to manual from play
+* Scroll in play should reposition the song
+* Smaller font in player
+* No drum on tempo mode
+* Play button on player
 
 * wasm cannot use the javascript player
 * if not drumming, start play quickly

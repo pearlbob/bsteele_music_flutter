@@ -78,7 +78,7 @@ double _marginSize = _marginSizeDefault;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeDefault);
 const _idleHighlightColor = Colors.redAccent;
 const _playHighlightColor = Colors.greenAccent;
-const _defaultMaxLines = 12;
+const _defaultMaxLines = 20;
 var _maxLines = 1;
 const int _maxMomentNumber = 99999; //  many more than expected
 
@@ -1120,30 +1120,6 @@ class LyricsTable {
         break;
     }
 
-    //  adjust for vertical scale constraints
-    {
-        for (var r = 0; r < displayGrid.getRowCount(); r++) {
-          var row = displayGrid.getRow(r);
-          assert(row != null);
-          row = row!;
-
-          for (var c = 0; c < row.length; c++) {
-            var mn = displayGrid.get(r, c);
-            switch ( mn?.measureNodeType){
-              case .lyricSection:
-                logger.i( 'lyricSection: $mn: ${(mn as LyricSection).lyricsLines.length}');
-                default:
-                  break;
-            }
-            if ( mn != null ){
-
-
-            }
-          }
-        }
-    }
-    _scaleFactor *= 0.84;
-
     switch (appOptions.userDisplayStyle) {
       case .proPlayer:
         //  fit everything vertically
@@ -1158,6 +1134,43 @@ class LyricsTable {
                 totalHeight,
           );
           widths[1] = screenWidth * oldScaleFactor / _scaleFactor; //  fixme: a nasty hack
+        }
+        break;
+      case .player:
+      case .singer:
+      case .both:
+        //  adjust for vertical scale constraints
+        {
+          int rowsPerSection = 0;
+          double height = 0;
+          int lastLyricSectionIndex = 0;
+          for (var r = 0; r < _cellGrid.getRowCount(); r++) {
+            var row = _cellGrid.getRow(r);
+            assert(row != null);
+            row = row!;
+
+            double h = 0;
+            for (var c = 0; c < row.length; c++) {
+              var cell = _cellGrid.get(r, c);
+              if (cell == null) {
+                continue;
+              }
+              h = max(h, cell.buildSize.height);
+
+              if (cell.lyricSectionIndex != null && cell.lyricSectionIndex != lastLyricSectionIndex) {
+               print( 'index: ${cell.lyricSectionIndex}: h: $h');
+                lastLyricSectionIndex = cell.lyricSectionIndex!;
+               height = 0;
+              }
+
+            }
+            rowsPerSection++;
+            height += h;
+            logger.i(
+              '   rowsPerSection: $rowsPerSection'
+              ', height: $h/${app.screenInfo.mediaHeight}',
+            );
+          }
         }
         break;
       default:
@@ -2479,8 +2492,7 @@ class _SongCellWidget extends StatefulWidget {
     var ret = (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText, maxWidth: width) +
-              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize)
-    ;
+              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
     return ret;
   }
 
@@ -2648,7 +2660,7 @@ class _SongCellState extends State<_SongCellWidget> {
             text: TextSpan(
               text:
                   'x${appOptions.showRepeatCounts ? '${lastRepeat! + 1}/' : ''}'
-                      '${(widget.measureNode! as MeasureRepeatMarker).repeats}',
+                  '${(widget.measureNode! as MeasureRepeatMarker).repeats}',
               style: widget.richText.text.style,
             ),
             textScaler: widget.richText.textScaler,

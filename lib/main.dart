@@ -149,11 +149,14 @@ gradle updates:
 
 /*  required macos entitlements!
   macos/Runner/DebugProfile.entitlements and macos/Runner/Release.entitlements need:
+
   <dict> ...
     <key>com.apple.security.network.client</key>
     <true/>
     <key>com.apple.security.network.server</key>
     <true/>
+    <key>com.apple.security.app-sandbox</key>
+    <false/>
  */
 
 /*

@@ -80,7 +80,7 @@ double _marginSize = _marginSizeDefault;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeDefault);
 const _idleHighlightColor = Colors.redAccent;
 const _playHighlightColor = Colors.greenAccent;
-const _defaultMaxLines = 12;
+const _defaultMaxLines = 20;
 var _maxLines = 1;
 const int _maxMomentNumber = 99999; //  many more than expected
 

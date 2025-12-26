@@ -23,6 +23,7 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/songs/song_moment.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
+import 'package:bsteele_music_lib/util/app_util.dart';
 import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
@@ -58,6 +59,7 @@ const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLocationGrid = Level.debug;
 const Level _logHeights = Level.debug;
+const Level _logLyricSectionHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
 const Level _logLyricsTableItemDisplayOffsets = Level.debug;
 const Level _logLyricSectionNotifier = Level.debug;
@@ -1120,29 +1122,8 @@ class LyricsTable {
         break;
     }
 
-    //  adjust for vertical scale constraints
-    {
-        for (var r = 0; r < displayGrid.getRowCount(); r++) {
-          var row = displayGrid.getRow(r);
-          assert(row != null);
-          row = row!;
-
-          for (var c = 0; c < row.length; c++) {
-            var mn = displayGrid.get(r, c);
-            switch ( mn?.measureNodeType){
-              case .lyricSection:
-                logger.i( 'lyricSection: $mn: ${(mn as LyricSection).lyricsLines.length}');
-                default:
-                  break;
-            }
-            if ( mn != null ){
-
-
-            }
-          }
-        }
-    }
     _scaleFactor *= 0.84;
+    logger.log(_logFontSize, 'post  correction: $_scaleFactor');
 
     switch (appOptions.userDisplayStyle) {
       case .proPlayer:
@@ -1173,6 +1154,61 @@ class LyricsTable {
       ', scaled width: ${totalWidth * _scaleFactor}',
     );
 
+    //  adjust for vertical scale constraints
+    {
+      //  assume that most of the media height is available
+      const maxHeightFraction = 0.75;
+      final double maxHeight = maxHeightFraction * (app.screenInfo.mediaHeight - kToolbarHeight); //  fixme: only
+      // approximate!
+      double reduction = 1.0;
+      logger.log(
+          _logLyricSectionHeights,'app.screenInfo: mediaHeight: ${app.screenInfo.mediaHeight}');
+      double lyricSectionHeight = 0;
+      LyricSection? lyricSection;
+      for (var r = 0; r < displayGrid.getRowCount(); r++) {
+        var row = displayGrid.getRow(r);
+        assert(row != null);
+        row = row!;
+
+        for (var c = 0; c < row.length; c++) {
+          var mn = displayGrid.get(r, c);
+          switch (mn?.measureNodeType) {
+            case .lyricSection:
+              if (lyricSection != null) {
+                reduction = min(reduction, maxHeight / lyricSectionHeight);
+                logger.log(
+                  _logLyricSectionHeights,
+                  'last lyricSection: $lyricSection'
+                  ', ends at row: $r, lyricSectionHeight: $lyricSectionHeight'
+                  ', reduction: ${to3(reduction)}',
+                );
+                lyricSectionHeight = 0;
+              }
+              lyricSection = mn as LyricSection;
+              logger.log(
+                _logLyricSectionHeights,
+                'lyricSection: $mn: ${lyricSection.lyricsLines.length}'
+                ', row: $r',
+              );
+            default:
+              break;
+          }
+        }
+
+        lyricSectionHeight += heights[r];
+      }
+      if (lyricSection != null) {
+        reduction = min(reduction, maxHeight / lyricSectionHeight);
+        logger.log(
+          _logLyricSectionHeights,
+          '   scaleFactor: $scaleFactor'
+          ', reduction: $reduction',
+        );
+      }
+      logger.log(_logFontSize,'prior reduction: $_scaleFactor');
+      _scaleFactor *= reduction;
+    }
+
     //  rescale the grid to fit the window
     _scaleFactor = min(_scaleFactor, 1.0);
     _scaleComponents(scaleFactor: _scaleFactor);
@@ -1185,7 +1221,7 @@ class LyricsTable {
         widthSum += w + _paddingSize + 2 * marginSize;
       }
       _unusedMargin = max(0, (screenWidth - widthSum) / 2);
-      // logger.i(
+      // logger.log(_logFontSize,
       //     'screenWidth: $screenWidth, widthSum: $widthSum, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
 
       //  reset the heights to scale
@@ -1194,7 +1230,7 @@ class LyricsTable {
       }
     } else {
       _unusedMargin = max(0, (screenWidth - totalWidth) / 2);
-      // logger.i(
+      // logger.log(_logFontSize,
       //     'screenWidth: $screenWidth, totalWidth: $totalWidth, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
     }
 
@@ -1566,7 +1602,7 @@ class LyricsTable {
         var offset = _rowNumberToDisplayOffset[r];
         var delta = offset - lastOffset;
         lastOffset = offset;
-        logger.i(
+        logger.log(_logFontSize,
           '  row $r: displayOffset: ${offset.toStringAsFixed(3)}'
           ', delta: ${delta.toStringAsFixed(3)}',
         );
@@ -2479,8 +2515,7 @@ class _SongCellWidget extends StatefulWidget {
     var ret = (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText, maxWidth: width) +
-              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize)
-    ;
+              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
     return ret;
   }
 
@@ -2648,7 +2683,7 @@ class _SongCellState extends State<_SongCellWidget> {
             text: TextSpan(
               text:
                   'x${appOptions.showRepeatCounts ? '${lastRepeat! + 1}/' : ''}'
-                      '${(widget.measureNode! as MeasureRepeatMarker).repeats}',
+                  '${(widget.measureNode! as MeasureRepeatMarker).repeats}',
               style: widget.richText.text.style,
             ),
             textScaler: widget.richText.textScaler,

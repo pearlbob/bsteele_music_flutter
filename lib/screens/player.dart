@@ -537,6 +537,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
+
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(_song, musicKey: _displaySongKey);
 
     ScrollPhysics scrollPhysics = ClampingScrollPhysics();

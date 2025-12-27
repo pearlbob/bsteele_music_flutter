@@ -9,13 +9,14 @@
 ### Features
 
 ### Fixes Completed
-
-### Fix
 * Bunch font smaller
 * In no repeat counts,  don't move chords down
+* Smaller font in player
+
+### Fix
+
 * Easy jump to manual from play
 * Scroll in play should reposition the song
-* Smaller font in player
 * No drum on tempo mode
 * Play button on player
 

@@ -1155,58 +1155,64 @@ class LyricsTable {
     );
 
     //  adjust for vertical scale constraints
-    {
-      //  assume that most of the media height is available
-      const maxHeightFraction = 0.75;
-      final double maxHeight = maxHeightFraction * (app.screenInfo.mediaHeight - kToolbarHeight); //  fixme: only
-      // approximate!
-      double reduction = 1.0;
-      logger.log(
-          _logLyricSectionHeights,'app.screenInfo: mediaHeight: ${app.screenInfo.mediaHeight}');
-      double lyricSectionHeight = 0;
-      LyricSection? lyricSection;
-      for (var r = 0; r < displayGrid.getRowCount(); r++) {
-        var row = displayGrid.getRow(r);
-        assert(row != null);
-        row = row!;
+    switch (appOptions.userDisplayStyle) {
+      case .both:
+      case .player:
+        {
+          //  assume that most of the media height is available
+          const maxHeightFraction = 0.75;
+          final double maxHeight = maxHeightFraction * (app.screenInfo.mediaHeight - kToolbarHeight); //  fixme: only
+          // approximate!
+          double reduction = 1.0;
+          logger.log(_logLyricSectionHeights, 'app.screenInfo: mediaHeight: ${app.screenInfo.mediaHeight}');
+          double lyricSectionHeight = 0;
+          LyricSection? lyricSection;
+          for (var r = 0; r < displayGrid.getRowCount(); r++) {
+            var row = displayGrid.getRow(r);
+            assert(row != null);
+            row = row!;
 
-        for (var c = 0; c < row.length; c++) {
-          var mn = displayGrid.get(r, c);
-          switch (mn?.measureNodeType) {
-            case .lyricSection:
-              if (lyricSection != null) {
-                reduction = min(reduction, maxHeight / lyricSectionHeight);
-                logger.log(
-                  _logLyricSectionHeights,
-                  'last lyricSection: $lyricSection'
-                  ', ends at row: $r, lyricSectionHeight: $lyricSectionHeight'
-                  ', reduction: ${to3(reduction)}',
-                );
-                lyricSectionHeight = 0;
+            for (var c = 0; c < row.length; c++) {
+              var mn = displayGrid.get(r, c);
+              switch (mn?.measureNodeType) {
+                case .lyricSection:
+                  if (lyricSection != null) {
+                    reduction = min(reduction, maxHeight / lyricSectionHeight);
+                    logger.log(
+                      _logLyricSectionHeights,
+                      'last lyricSection: $lyricSection'
+                      ', ends at row: $r, lyricSectionHeight: $lyricSectionHeight'
+                      ', reduction: ${to3(reduction)}',
+                    );
+                    lyricSectionHeight = 0;
+                  }
+                  lyricSection = mn as LyricSection;
+                  logger.log(
+                    _logLyricSectionHeights,
+                    'lyricSection: $mn: ${lyricSection.lyricsLines.length}'
+                    ', row: $r',
+                  );
+                default:
+                  break;
               }
-              lyricSection = mn as LyricSection;
-              logger.log(
-                _logLyricSectionHeights,
-                'lyricSection: $mn: ${lyricSection.lyricsLines.length}'
-                ', row: $r',
-              );
-            default:
-              break;
-          }
-        }
+            }
 
-        lyricSectionHeight += heights[r];
-      }
-      if (lyricSection != null) {
-        reduction = min(reduction, maxHeight / lyricSectionHeight);
-        logger.log(
-          _logLyricSectionHeights,
-          '   scaleFactor: $scaleFactor'
-          ', reduction: $reduction',
-        );
-      }
-      logger.log(_logFontSize,'prior reduction: $_scaleFactor');
-      _scaleFactor *= reduction;
+            lyricSectionHeight += heights[r];
+          }
+          if (lyricSection != null) {
+            reduction = min(reduction, maxHeight / lyricSectionHeight);
+            logger.log(
+              _logLyricSectionHeights,
+              '   scaleFactor: $scaleFactor'
+              ', reduction: $reduction',
+            );
+          }
+          logger.log(_logFontSize, 'prior reduction: $_scaleFactor');
+          _scaleFactor *= reduction;
+        }
+        break;
+      default:
+        break;
     }
 
     //  rescale the grid to fit the window
@@ -1602,7 +1608,8 @@ class LyricsTable {
         var offset = _rowNumberToDisplayOffset[r];
         var delta = offset - lastOffset;
         lastOffset = offset;
-        logger.log(_logFontSize,
+        logger.log(
+          _logFontSize,
           '  row $r: displayOffset: ${offset.toStringAsFixed(3)}'
           ', delta: ${delta.toStringAsFixed(3)}',
         );

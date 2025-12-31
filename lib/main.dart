@@ -91,6 +91,7 @@ import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -428,6 +429,7 @@ class MyHomePageState extends State<MyHomePage> {
         var allSongPerformances = appOptions.allSongPerformances;
         allSongPerformances.updateFromJsonString(dataAsString);
         allSongPerformances.loadSongs(app.allSongs);
+        computeSongPopularity(allSongPerformances);
         logger.i('internal song performances used');
       } catch (fe) {
         logger.i('internal song performance parse error: $fe');
@@ -506,6 +508,7 @@ class MyHomePageState extends State<MyHomePage> {
         appOptions.allSongPerformances.updateFromJsonString(dataAsString);
         var allSongs = app.allSongs;
         var corrections = appOptions.allSongPerformances.loadSongs(allSongs);
+        computeSongPopularity(appOptions.allSongPerformances);
         logger.i('external song performances read from: $url, corrections: $corrections');
 
         //  it's very important to store corrected performances/history/requests locally
@@ -758,7 +761,9 @@ class MyHomePageState extends State<MyHomePage> {
           //           ),
           //         ],
           //       )),
-          if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
+          if (app.message.isNotEmpty) //
+            Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
+
           PlayList(
             itemList: PlayListItemList(
               '',

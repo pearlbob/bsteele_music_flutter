@@ -76,7 +76,9 @@ enum PlayListSortType {
   byDateCreated('Order by the song\'s original date of addition to the list.'),
   byLastChange('Order by the date of the most recent edit.'),
   byComplexity('Order by the song\'s complexity when compared to other songs.'),
-  byYear('Order by the song\'s year.');
+  byYear('Order by the song\'s year.'),
+  byPopularity('Order by the song\'s popularity.')
+  ;
 
   const PlayListSortType(this.toolTip);
 

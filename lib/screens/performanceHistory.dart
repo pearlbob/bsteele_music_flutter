@@ -172,8 +172,8 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                 songListGroup,
                 style: _songPerformanceStyle,
                 includeByLastSung: true,
-                selectedSortType: .byHistory,
                 playListSearchMatcher: SongPlayListSearchMatcher(),
+                isOrderBy: false,
               ),
 
               // const AppSpace(),

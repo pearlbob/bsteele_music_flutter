@@ -37,8 +37,6 @@ late TextStyle _indexTitleStyle;
 late TextStyle _indexTextStyle;
 late TextStyle _indexBunchStyle;
 
-PlayListSortType _selectedSortType = .byTitle;
-
 typedef PlayListItemAction = Function(BuildContext context, PlayListItem playListItem);
 
 class PlayListRefreshNotifier extends ChangeNotifier {
@@ -77,6 +75,7 @@ abstract class PlayListItem implements Comparable<PlayListItem> {
     final bool isEditing,
     final VoidCallback? refocus,
     final bool bunch,
+    final PlayListSortType? playListSortType,
   );
 
   String get title;
@@ -98,6 +97,7 @@ class SongPlayListItem implements PlayListItem {
     final bool isEditing,
     final VoidCallback? refocus,
     final bool bunch,
+    final PlayListSortType? playListSortType,
   ) {
     AppWrap songWidget;
     if (songPerformance != null) {
@@ -163,9 +163,21 @@ class SongPlayListItem implements PlayListItem {
 
     //  select the proper date to show
     String dateString;
-    switch (_selectedSortType) {
+    switch (playListSortType) {
       case .byDateCreated:
         dateString = intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.dateCreated));
+        break;
+      case .byYear:
+        {
+          int year = song.getCopyrightYear();
+          dateString = year == 0 ? 'unknown' : year.toString();
+        }
+        break;
+      case .byComplexity:
+        dateString = song.getComplexity().toString();
+        break;
+      case .byPopularity:
+        dateString = (songPopularity[song.songId] ?? 0).toString();
         break;
       default:
         dateString = songPerformance != null
@@ -286,7 +298,13 @@ class PlayListItemList {
 
   int get length => 1 + (bunch ? 1 : playListItems.length);
 
-  Widget _indexToWidget(BuildContext context, int index, bool isEditing, VoidCallback? refocus) {
+  Widget _indexToWidget(
+    BuildContext context,
+    int index,
+    bool isEditing,
+    VoidCallback? refocus,
+    PlayListSortType? playListSortType,
+  ) {
     assert(index >= 0 && index - 1 < playListItems.length);
 
     //  index 0 is the label
@@ -312,14 +330,14 @@ class PlayListItemList {
       return Wrap(
         children: [
           ...playListItemSet.map<Widget>((e) {
-            return e.toWidget(context, playListItemAction, isEditing, refocus, bunch);
+            return e.toWidget(context, playListItemAction, isEditing, refocus, bunch, playListSortType);
           }),
         ],
       );
     }
 
     //  other indices are the song items
-    return playListItems[index - 1].toWidget(context, playListItemAction, isEditing, refocus, bunch);
+    return playListItems[index - 1].toWidget(context, playListItemAction, isEditing, refocus, bunch, playListSortType);
   }
 
   final String label;
@@ -340,12 +358,13 @@ class PlayListGroup {
 
   bool get isNotEmpty => group.isNotEmpty;
 
-  Widget _indexToWidget(final BuildContext context, int index, final bool isEditing, final VoidCallback? refocus) {
+  Widget _indexToWidget(final BuildContext context, int index, final bool isEditing, final VoidCallback? refocus, 
+      final PlayListSortType? playListSortType) {
     for (var itemList in group) {
       if (index >= itemList.length) {
         index -= itemList.length;
       } else {
-        return itemList._indexToWidget(context, index, isEditing, refocus);
+        return itemList._indexToWidget(context, index, isEditing, refocus, playListSortType);
       }
     }
     return Text('index too long for group: $index', style: _indexTitleStyle);
@@ -361,7 +380,6 @@ class PlayList extends StatefulWidget {
     style,
     includeByLastSung = false,
     isEditing = false,
-    selectedSortType,
     isFromTheTop = true,
     isOrderBy = true,
     useAllFilters = false,
@@ -373,7 +391,6 @@ class PlayList extends StatefulWidget {
          style: style,
          includeByLastSung: includeByLastSung,
          isEditing: isEditing,
-         selectedSortType: selectedSortType,
          isFromTheTop: isFromTheTop,
          isOrderBy: isOrderBy,
          showAllFilters: useAllFilters,
@@ -386,7 +403,6 @@ class PlayList extends StatefulWidget {
     this.style,
     this.includeByLastSung = false,
     this.isEditing = false,
-    this.selectedSortType,
     this.isFromTheTop = true,
     this.isOrderBy = true,
     this.showAllFilters = false,
@@ -413,7 +429,6 @@ class PlayList extends StatefulWidget {
   final TextStyle? style;
   final bool includeByLastSung;
   final bool isEditing;
-  final PlayListSortType? selectedSortType;
   final bool isFromTheTop;
   final bool isOrderBy;
   final bool showAllFilters;
@@ -442,8 +457,6 @@ class PlayListState extends State<PlayList> {
     super.initState();
 
     logger.log(_logInitState, '_PlayListState.initState():');
-
-    _generateSortTypesDropDownMenuList();
   }
 
   void focus(BuildContext context) {
@@ -456,66 +469,49 @@ class PlayListState extends State<PlayList> {
     FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 
-  _generateSortTypesDropDownMenuList() {
-    if (widget.selectedSortType != null) {
-      _selectedSortType = widget.selectedSortType!;
-    } else if (widget.includeByLastSung) {
-      //  preference for last sung (performance) lists
-      _selectedSortType = .byHistory;
-    } else {
-      switch (_selectedSortType) {
-        case .byLastSung:
-        case .byHistory:
-        case .bySinger:
-          //  replace invalid preference for song lists
-          _selectedSortType = .byTitle;
-          break;
-        case .byTitle:
-        case .byArtist:
-        case .byLastChange:
-        case .byComplexity:
-        case .byYear:
-        case .byDateCreated:
-          break;
-      }
-    }
-
+  List<DropdownMenuItem<PlayListSortType>> _generateSortTypesDropDownMenuList() {
     //  generate the sort selection
-    _sortTypesDropDownMenuList.clear();
-    if (widget.isOrderBy) {
-      for (final e in PlayListSortType.values) {
-        //  fool with the drop down options
-        if (!widget.includeByLastSung) {
-          switch (e) {
-            case .byHistory:
-            case .byLastSung:
-            case .bySinger:
-              //  if in a song play list, these should be removed
-              continue;
-            case .byTitle:
-            case .byArtist:
-            case .byLastChange:
-            case .byComplexity:
-            case .byYear:
-            case .byDateCreated:
-              break;
-          }
+    List<DropdownMenuItem<PlayListSortType>> ret = [];
+    for (final e in PlayListSortType.values) {
+      //  fool with the drop down options
+      if (!widget.includeByLastSung) {
+        switch (e) {
+          case .byHistory:
+          case .byLastSung:
+          case .bySinger:
+            //  if in a song play list, these should be removed
+            continue;
+          case .byTitle:
+          case .byArtist:
+          case .byLastChange:
+          case .byComplexity:
+          case .byPopularity:
+          case .byYear:
+          case .byDateCreated:
+            break;
         }
-        _sortTypesDropDownMenuList.add(
-          appDropdownMenuItem<PlayListSortType>(
-            value: e,
-            child: AppTooltip(
-              message: e.toolTip,
-              child: Text(Util.camelCaseToLowercaseSpace(e.name), style: widget.searchDropDownStyle),
-            ),
-          ),
-        );
       }
+      ret.add(
+        appDropdownMenuItem<PlayListSortType>(
+          value: e,
+          child: AppTooltip(
+            message: e.toolTip,
+            child: Text(Util.camelCaseToLowercaseSpace(e.name), style: widget.searchDropDownStyle),
+          ),
+        ),
+      );
     }
+    return ret;
   }
 
   @override
   Widget build(BuildContext context) {
+    // //  fixme now: debug
+    // logger.i('_sortTypesDropDownMenuList');
+    // for (var dropDown in _sortTypesDropDownMenuList) {
+    //   logger.i('   ${dropDown.value}');
+    // }
+
     return Consumer<PlayListRefreshNotifier>(
       builder: (context, playListRefreshNotifier, child) {
         logger.log(
@@ -551,7 +547,7 @@ class PlayListState extends State<PlayList> {
         // select order
         int Function(PlayListItem key1, PlayListItem key2)? compare;
         if (widget.isOrderBy) {
-          switch (_selectedSortType) {
+          switch (_selectedPlayListSortType) {
             case .byArtist:
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
@@ -589,6 +585,19 @@ class PlayListState extends State<PlayList> {
               compare = (PlayListItem item1, PlayListItem item2) {
                 if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
                   var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
+                  if (ret != 0) {
+                    return ret;
+                  }
+                }
+                return item1.compareTo(item2);
+              };
+              break;
+            case .byPopularity:
+              compare = (PlayListItem item1, PlayListItem item2) {
+                if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
+                  var pop1 = songPopularity[item1.song.songId] ?? 0;
+                  var pop2 = songPopularity[item2.song.songId] ?? 0;
+                  var ret = -pop1.compareTo(pop2);
                   if (ret != 0) {
                     return ret;
                   }
@@ -717,6 +726,7 @@ class PlayListState extends State<PlayList> {
                   }
                 }
               }
+
               if (filteredSet.isNotEmpty) {
                 filteredSongLists.add(
                   PlayListItemList(
@@ -917,21 +927,21 @@ class PlayListState extends State<PlayList> {
                                   child: Text('Order: ', style: widget.searchDropDownStyle),
                                 ),
                                 appDropdownButton<PlayListSortType>(
-                                  _sortTypesDropDownMenuList,
+                                  _generateSortTypesDropDownMenuList(),
                                   onChanged: (value) {
-                                    if (_selectedSortType != value) {
+                                    if (_selectedPlayListSortType != value) {
                                       setState(() {
-                                        _selectedSortType = value ?? .byTitle;
+                                        _selectedPlayListSortType = value ?? .byTitle;
                                         app.clearMessage();
                                       });
                                     }
                                   },
-                                  value: _selectedSortType,
+                                  value: _selectedPlayListSortType,
                                   style: widget.searchDropDownStyle,
                                 ),
-                                Text('(${filteredGroup.length})', style: widget.artistStyle),
                               ],
                             ),
+                          Text('(${filteredGroup.length})', style: widget.artistStyle),
                         ],
                       ),
                     ],
@@ -955,7 +965,7 @@ class PlayListState extends State<PlayList> {
                         _indexTextStyle = (index & 1) == 1 ? widget.oddTextStyle : widget.evenTextStyle;
                         return filteredGroup._indexToWidget(context, index, widget.isEditing, () {
                           focus(context);
-                        });
+                        }, _selectedPlayListSortType);
                       },
                     ),
                   ),
@@ -1026,7 +1036,7 @@ class PlayListState extends State<PlayList> {
 
   static final _allNameValue = NameValue('All', '');
 
-  final List<DropdownMenuItem<PlayListSortType>> _sortTypesDropDownMenuList = [];
+  PlayListSortType _selectedPlayListSortType = .byTitle;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();

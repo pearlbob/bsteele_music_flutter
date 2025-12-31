@@ -15,9 +15,11 @@
 
 ### Fix
 
+* lists not sorting in singer or history
+* No drum on tempo mode
+* popularity sort
 * Easy jump to manual from play
 * Scroll in play should reposition the song
-* No drum on tempo mode
 * Play button on player
 
 * wasm cannot use the javascript player

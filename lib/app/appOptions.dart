@@ -518,6 +518,7 @@ class AppOptions extends ChangeNotifier {
       logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
+
   }
 
   void storeSongMetadata() {

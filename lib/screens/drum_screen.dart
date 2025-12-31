@@ -52,11 +52,17 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     if (_drumPartsList.isEmpty) {
       //  fill with something meaningful if empty
       const beats = 4;
-      _drumPartsList.add(DrumParts(name: 'minimum', beats: beats, parts: [
-        DrumPart(DrumTypeEnum.closedHighHat, beats: beats)
-          ..addBeat(DrumBeat.beat1)
-          ..addBeat(DrumBeat.beat3)
-      ]));
+      _drumPartsList.add(
+        DrumParts(
+          name: 'minimum',
+          beats: beats,
+          parts: [
+            DrumPart(DrumTypeEnum.closedHighHat, beats: beats)
+              ..addBeat(DrumBeat.beat1)
+              ..addBeat(DrumBeat.beat3),
+          ],
+        ),
+      );
     }
   }
 
@@ -70,209 +76,224 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
 
     var style = generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize);
 
-    return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
-      //  clear the entry if asked
-      if (playListRefreshNotifier.searchClearQuery()) {
-        _drums = null;
-      }
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: appWidgetHelper.backBar(
+    return Consumer<PlayListRefreshNotifier>(
+      builder: (context, playListRefreshNotifier, child) {
+        //  clear the entry if asked
+        if (playListRefreshNotifier.searchClearQuery()) {
+          _drums = null;
+        }
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: appWidgetHelper.backBar(
             title: 'Drums',
             onPressed: () {
               _songMaster.stop();
-            }),
-        body: DefaultTextStyle(
-          style: style,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(crossAxisAlignment: .start, children: [
-              if (app.message.isNotEmpty)
-                AppWrapFullWidth(alignment: WrapAlignment.start, children: [
-                  Text(
-                    app.message,
-                    style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                  ),
-                ]),
-              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                if (_isEditing)
-                  AppTooltip(
-                    message: 'Create a new drum part',
-                    child: appButton(
-                      'Create new drums',
-                      onPressed: () {
-                        setState(() {
-                          app.clearMessage();
-                          var parts = DrumParts()..name = '';
-                          _drums = DrumsWidget(key: UniqueKey(), drumParts: parts);
-                          _songMaster.playDrums(widget.song ?? _drumSong, parts);
-                        });
-                      },
-                    ),
-                  ),
-                if (!_isEditing) Text('Select drums for: ${songToString(widget.song)}'),
-                if (_isEditing && widget.isEditing == false)
-                  AppTooltip(
-                    message: 'Switch back to selection mode if finished editing.',
-                    child: appButton(
-                      'Return from editing to drum selection.',
-                      onPressed: () {
-                        setState(() {
-                          _songMaster.stop();
-                          app.clearMessage();
-                          _isEditing = false;
-                        });
-                      },
-                    ),
-                  ),
-                if (!_isEditing && widget.isEditing == false)
-                  AppTooltip(
-                    message: 'Edit drum parts prior to selection.',
-                    child: appButton(
-                      'Edit',
-                      onPressed: () {
-                        setState(() {
-                          _isEditing = true;
-                        });
-                      },
-                    ),
-                  ),
-                appButton('Other Actions', onPressed: () {
-                  setState(() {
-                    app.clearMessage();
-                    showOtherActions = !showOtherActions;
-                  });
-                }),
-              ]),
-              if (showOtherActions)
-                AppWrapFullWidth(alignment: WrapAlignment.end, children: [
-                  Column(
-                    crossAxisAlignment: .end,
-                    children: [
-                      const AppVerticalSpace(),
-                      AppTooltip(
-                        message: 'Write all drum parts and their metadata to a local file.',
-                        child: appButton(
-                          'Save drum parts to a local file',
-                          onPressed: () {
-                            setState(() {
-                              logger.t('write drum file');
-                              app.clearMessage();
-                              _saveDrumPartsList('allDrums', _drumPartsList.toJson());
-                            });
-                          },
-                        ),
-                      ),
-                      const AppVerticalSpace(),
-                      AppTooltip(
-                        message: 'Read all drum parts and their metadata from a local file.',
-                        child: appButton(
-                          'Read all drum parts from a local file',
-                          onPressed: () {
-                            setState(() {
-                              app.clearMessage();
-                              logger.t('read drum file');
-                              _filePickReadDrumPartsList(context);
-                              appOptions.drumPartsListJson = _drumPartsList.toJson();
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ]),
-              const AppVerticalSpace(),
-              if (_isEditing)
-                AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                  Text(
-                    'Volume:',
-                    style: style,
-                  ),
-                  SizedBox(
-                    width: app.screenInfo.mediaWidth * 0.4,
-                    // fixme: too fiddly
-                    child: Slider(
-                      value: appOptions.volume * 10,
-                      onChanged: (value) {
-                        setState(() {
-                          appOptions.volume = value / 10;
-                        });
-                      },
-                      min: 0,
-                      max: 10.0,
-                    ),
-                  ),
-                  if (app.isScreenBig)
-                    //  tempo change
-                    AppWrap(
+            },
+          ),
+          body: DefaultTextStyle(
+            style: style,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: .start,
+                children: [
+                  if (app.message.isNotEmpty)
+                    AppWrapFullWidth(
+                      alignment: WrapAlignment.start,
                       children: [
-                        const AppSpace(
-                          horizontalSpace: 50,
-                        ),
-                        AppTooltip(
-                          message: 'Beats per minute.  Tap here or hold control and tap space\n'
-                              ' for tap to tempo.',
-                          child: appButton(
-                            'BPM:',
-                            onPressed: () {
-                              tempoTap();
-                            },
-                          ),
-                        ),
-                        const AppSpace(
-                          horizontalSpace: 20,
-                        ),
-                        appIconWithLabelButton(
-                          onPressed: () {
-                            setState(() {
-                              playerSelectedBpm = Util.intLimit(
-                                  (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) - 1,
-                                  MusicConstants.minBpm,
-                                  MusicConstants.maxBpm);
-                              _playDrums();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.remove,
-                            size: style.fontSize,
-                          ),
-                        ),
-                        const AppSpace(),
-                        Text((playerSelectedBpm ?? MusicConstants.defaultBpm).toString(), style: style),
-                        const AppSpace(),
-                        appIconWithLabelButton(
-                          onPressed: () {
-                            setState(() {
-                              playerSelectedBpm = Util.intLimit(
-                                  (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) + 1,
-                                  MusicConstants.minBpm,
-                                  MusicConstants.maxBpm);
-                              _playDrums();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.add,
-                            size: style.fontSize,
-                          ),
+                        Text(
+                          app.message,
+                          style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                         ),
                       ],
                     ),
-                ]),
-              if (_isEditing) _drums ?? NullWidget(),
-              PlayList(
-                itemList: PlayListItemList(
-                    'DrumList', _drumPartsList.drumParts.map((e) => DrumPlayListItem(e)).toList(),
-                    playListItemAction: loadDrumListItem),
-                style: style,
-                isOrderBy: false,
-                playListSearchMatcher: DrumPlayListSearchMatcher(),
+                  AppWrapFullWidth(
+                    alignment: WrapAlignment.spaceBetween,
+                    children: [
+                      if (_isEditing)
+                        AppTooltip(
+                          message: 'Create a new drum part',
+                          child: appButton(
+                            'Create new drums',
+                            onPressed: () {
+                              setState(() {
+                                app.clearMessage();
+                                var parts = DrumParts()..name = '';
+                                _drums = DrumsWidget(key: UniqueKey(), drumParts: parts);
+                                _songMaster.playDrums(widget.song ?? _drumSong, parts);
+                              });
+                            },
+                          ),
+                        ),
+                      if (!_isEditing) Text('Select drums for: ${songToString(widget.song)}'),
+                      if (_isEditing && widget.isEditing == false)
+                        AppTooltip(
+                          message: 'Switch back to selection mode if finished editing.',
+                          child: appButton(
+                            'Return from editing to drum selection.',
+                            onPressed: () {
+                              setState(() {
+                                _songMaster.stop();
+                                app.clearMessage();
+                                _isEditing = false;
+                              });
+                            },
+                          ),
+                        ),
+                      if (!_isEditing && widget.isEditing == false)
+                        AppTooltip(
+                          message: 'Edit drum parts prior to selection.',
+                          child: appButton(
+                            'Edit',
+                            onPressed: () {
+                              setState(() {
+                                _isEditing = true;
+                              });
+                            },
+                          ),
+                        ),
+                      appButton(
+                        'Other Actions',
+                        onPressed: () {
+                          setState(() {
+                            app.clearMessage();
+                            showOtherActions = !showOtherActions;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  if (showOtherActions)
+                    AppWrapFullWidth(
+                      alignment: WrapAlignment.end,
+                      children: [
+                        Column(
+                          crossAxisAlignment: .end,
+                          children: [
+                            const AppVerticalSpace(),
+                            AppTooltip(
+                              message: 'Write all drum parts and their metadata to a local file.',
+                              child: appButton(
+                                'Save drum parts to a local file',
+                                onPressed: () {
+                                  setState(() {
+                                    logger.t('write drum file');
+                                    app.clearMessage();
+                                    _saveDrumPartsList('allDrums', _drumPartsList.toJson());
+                                  });
+                                },
+                              ),
+                            ),
+                            const AppVerticalSpace(),
+                            AppTooltip(
+                              message: 'Read all drum parts and their metadata from a local file.',
+                              child: appButton(
+                                'Read all drum parts from a local file',
+                                onPressed: () {
+                                  setState(() {
+                                    app.clearMessage();
+                                    logger.t('read drum file');
+                                    _filePickReadDrumPartsList(context);
+                                    appOptions.drumPartsListJson = _drumPartsList.toJson();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  const AppVerticalSpace(),
+                  if (_isEditing)
+                    AppWrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text('Volume:', style: style),
+                        SizedBox(
+                          width: app.screenInfo.mediaWidth * 0.4,
+                          // fixme: too fiddly
+                          child: Slider(
+                            value: appOptions.volume * 10,
+                            onChanged: (value) {
+                              setState(() {
+                                appOptions.volume = value / 10;
+                              });
+                            },
+                            min: 0,
+                            max: 10.0,
+                          ),
+                        ),
+                        if (app.isScreenBig)
+                          //  tempo change
+                          AppWrap(
+                            children: [
+                              const AppSpace(horizontalSpace: 50),
+                              AppTooltip(
+                                message:
+                                    'Beats per minute.  Tap here or hold control and tap space\n'
+                                    ' for tap to tempo.',
+                                child: appButton(
+                                  'BPM:',
+                                  onPressed: () {
+                                    tempoTap();
+                                  },
+                                ),
+                              ),
+                              const AppSpace(horizontalSpace: 20),
+                              appIconWithLabelButton(
+                                onPressed: () {
+                                  setState(() {
+                                    playerSelectedBpm = Util.intLimit(
+                                      (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) -
+                                          1,
+                                      MusicConstants.minBpm,
+                                      MusicConstants.maxBpm,
+                                    );
+                                    _playDrums();
+                                  });
+                                },
+                                icon: Icon(Icons.remove, size: style.fontSize),
+                              ),
+                              const AppSpace(),
+                              Text((playerSelectedBpm ?? MusicConstants.defaultBpm).toString(), style: style),
+                              const AppSpace(),
+                              appIconWithLabelButton(
+                                onPressed: () {
+                                  setState(() {
+                                    playerSelectedBpm = Util.intLimit(
+                                      (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) +
+                                          1,
+                                      MusicConstants.minBpm,
+                                      MusicConstants.maxBpm,
+                                    );
+                                    _playDrums();
+                                  });
+                                },
+                                icon: Icon(Icons.add, size: style.fontSize),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  if (_isEditing) _drums ?? NullWidget(),
+                  PlayList(
+                    itemList: PlayListItemList(
+                      'DrumList',
+                      _drumPartsList.drumParts.map((e) => DrumPlayListItem(e)).toList(),
+                      playListItemAction: loadDrumListItem,
+                    ),
+                    style: style,
+                    isOrderBy: false,
+                    playListSearchMatcher: DrumPlayListSearchMatcher(),
+                  ),
+                ],
               ),
-            ]),
+            ),
           ),
-        ),
-        floatingActionButton: appWidgetHelper.floatingBack(),
-      );
-    });
+          floatingActionButton: appWidgetHelper.floatingBack(),
+        );
+      },
+    );
   }
 
   String songToString(final Song? song) {
@@ -326,8 +347,11 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   }
 
   _playDrums() {
-    _songMaster.playDrums(widget.song ?? _drumSong, _drumParts,
-        bpm: playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm);
+    _songMaster.playDrums(
+      widget.song ?? _drumSong,
+      _drumParts,
+      bpm: playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm,
+    );
   }
 
   void _filePickReadDrumPartsList(BuildContext context) async {
@@ -350,7 +374,8 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _saveDrumPartsList(String prefix, String contents) async {
-    String fileName = '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}'
+    String fileName =
+        '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}'
         '${DrumPartsList.fileExtension}';
     String message = await UtilWorkaround().writeFileContents(fileName, contents); //  fixme: should be async
     logger.d('saveSingersSongList message: \'$message\'');
@@ -420,22 +445,28 @@ class DrumPlayListItem implements PlayListItem {
 
   @override
   Widget toWidget(
-      BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus, bool bunch) {
+    BuildContext context,
+    PlayListItemAction? songItemAction,
+    bool isEditing,
+    VoidCallback? refocus,
+    bool bunch,
+    final PlayListSortType? playListSortType,
+  ) {
     var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: .bold);
     return AppInkWell(
-        value: Id(drumParts.name),
-        onTap: () {
-          if (songItemAction != null) {
-            songItemAction(context, this);
-          }
-        },
-        child: AppWrap(children: [
-          Text(
-            '${drumParts.name}:',
-            style: boldStyle,
-          ),
+      value: Id(drumParts.name),
+      onTap: () {
+        if (songItemAction != null) {
+          songItemAction(context, this);
+        }
+      },
+      child: AppWrap(
+        children: [
+          Text('${drumParts.name}:', style: boldStyle),
           Text('  ${drumParts.beats}: ${drumParts.partsToString()}'),
-        ]));
+        ],
+      ),
+    );
   }
 
   final DrumParts drumParts;

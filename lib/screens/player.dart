@@ -1330,7 +1330,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       '_playerOnKey(): ${e.logicalKey}'
       ', ctl: ${keyboard.isControlPressed}'
       ', shf: ${keyboard.isShiftPressed}'
-      ', alt: ${keyboard.isAltPressed}',
+      ', alt: ${keyboard.isAltPressed}'
+          ', state: ${_songUpdateState.name}',
     );
 
     if (!_songUpdateService.isFollowing) {
@@ -1380,10 +1381,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         // }
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowDown || e.logicalKey == LogicalKeyboardKey.numpadAdd) {
-        _displayRowBump(1);
+        _sectionBump(1);
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowUp || e.logicalKey == LogicalKeyboardKey.numpadSubtract) {
-        _displayRowBump(-1);
+        _sectionBump(-1);
         return KeyEventResult.handled;
       }
 

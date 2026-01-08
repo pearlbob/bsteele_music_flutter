@@ -81,7 +81,7 @@ EdgeInsets _margin = const EdgeInsets.all(_marginSizeDefault);
 const _idleHighlightColor = Colors.redAccent;
 const _playHighlightColor = Colors.greenAccent;
 const _defaultMaxLines = 20;
-var _maxLines = 1;
+var _maxLines = _defaultMaxLines;
 const int _maxMomentNumber = 99999; //  many more than expected
 
 ///  The trick of the game: Figure the text size prior to boxing it
@@ -96,7 +96,12 @@ Size _computeRichTextSize(final RichText richText, {int? maxLines, double? maxWi
   if (text.toPlainText().isEmpty) {
     return const Size(10, 20); //  safety
   }
-  return _computeInlineSpanSize(richText.text, textScaler: richText.textScaler, maxLines: maxLines, maxWidth: maxWidth);
+  return _computeInlineSpanSize(
+    richText.text,
+    textScaler: richText.textScaler,
+    maxLines: maxLines ?? _maxLines,
+    maxWidth: maxWidth,
+  );
 }
 
 Size _computeInlineSpanSize(final InlineSpan inLineSpan, {TextScaler? textScaler, int? maxLines, double? maxWidth}) {
@@ -203,7 +208,7 @@ class LyricsTable {
     displayMusicKey = musicKey ?? song.key;
     _nashvilleSelection = appOptions.nashvilleSelection;
     _simplifiedChordsSelection = appOptions.simplifiedChords;
-    _maxLines = 1;
+    _maxLines = _defaultMaxLines;
 
     _paddingSizeMax = _paddingSizeDefault;
     _marginSizeMax = _marginSizeDefault;
@@ -1159,13 +1164,24 @@ class LyricsTable {
       case .both:
       case .player:
         {
+          //  try:
+          //  I Love Rock 'n' Roll by Arrows, cover by Joan Jett & the Blackhearts: max lyric length: 16
+          //  Rockstar by Nickelback: max lyric length: 12  C3:
+          //  Hey Hey What Can I Do by Led Zeppelin: max lyric length: 11  outro
+          //  I Wanna Be Like You by Christopher Walken: max lyric length: 35
+          //  Rock & Roll by Velvet Underground, The: max lyric length: 23  outro
+
           //  assume that most of the media height is available
-          const maxHeightFraction = 0.75;
-          final double maxHeight = maxHeightFraction * (app.screenInfo.mediaHeight - kToolbarHeight); //  fixme: only
-          // approximate!
-          double reduction = 1.0;
-          logger.log(_logLyricSectionHeights, 'app.screenInfo: mediaHeight: ${app.screenInfo.mediaHeight}');
+          const maxHeightFraction = 0.8;
+          //  fixme: only approximate!
+          final double maxHeight = maxHeightFraction * (app.screenInfo.mediaHeight - kToolbarHeight);
+
+          logger.log(
+            _logLyricSectionHeights,
+            'app.screenInfo: _scaleFactor: ${to3(_scaleFactor)}, mediaHeight: ${app.screenInfo.mediaHeight}',
+          );
           double lyricSectionHeight = 0;
+          double maxLyricSectionHeight = 0;
           LyricSection? lyricSection;
           for (var r = 0; r < displayGrid.getRowCount(); r++) {
             var row = displayGrid.getRow(r);
@@ -1177,12 +1193,11 @@ class LyricsTable {
               switch (mn?.measureNodeType) {
                 case .lyricSection:
                   if (lyricSection != null) {
-                    reduction = min(reduction, maxHeight / lyricSectionHeight);
+                    maxLyricSectionHeight = max(maxLyricSectionHeight, lyricSectionHeight);
                     logger.log(
                       _logLyricSectionHeights,
                       'last lyricSection: $lyricSection'
-                      ', ends at row: $r, lyricSectionHeight: $lyricSectionHeight'
-                      ', reduction: ${to3(reduction)}',
+                      ', ends at row: $r, lyricSectionHeight: $lyricSectionHeight/$maxHeight',
                     );
                     lyricSectionHeight = 0;
                   }
@@ -1199,16 +1214,23 @@ class LyricsTable {
 
             lyricSectionHeight += heights[r];
           }
+          //  last section
           if (lyricSection != null) {
-            reduction = min(reduction, maxHeight / lyricSectionHeight);
+            maxLyricSectionHeight = max(maxLyricSectionHeight, lyricSectionHeight);
+          }
+
+          //  limit height
+          if (maxLyricSectionHeight > 0) {
+            double hScaleFactor = maxHeight / maxLyricSectionHeight;
             logger.log(
               _logLyricSectionHeights,
-              '   scaleFactor: $scaleFactor'
-              ', reduction: $reduction',
+              'maxLyricSectionHeight: $maxLyricSectionHeight/$maxHeight'
+              ', hScaleFactor: ${to3(hScaleFactor)}'
+              ', _scaleFactor: $_scaleFactor',
             );
+            _scaleFactor = min(_scaleFactor, hScaleFactor);
           }
-          logger.log(_logFontSize, 'prior reduction: $_scaleFactor');
-          _scaleFactor *= reduction;
+          logger.log(_logFontSize, 'post height reduction: _scaleFactor: $_scaleFactor');
         }
         break;
       default:
@@ -2092,7 +2114,7 @@ class LyricsTable {
       return 0;
     }
 
-    return _song.songMomentToGridCoordinate[min(max(momentNumber, 0),_song.songMoments.length-1)].row;
+    return _song.songMomentToGridCoordinate[min(max(momentNumber, 0), _song.songMoments.length - 1)].row;
   }
 
   double rowToDisplayOffset(final int? rowNumber) {
@@ -2522,7 +2544,7 @@ class _SongCellWidget extends StatefulWidget {
     var width = columnWidth ?? app.screenInfo.mediaWidth;
     var ret = (withEllipsis ?? false)
         ? size!
-        : _computeRichTextSize(richText, maxWidth: width) +
+        : _computeRichTextSize(richText, maxLines: _maxLines, maxWidth: width) +
               Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
     return ret;
   }

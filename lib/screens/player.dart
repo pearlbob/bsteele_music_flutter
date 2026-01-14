@@ -537,7 +537,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
-    List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(_song, musicKey: _displaySongKey);
+    boxMarker = app.screenInfo.mediaHeight * _scrollAlignment;  //  default only
+    List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
+      _song,
+      musicKey: _displaySongKey,
+      initialHeightOffset: boxMarker,
+    );
+    boxMarker *= _lyricsTable.scaleFactor; //  decrease based on lyrics table auto scale
 
     ScrollPhysics scrollPhysics = ClampingScrollPhysics();
     switch (appOptions.userDisplayStyle) {
@@ -639,8 +645,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           appBar: backBar,
           body: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              stackMaxHeight = constraints.maxHeight;
-              boxMarker = stackMaxHeight * _scrollAlignment;
               logger.log(
                 _logCenter,
                 'LayoutBuilder constraints: (${constraints.maxWidth},${constraints.maxHeight})'
@@ -668,24 +672,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                     ),
 
                   //  center marker
-                  if (kDebugMode || appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
-                    Column(
-                      children: [
-                        //  offset the marker
-                        Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
-                        Container(
-                          constraints: BoxConstraints.tight(
-                            Size(
-                              appOptions.playerScrollHighlight == PlayerScrollHighlight.off
-                                  ? 16
-                                  : constraints.maxWidth, // for testing only
-                              4,
-                            ),
-                          ),
-                          decoration: const BoxDecoration(color: Colors.black87),
-                        ),
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      //  offset the marker
+                      Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
+                      Container(
+                        constraints: BoxConstraints.tight(Size(42, 8)),
+                        decoration: const BoxDecoration(color: Colors.black87),
+                      ),
+                    ],
+                  ),
 
                   Column(
                     children: [
@@ -1331,7 +1327,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       ', ctl: ${keyboard.isControlPressed}'
       ', shf: ${keyboard.isShiftPressed}'
       ', alt: ${keyboard.isAltPressed}'
-          ', state: ${_songUpdateState.name}',
+      ', state: ${_songUpdateState.name}',
     );
 
     if (!_songUpdateService.isFollowing) {
@@ -1634,7 +1630,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             '  _displayRowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment',
           );
           if (moment != null) {
-            _songMaster.skipToMomentNumber(_song, moment.momentNumber );
+            _songMaster.skipToMomentNumber(_song, moment.momentNumber);
           }
         } else {
           //  bump backwards
@@ -1647,7 +1643,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             '  _displayRowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment',
           );
           if (moment != null) {
-            _songMaster.skipToMomentNumber(_song, moment.momentNumber );
+            _songMaster.skipToMomentNumber(_song, moment.momentNumber);
           }
         }
       }
@@ -1694,15 +1690,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               break;
           }
 
-          for (var it in _itemPositionsListener.itemPositions.value) {
-            logger.log(
-              _logPlayerItemPositionSizes,
-              'it ${it.index}: lead: ${it.itemLeadingEdge * stackMaxHeight}'
-              ', tail: ${it.itemTrailingEdge * stackMaxHeight}'
-              ', height: ${(it.itemTrailingEdge - it.itemLeadingEdge) * stackMaxHeight}'
-              ', h: $stackMaxHeight',
-            );
-          }
           for (var itemPosition in _itemPositionsListener.itemPositions.value) {
             if (minItemPositionIndex == null || itemPosition.index < minItemPositionIndex) {
               minItemPositionIndex = itemPosition.index;
@@ -1716,11 +1703,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               bestItemPositionIndex = itemPosition.index;
               bestItemPosition = itemPosition;
             }
-            logger.log(
-              _logPlayerItemPositionSizes,
-              'itemPosition.index: ${itemPosition.index}'
-              ', height: ${stackMaxHeight * (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge)}, ',
-            );
+            logger.log(_logPlayerItemPositionSizes, 'itemPosition.index: ${itemPosition.index}');
           }
           // logger.i(
           //   'minItemPositionIndex: $minItemPositionIndex'
@@ -1793,8 +1776,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               ', h: ${((bestItemPosition?.itemTrailingEdge ?? 0) - (bestItemPosition?.itemLeadingEdge ?? 0)) * (_lastSize?.height ?? 1080)} '
               // ', maxMomentNumberFound: $maxMomentNumberFound'
               // ', lastPlayMomentNumber: $_lastPlayMomentNumber'
-              ', offset: ${_lyricsTable.rowToDisplayOffset(bestItemPositionIndex)}'
-              ', stackMaxHeight: $stackMaxHeight',
+              ', offset: ${_lyricsTable.rowToDisplayOffset(bestItemPositionIndex)}',
               // ', rowNumber: ${_lyricsTable.displayOffsetToRowNumber()}'
             );
           } else if ((_lastPlayMomentNumber ?? 0) != momentNumberFound) {
@@ -2924,8 +2906,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   static const _scrollAlignment = 0.2;
-  double stackMaxHeight = 1080; //  initial default only
-  double boxMarker = 1080 * _scrollAlignment; //  initial default only
+  double boxMarker = app.screenInfo.mediaHeight * _scrollAlignment; //  initial default only
   double _fontSize = 14;
 
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

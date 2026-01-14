@@ -202,7 +202,7 @@ class LyricSectionNotifier extends ChangeNotifier {
 
 /// compute a lyrics table
 class LyricsTable {
-  List<Widget> lyricsTableItems(Song song, {music_key.Key? musicKey}) {
+  List<Widget> lyricsTableItems(Song song, {music_key.Key? musicKey, double initialHeightOffset = 100}) {
     var usTimer = UsTimer();
     _song = song;
     displayMusicKey = musicKey ?? song.key;
@@ -883,7 +883,6 @@ class LyricsTable {
               }
 
               //  deal with multiple rows of a single repeat
-
               switch (measureNode.measureNodeType) {
                 case .measure:
                   var cell = _cellGrid.get(r, c);
@@ -1466,6 +1465,10 @@ class LyricsTable {
             }
 
             lastLyricSection = lyricSection;
+            //  offset the initial row by the requested amount
+            if ( r == 0 ) {
+              sectionChildren.add( SizedBox(height: initialHeightOffset * _scaleFactor,) );
+            }
             items.add(Column(crossAxisAlignment: .start, children: sectionChildren));
             sectionChildren = [];
 

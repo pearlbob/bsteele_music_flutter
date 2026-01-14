@@ -367,14 +367,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                         //  offset the marker
                         Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
                         Container(
-                          constraints: BoxConstraints.tight(
-                            Size(
-                              appOptions.playerScrollHighlight == PlayerScrollHighlight.off
-                                  ? 16
-                                  : constraints.maxWidth, // for testing only
-                              4,
-                            ),
-                          ),
+                          constraints: BoxConstraints.tight(Size(20, 4)),
                           decoration: const BoxDecoration(color: Colors.black87),
                         ),
                       ],
@@ -550,13 +543,12 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                             child: Text(
                               _songUpdateService.isConnected
                                   ? (_songUpdateService.isLeader
-                                      ? 'leading'
-                                      : 'following ${_songUpdateService.leaderName}')
+                                        ? 'leading'
+                                        : 'following ${_songUpdateService.leaderName}')
                                   : (_songUpdateService.isIdle ? '' : 'lost ${_songUpdateService.host}!'),
-                              style:
-                                  !_songUpdateService.isConnected && !_songUpdateService.isIdle
-                                      ? _headerTextStyle.copyWith(color: Colors.red)
-                                      : _headerTextStyle,
+                              style: !_songUpdateService.isConnected && !_songUpdateService.isIdle
+                                  ? _headerTextStyle.copyWith(color: Colors.red)
+                                  : _headerTextStyle,
                             ),
                           ),
                       ],
@@ -583,10 +575,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                   //   ),
 
                   //  ninjam aid
-                  if (app.isScreenBig &&
-                      appOptions.ninJam &&
-                      _ninJam.isNinJamReady &&
-                      songUpdateState == .idle)
+                  if (app.isScreenBig && appOptions.ninJam && _ninJam.isNinJamReady && songUpdateState == .idle)
                     AppWrapFullWidth(
                       spacing: 20,
                       children: [
@@ -677,17 +666,16 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                     Text(
                       _songUpdateService.isConnected
                           ? (_songUpdateService.isLeader
-                              ? 'leading ${_songUpdateService.host}'
-                              :
-                              // (_songUpdateService.leaderName == Song.defaultUser
-                              //             ? 'on ${_songUpdateService.host.replaceFirst('.local', '')}'
-                              //             : 'following ${_songUpdateService.leaderName}')
-                              'following ${_songUpdateService.leaderName}')
+                                ? 'leading ${_songUpdateService.host}'
+                                :
+                                  // (_songUpdateService.leaderName == Song.defaultUser
+                                  //             ? 'on ${_songUpdateService.host.replaceFirst('.local', '')}'
+                                  //             : 'following ${_songUpdateService.leaderName}')
+                                  'following ${_songUpdateService.leaderName}')
                           : 'lost ${_songUpdateService.host}!',
-                      style:
-                          !_songUpdateService.isConnected && !_songUpdateService.isIdle
-                              ? _headerTextStyle.copyWith(color: Colors.red)
-                              : _headerTextStyle,
+                      style: !_songUpdateService.isConnected && !_songUpdateService.isIdle
+                          ? _headerTextStyle.copyWith(color: Colors.red)
+                          : _headerTextStyle,
                     ),
 
                   if (app.isScreenBig && _showCapo && _capoLocation > 0)
@@ -746,11 +734,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   ) {
     List<GridCoordinate> songMomentToGridCoordinate = _song.songMomentToGridCoordinate;
     if (songMomentToGridCoordinate.isNotEmpty) {
-      _playMomentNotifier.playMoment = PlayMoment(
-        songUpdateState,
-        playMomentNumber,
-        songMoment,
-      );
+      _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment);
     }
   }
 
@@ -822,6 +806,6 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   Timer? _idleTimer;
 
   late AppWidgetHelper _appWidgetHelper;
-  
+
   final AppSongUpdateService _songUpdateService = AppSongUpdateService();
 }

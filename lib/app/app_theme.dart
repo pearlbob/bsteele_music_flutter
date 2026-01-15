@@ -148,8 +148,7 @@ class AppTheme {
           decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor),
         ),
         dividerTheme: const DividerThemeData(color: Colors.black54),
-        //  the following messes up with the play screen "click to play" feature
-        // scrollbarTheme: app.themeData.scrollbarTheme.copyWith(thickness: WidgetStatePropertyAll(16)),
+        scrollbarTheme: app.themeData.scrollbarTheme.copyWith(thickness: WidgetStatePropertyAll(20)),
       );
     }
   }

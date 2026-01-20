@@ -40,10 +40,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     app.screenInfo.refresh(context);
 
     final double fontSize = app.screenInfo.fontSize;
-    _songPerformanceStyle = generateAppTextStyle(
-      color: Colors.black87,
-      fontSize: fontSize,
-    );
+    _songPerformanceStyle = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     SplayTreeSet<SongPerformance> performanceHistory = SplayTreeSet((SongPerformance first, SongPerformance other) {
       // reverse the date ordering
@@ -66,22 +63,28 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
 
         if (lastSungDateString != performance.lastSungDateString) {
           if (items.isNotEmpty) {
-            songLists.add(PlayListItemList(
-                DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
-                playListItemAction: _navigateSongListToPlayer));
+            songLists.add(
+              PlayListItemList(
+                DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)),
+                items,
+                playListItemAction: _navigateSongListToPlayer,
+              ),
+            );
             items = [];
           }
           lastSungDateString = performance.lastSungDateString;
           lastSung = performance.lastSung;
         }
-        items.add(SongPlayListItem.fromPerformance(
-          performance,
-        ));
+        items.add(SongPlayListItem.fromPerformance(performance));
       }
       if (items.isNotEmpty) {
-        songLists.add(PlayListItemList(
-            DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
-            playListItemAction: _navigateSongListToPlayer));
+        songLists.add(
+          PlayListItemList(
+            DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)),
+            items,
+            playListItemAction: _navigateSongListToPlayer,
+          ),
+        );
       }
 
       // songListGroup: SongList(
@@ -95,93 +98,88 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     List<DropdownMenuItem<String>> singerDropdownMenuItems;
     {
       SplayTreeSet<String> singers = SplayTreeSet()
-        ..addAll(performanceHistory.map((p) {
-          return p.singer;
-        }));
-      singerDropdownMenuItems = singers.map<DropdownMenuItem<String>>((singer) {
-        return DropdownMenuItem<String>(
-          value: singer,
-          child: Text(singer),
+        ..addAll(
+          performanceHistory.map((p) {
+            return p.singer;
+          }),
         );
+      singerDropdownMenuItems = singers.map<DropdownMenuItem<String>>((singer) {
+        return DropdownMenuItem<String>(value: singer, child: Text(singer));
       }).toList();
-      singerDropdownMenuItems.insert(
-          0,
-          const DropdownMenuItem<String>(
-            value: null,
-            child: Text('Any'),
-          ));
+      singerDropdownMenuItems.insert(0, const DropdownMenuItem<String>(value: null, child: Text('Any')));
     }
 
-    var searchDropDownStyle =
-        generateAppTextStyle(fontSize: 2 * appDefaultFontSize, color: Colors.black, nullBackground: true);
+    var searchDropDownStyle = generateAppTextStyle(
+      fontSize: 2 * appDefaultFontSize,
+      color: Colors.black,
+      nullBackground: true,
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(
-          title: 'Performance History',
-          onPressed: () {
-            app.clearMessage();
-          }),
+        title: 'Performance History',
+        onPressed: () {
+          app.clearMessage();
+        },
+      ),
       body: Container(
         padding: const EdgeInsets.all(36.0),
         child: Column(
-            mainAxisAlignment: .start,
-            crossAxisAlignment: .start,
-            children: <Widget>[
-              if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
-              AppWrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const AppSpace(
-                    horizontalSpace: 2 * appDefaultFontSize,
-                    verticalSpace: 0,
-                  ),
-                  AppTooltip(
-                    message: 'Select a singer.',
-                    child: Text(
-                      'Singer: ',
-                      style: appTextStyle,
-                    ),
-                  ),
-                  appDropdownButton<String>(
-                    singerDropdownMenuItems,
-                    onChanged: (value) {
-                      // logger.i('select singer: $value');
+          mainAxisAlignment: .start,
+          crossAxisAlignment: .start,
+          children: <Widget>[
+            if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
+            AppWrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const AppSpace(horizontalSpace: 2 * appDefaultFontSize, verticalSpace: 0),
+                AppTooltip(
+                  message: 'Select a singer.',
+                  child: Text('Singer: ', style: appTextStyle),
+                ),
+                appDropdownButton<String>(
+                  singerDropdownMenuItems,
+                  onChanged: (value) {
+                    // logger.i('select singer: $value');
+                    setState(() {
+                      _selectedSinger = value;
+                    });
+                  },
+                  value: _selectedSinger,
+                  style: searchDropDownStyle,
+                ),
+                //  search clear
+                AppTooltip(
+                  message: 'Clear the singer selection.',
+                  child: appIconButton(
+                    icon: const Icon(Icons.clear),
+                    iconSize: appTextStyle.fontSize,
+                    onPressed: (() {
                       setState(() {
-                        _selectedSinger = value;
+                        _selectedSinger = null;
                       });
-                    },
-                    value: _selectedSinger,
-                    style: searchDropDownStyle,
+                    }),
                   ),
-                  //  search clear
-                  AppTooltip(
-                      message: 'Clear the singer selection.',
-                      child: appIconButton(
-                        icon: const Icon(Icons.clear),
-                        iconSize: appTextStyle.fontSize,
-                        onPressed: (() {
-                          setState(() {
-                            _selectedSinger = null;
-                          });
-                        }),
-                      )),
-                ],
-              ),
-              PlayList.byGroup(
-                songListGroup,
-                style: _songPerformanceStyle,
-                includeByLastSung: true,
-                playListSearchMatcher: SongPlayListSearchMatcher(),
-                isOrderBy: false,
-              ),
+                ),
+              ],
+            ),
+            PlayList.byGroup(
+              songListGroup,
+              style: _songPerformanceStyle,
+              includeByLastSung: true,
+              playListSearchMatcher: SongPlayListSearchMatcher(),
+              isOrderBy: true,
+              selectedPlayListSortType: .byHistory,
+            ),
 
-              // const AppSpace(),
-              Text(
-                'Performance count:  ${performanceHistory.length}',
-                style: generateLyricsTextStyle().copyWith(fontSize: app.screenInfo.fontSize * 0.75),
-              ),
-            ]),
+            // const AppSpace(),
+            Text(
+              'Performance count:  ${performanceHistory.length}',
+              style: generateLyricsTextStyle().copyWith(fontSize: app.screenInfo.fontSize * 0.75),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(),
     );
@@ -190,13 +188,17 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
   Song bestSongMatch(SongPerformance performance) {
     //  fixme: performance
     BestMatch bestMatch = StringSimilarity.findBestMatch(
-        performance.songIdAsString, app.allSongs.map((song) => song.songId.toString()).toList(growable: false));
+      performance.songIdAsString,
+      app.allSongs.map((song) => song.songId.toString()).toList(growable: false),
+    );
 
     logger.d('${performance.songIdAsString}:  ${bestMatch.bestMatch.target}   ${bestMatch.bestMatch.rating}');
-    return app.allSongs.firstWhere((song) => song.songId.toString() == bestMatch.bestMatch.target, //
-        orElse: () {
-      return Song.theEmptySong;
-    });
+    return app.allSongs.firstWhere(
+      (song) => song.songId.toString() == bestMatch.bestMatch.target, //
+      orElse: () {
+        return Song.theEmptySong;
+      },
+    );
   }
 
   _navigateSongListToPlayer(BuildContext context, PlayListItem playListItem) async {
@@ -215,13 +217,14 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => Player(
-                  app.selectedSong,
-                  //  adjust song to singer's last performance
-                  musicKey: songPerformance.key,
-                  bpm: songPerformance.bpm,
-                  singer: songPerformance.singer,
-                )),
+          builder: (context) => Player(
+            app.selectedSong,
+            //  adjust song to singer's last performance
+            musicKey: songPerformance.key,
+            bpm: songPerformance.bpm,
+            singer: songPerformance.singer,
+          ),
+        ),
       );
       setState(() {
         app.clearMessage();
@@ -235,5 +238,5 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
   late TextStyle _songPerformanceStyle;
 
   final App app = App();
-  final AllSongPerformances _allSongPerformances = appOptions.allSongPerformances;  //  convenience only
+  final AllSongPerformances _allSongPerformances = appOptions.allSongPerformances; //  convenience only
 }

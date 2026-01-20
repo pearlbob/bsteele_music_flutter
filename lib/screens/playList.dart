@@ -358,8 +358,13 @@ class PlayListGroup {
 
   bool get isNotEmpty => group.isNotEmpty;
 
-  Widget _indexToWidget(final BuildContext context, int index, final bool isEditing, final VoidCallback? refocus, 
-      final PlayListSortType? playListSortType) {
+  Widget _indexToWidget(
+    final BuildContext context,
+    int index,
+    final bool isEditing,
+    final VoidCallback? refocus,
+    final PlayListSortType? playListSortType,
+  ) {
     for (var itemList in group) {
       if (index >= itemList.length) {
         index -= itemList.length;
@@ -408,6 +413,7 @@ class PlayList extends StatefulWidget {
     this.showAllFilters = false,
     required this.playListSearchMatcher,
     this.allowSongListBunching = false,
+    this.selectedPlayListSortType,
   }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: .bold) {
     //
     titleFontSize = style?.fontSize ?? appDefaultFontSize;
@@ -439,6 +445,8 @@ class PlayList extends StatefulWidget {
   late final TextStyle artistStyle;
   late final TextStyle searchDropDownStyle;
   late final TextStyle searchTextStyle;
+
+  final PlayListSortType? selectedPlayListSortType;
 
   late final TextStyle oddTitleStyle = oddTitleTextStyle(from: titleStyle);
   late final TextStyle evenTitleStyle = evenTitleTextStyle(from: titleStyle);
@@ -1036,7 +1044,7 @@ class PlayListState extends State<PlayList> {
 
   static final _allNameValue = NameValue('All', '');
 
-  PlayListSortType _selectedPlayListSortType = .byTitle;
+  late PlayListSortType _selectedPlayListSortType = widget.selectedPlayListSortType ?? .byTitle;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();

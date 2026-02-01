@@ -2,7 +2,7 @@
 
 # Release Notes:
 
-### Contents:
+## Contents:
 
 <!-- TOC -->
 * [bsteeleMusicApp](#bsteelemusicapp)

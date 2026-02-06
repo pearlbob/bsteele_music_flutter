@@ -5,14 +5,18 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/songs/chord_component.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/mode.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/material.dart';
 
 const double _defaultFontSize = 28;
 music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
+ScaleNote _modeRoot = _key.getKeyScaleNote();
+Mode _modeSelected = Mode.ionian;
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 const _halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
 Color _backgroundColor = Colors.white;
@@ -54,6 +58,8 @@ class TheoryState extends State<TheoryWidget> {
 
     _backgroundColor = Theme.of(context).colorScheme.surface;
 
+    const tallSpace = const AppSpace(verticalSpace: 4 * AppSpace.defaultSpace);
+
     return Scaffold(
       backgroundColor: _backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'Music Theory'),
@@ -77,7 +83,7 @@ class TheoryState extends State<TheoryWidget> {
                         _title('Easy Read'),
                         const AppSpace(),
                         Container(color: _backgroundColor, child: _easyReadTable()),
-                        const AppSpace(verticalSpace: 3 * AppSpace.defaultSpace),
+                        tallSpace,
                         _title('Major/Minor Half Steps'),
                         const AppSpace(),
                         Container(
@@ -116,7 +122,7 @@ class TheoryState extends State<TheoryWidget> {
                         const AppSpace(),
                         Container(color: _backgroundColor, child: _keyScaleNoteTable()),
 
-                        const AppSpace(verticalSpace: 3 * AppSpace.defaultSpace),
+                        tallSpace,
                         _title('Chord Notes'),
                         const AppSpace(),
                         Container(
@@ -149,6 +155,7 @@ class TheoryState extends State<TheoryWidget> {
                             ],
                           ),
                         ),
+                        const AppSpace(),
                         Container(
                           color: _backgroundColor,
                           child: Row(
@@ -178,18 +185,87 @@ class TheoryState extends State<TheoryWidget> {
                             ],
                           ),
                         ),
+                        const AppSpace(),
                         Container(color: _backgroundColor, child: _chordTable()),
                         Container(height: 20),
 
-                        const AppSpace(verticalSpace: 3 * AppSpace.defaultSpace),
+                        tallSpace,
+                        _title('Modes'),
+                        const AppSpace(),
+                        Container(
+                          color: _backgroundColor,
+                          child: Row(
+                            children: [
+                              Text('Root: ', style: _boldStyle),
+                              DropdownButton<ScaleNote>(
+                                items: scaleNoteValues.map((ScaleNote value) {
+                                  return DropdownMenuItem<ScaleNote>(
+                                    key: ValueKey('modeRoot${value.halfStep}'),
+                                    value: value,
+                                    child: Text(_key.inKey(value).toMarkup(), style: _style),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  if (value != null && value != _modeRoot) {
+                                    setState(() {
+                                      _modeRoot = value;
+                                    });
+                                  }
+                                },
+                                value: _modeRoot,
+                                style: generateAppTextStyle(
+                                  color: Colors.black,
+                                  textBaseline: TextBaseline.ideographic,
+                                ),
+                                itemHeight: null,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const AppSpace(),
+                        Container(
+                          color: _backgroundColor,
+                          child: Row(
+                            children: [
+                              Text('Mode: ', style: _boldStyle),
+                              DropdownButton<Mode>(
+                                items: Mode.values.map((Mode value) {
+                                  return DropdownMenuItem<Mode>(
+                                    key: ValueKey('mode${value.halfStep}'),
+                                    value: value,
+                                    child: Text('${Util.firstToUpper(value.name)}', style: _style),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  if (value != null && value != _chordRoot) {
+                                    setState(() {
+                                      _modeSelected = value;
+                                    });
+                                  }
+                                },
+                                value: _modeSelected,
+                                style: generateAppTextStyle(
+                                  color: Colors.black,
+                                  textBaseline: TextBaseline.ideographic,
+                                ),
+                                itemHeight: null,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const AppSpace(),
+                        Container(color: _backgroundColor, child: _modesTable()),
+
+                        tallSpace,
                         _title('Major Diatonics'),
                         const AppSpace(),
                         Container(color: _backgroundColor, child: _majorDiatonicsTable()),
-                        const AppSpace(verticalSpace: 3 * AppSpace.defaultSpace),
+
+                        tallSpace,
                         _title('Minor Diatonics'),
                         const AppSpace(),
                         Container(color: _backgroundColor, child: _minorDiatonicsTable()),
-                        const AppSpace(verticalSpace: 3 * AppSpace.defaultSpace),
+                        tallSpace,
                         _title('Instrument Pitches'),
                         const AppSpace(),
                         Container(color: _backgroundColor, child: _instrumentTable()),
@@ -605,7 +681,7 @@ class TheoryState extends State<TheoryWidget> {
         child: Text('Relative Note', style: _style),
       ),
     );
-    for (var halfStep = 0; halfStep < MusicConstants.halfStepsPerOctave; halfStep++ ) {
+    for (var halfStep = 0; halfStep < MusicConstants.halfStepsPerOctave; halfStep++) {
       final ChordComponent v = ChordComponent.getByHalfStep(halfStep);
       row.add(
         Container(
@@ -615,7 +691,7 @@ class TheoryState extends State<TheoryWidget> {
         ),
       );
     }
-    for (var halfStep = 0; halfStep < MusicConstants.halfStepsPerOctave; halfStep++ ) {
+    for (var halfStep = 0; halfStep < MusicConstants.halfStepsPerOctave; halfStep++) {
       final ChordComponent v = ChordComponent.getByHalfStep(halfStep);
       final int number = v.scaleNumber + MusicConstants.notesPerScale;
       final String name =
@@ -693,8 +769,8 @@ class TheoryState extends State<TheoryWidget> {
     var chordHalfSteps = _scaleChord.getChordComponents().map((chordComponent) {
       return chordComponent.halfSteps;
     }).toList();
-    print('_scaleChord.getChordComponents(): ${_scaleChord.getChordComponents()}');
-    print('chordHalfSteps: $chordHalfSteps');
+    // print('_scaleChord.getChordComponents(): ${_scaleChord.getChordComponents()}');
+    // print('chordHalfSteps: $chordHalfSteps');
     for (var halfStep = 0; halfStep < 2 * _halfStepsPerOctave; halfStep++) {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(
@@ -710,6 +786,68 @@ class TheoryState extends State<TheoryWidget> {
     //  declare the table widths for each column
     Map<int, TableColumnWidth> widths = {};
     for (var i = 0; i < 2 * _halfStepsPerOctave + 1; i++) {
+      widths[i] = const IntrinsicColumnWidth(flex: 1);
+    }
+
+    return Table(children: children, columnWidths: widths, border: TableBorder.all());
+  }
+
+  Table _modesTable() {
+    final children = <TableRow>[];
+
+    //  notes
+    List<Widget> row = [];
+    {
+      row = [];
+      row.add(
+        Container(
+          padding: _padding,
+          alignment: .centerRight,
+          child: Text('Notes', style: _boldStyle),
+        ),
+      );
+
+      for (var i = 0; i < MusicConstants.notesPerScale; i++) {
+        row.add(
+          Container(
+            padding: _padding,
+            alignment: .center,
+            child: Text('${i + 1}', style: _boldStyle),
+          ),
+        );
+      }
+      children.add(TableRow(children: row));
+    }
+
+    {
+      row = [];
+      row.add(
+        Container(
+          padding: _padding,
+          alignment: .centerRight,
+          child: Text('Scale', style: _boldStyle),
+        ),
+      );
+
+      music_key.Key musicKey = music_key.Key.getKeyByScaleNote(_modeRoot);
+      for (var i = 0; i < MusicConstants.notesPerScale; i++) {
+        ScaleNote scaleNote = musicKey.getKeyScaleNoteByHalfStep(
+          musicKey.getMajorScaleHalfStepsByNote(i),
+          mode: _modeSelected,
+        );
+        row.add(
+          Container(
+            padding: _padding,
+            alignment: .center,
+            child: Text('$scaleNote', style: _style),
+          ),
+        );
+      }
+      children.add(TableRow(children: row));
+    }
+
+    Map<int, TableColumnWidth> widths = {};
+    for (var i = 0; i < MusicConstants.notesPerScale + 1; i++) {
       widths[i] = const IntrinsicColumnWidth(flex: 1);
     }
 

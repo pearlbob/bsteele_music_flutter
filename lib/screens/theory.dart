@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 const double _defaultFontSize = 28;
 music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
-ScaleNote _modeRoot = _key.getKeyScaleNote();
+music_key.Key _majorKey = music_key.Key.getDefault();
 Mode _modeSelected = Mode.ionian;
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 const _halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
@@ -196,23 +196,28 @@ class TheoryState extends State<TheoryWidget> {
                           color: _backgroundColor,
                           child: Row(
                             children: [
-                              Text('Root: ', style: _boldStyle),
-                              DropdownButton<ScaleNote>(
-                                items: scaleNoteValues.map((ScaleNote value) {
-                                  return DropdownMenuItem<ScaleNote>(
-                                    key: ValueKey('modeRoot${value.halfStep}'),
-                                    value: value,
-                                    child: Text(_key.inKey(value).toMarkup(), style: _style),
+                              Text('Major Key: ', style: _boldStyle),
+                              DropdownButton<music_key.Key>(
+                                items: music_key.KeyEnum.values.reversed.map((final music_key.KeyEnum value) {
+                                  return DropdownMenuItem<music_key.Key>(
+                                    key: ValueKey('keyRoot${value.name}'),
+                                    value: music_key.Key.get(value),
+                                    child: Text(
+                                      '${music_key.Key.get(value).toMarkup().padLeft(2)} '
+                                      '${music_key.Key.get(value).keyValue == 0 ? '' : ('  ${music_key.Key.get(value).keyValue.abs()}'
+                                                '${music_key.Key.get(value).keyValue > 0 ? '#' : 'b'} ')}',
+                                      style: _style,
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (value) {
-                                  if (value != null && value != _modeRoot) {
+                                  if (value != null && value != _majorKey) {
                                     setState(() {
-                                      _modeRoot = value;
+                                      _majorKey = value;
                                     });
                                   }
                                 },
-                                value: _modeRoot,
+                                value: _majorKey,
                                 style: generateAppTextStyle(
                                   color: Colors.black,
                                   textBaseline: TextBaseline.ideographic,
@@ -812,7 +817,30 @@ class TheoryState extends State<TheoryWidget> {
           Container(
             padding: _padding,
             alignment: .center,
-            child: Text('${i + 1}', style: _boldStyle),
+            child: Text('  ${i + 1}  ', style: _boldStyle),
+          ),
+        );
+      }
+      children.add(TableRow(children: row));
+    }
+
+    {
+      row = [];
+      row.add(
+        Container(
+          padding: _padding,
+          alignment: .centerRight,
+          child: Text('Formula', style: _boldStyle),
+        ),
+      );
+
+      var components = getModeChordComponents(_modeSelected);
+      for (var i = 0; i < MusicConstants.notesPerScale; i++) {
+        row.add(
+          Container(
+            padding: _padding,
+            alignment: .center,
+            child: Text('${i == 0 ? '1' : components[i].shortName}', style: _style),
           ),
         );
       }
@@ -829,12 +857,10 @@ class TheoryState extends State<TheoryWidget> {
         ),
       );
 
-      music_key.Key musicKey = music_key.Key.getKeyByScaleNote(_modeRoot);
+      music_key.Key musicKey = _majorKey;
       for (var i = 0; i < MusicConstants.notesPerScale; i++) {
-        ScaleNote scaleNote = musicKey.getKeyScaleNoteByHalfStep(
-          musicKey.getMajorScaleHalfStepsByNote(i),
-          mode: _modeSelected,
-        );
+        ScaleNote scaleNote = getModeNote(musicKey, _modeSelected, i);
+
         row.add(
           Container(
             padding: _padding,

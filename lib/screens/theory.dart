@@ -196,7 +196,7 @@ class TheoryState extends State<TheoryWidget> {
                           color: _backgroundColor,
                           child: Row(
                             children: [
-                              Text('Major Key: ', style: _boldStyle),
+                              Text('Parent Major Key: ', style: _boldStyle),
                               DropdownButton<music_key.Key>(
                                 items: music_key.KeyEnum.values.reversed.map((final music_key.KeyEnum value) {
                                   return DropdownMenuItem<music_key.Key>(
@@ -859,7 +859,7 @@ class TheoryState extends State<TheoryWidget> {
 
       music_key.Key musicKey = _majorKey;
       for (var i = 0; i < MusicConstants.notesPerScale; i++) {
-        ScaleNote scaleNote = getModeNote(musicKey, _modeSelected, i);
+        ScaleNote scaleNote = getModeScaleNote(musicKey, _modeSelected, i);
 
         row.add(
           Container(

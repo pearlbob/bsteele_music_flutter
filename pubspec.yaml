@@ -16,7 +16,7 @@ sdk: flutter
 version: 1.2.6+0
 
 environment:
-  sdk: ^3.10.8
+  sdk: ^3.11.0
 
 dependencies:
   flutter:
@@ -37,7 +37,7 @@ dependencies:
   reorderables:
   pretty_diff_text:
   http:
-  csv:
+  csv: ^6.0.0     #  7.10 missing ListToCsvConverter
   string_similarity:
   package_info_plus:
   gamepads:

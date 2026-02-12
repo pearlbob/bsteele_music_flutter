@@ -47,8 +47,7 @@ const _toolTipWaitDuration = Duration(seconds: 2, milliseconds: 500);
 extension SongUpdateStateExtension on SongUpdateState {
   bool get isPlaying => this == .playing;
 
-  bool get isPlayingOrPausedOrHold =>
-      this == .playing || this == .pause || this == .playHold;
+  bool get isPlayingOrPausedOrHold => this == .playing || this == .pause || this == .playHold;
 
   // IconData get icon {
   //   return switch (this) {
@@ -77,8 +76,7 @@ enum PlayListSortType {
   byLastChange('Order by the date of the most recent edit.'),
   byComplexity('Order by the song\'s complexity when compared to other songs.'),
   byYear('Order by the song\'s year.'),
-  byPopularity('Order by the song\'s popularity.')
-  ;
+  byPopularity('Order by the song\'s popularity.');
 
   const PlayListSortType(this.toolTip);
 
@@ -208,6 +206,13 @@ class App {
       0xd7e5ff, 0xb6d2fc, 0x92b8ef,
     ],
   };
+
+  Size get displaySize {
+    if (appOptions.dynamicDisplaySize) {
+      return screenInfo.size;
+    }
+    return const Size(1920, 1080);
+  }
 
   /// A single instance of the screen information class for common use.
   ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refresh often for window size changes
@@ -638,11 +643,7 @@ class AppWidgetHelper {
           titleWidget ??
           Text(
             title ?? 'unknown',
-            style: TextStyle(
-              fontSize: app.screenInfo.fontSize,
-              fontWeight: .bold,
-              backgroundColor: Colors.transparent,
-            ),
+            style: TextStyle(fontSize: app.screenInfo.fontSize, fontWeight: .bold, backgroundColor: Colors.transparent),
           ),
       centerTitle: false,
       actions: actions,

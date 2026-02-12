@@ -439,6 +439,44 @@ class OptionsState extends State<Options> {
                   ],
                 ),
 
+                // dynamic display... or static fixed
+                const AppSpace(verticalSpace: 30),
+                AppWrapFullWidth(
+                  spacing: 15,
+                  children: [
+                    const Text('Dynamic Display:'),
+                    SegmentedButton<bool>(
+                      selectedIcon: appIcon(Icons.check),
+                      style: ButtonStyle(),
+                      segments: <ButtonSegment<bool>>[
+                        ButtonSegment<bool>(
+                          value: true,
+                          label: Text('Dynamic (default) ', style: buttonTextStyle()),
+                          tooltip: appOptions.toolTips
+                              ? 'Use the display size discovered from the hardware.'
+                              : null,
+                        ),
+                        ButtonSegment<bool>(
+                          value: false,
+                          label: Text('Static display size (1920x1080)', style: buttonTextStyle()),
+                          tooltip: appOptions.toolTips
+                              ? 'Fix the display size to the HDMI standard'
+                              : null,
+                        ),
+                      ],
+                      selected: <bool>{appOptions.dynamicDisplaySize},
+                      onSelectionChanged: (Set<bool> newSelection) {
+                        setState(() {
+                          // By default there is only a single segment that can be
+                          // selected at one time, so its value is always the first
+                          // item in the selected set.
+                          appOptions.dynamicDisplaySize = newSelection.first;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
                 const AppSpace(verticalSpace: 30),
                 AppWrap(
                   children: [

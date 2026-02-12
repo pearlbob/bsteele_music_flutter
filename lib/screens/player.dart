@@ -1610,48 +1610,48 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
   }
 
-  /// note: only bumps one row at a time
-  _displayRowBump(final int bump) {
-    logger.log(_logSongMasterBump, '_displayRowBump($bump): moment: ${_songMaster.momentNumber}');
-    if (_songMaster.momentNumber != null) {
-      SongMoment? originalMoment = _song.getSongMoment(_songMaster.momentNumber!);
-      if (originalMoment != null) {
-        final originalRow = _lyricsTable.songMomentNumberToGridRow(originalMoment.momentNumber);
-        logger.log(
-          _logSongMasterBump,
-          '  original: ${originalMoment.momentNumber}'
-          ', $originalRow',
-        );
-        if (bump > 0) {
-          //  bump forwards
-          SongMoment? moment = _song.getFirstSongMomentAtNextRow(originalMoment.momentNumber);
-          while (moment != null && _lyricsTable.songMomentNumberToGridRow(moment.momentNumber) == originalRow) {
-            moment = _song.getFirstSongMomentAtNextRow(moment.momentNumber);
-          }
-          logger.log(
-            _logSongMasterBump,
-            '  _displayRowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment',
-          );
-          if (moment != null) {
-            _songMaster.skipToMomentNumber(_song, moment.momentNumber);
-          }
-        } else {
-          //  bump backwards
-          SongMoment? moment = _song.getFirstSongMomentAtPriorRow(originalMoment.momentNumber);
-          while (moment != null && _lyricsTable.songMomentNumberToGridRow(moment.momentNumber) == originalRow) {
-            moment = _song.getFirstSongMomentAtPriorRow(moment.momentNumber);
-          }
-          logger.log(
-            _logSongMasterBump,
-            '  _displayRowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment',
-          );
-          if (moment != null) {
-            _songMaster.skipToMomentNumber(_song, moment.momentNumber);
-          }
-        }
-      }
-    }
-  }
+  // /// note: only bumps one row at a time
+  // _displayRowBump(final int bump) {
+  //   logger.log(_logSongMasterBump, '_displayRowBump($bump): moment: ${_songMaster.momentNumber}');
+  //   if (_songMaster.momentNumber != null) {
+  //     SongMoment? originalMoment = _song.getSongMoment(_songMaster.momentNumber!);
+  //     if (originalMoment != null) {
+  //       final originalRow = _lyricsTable.songMomentNumberToGridRow(originalMoment.momentNumber);
+  //       logger.log(
+  //         _logSongMasterBump,
+  //         '  original: ${originalMoment.momentNumber}'
+  //         ', $originalRow',
+  //       );
+  //       if (bump > 0) {
+  //         //  bump forwards
+  //         SongMoment? moment = _song.getFirstSongMomentAtNextRow(originalMoment.momentNumber);
+  //         while (moment != null && _lyricsTable.songMomentNumberToGridRow(moment.momentNumber) == originalRow) {
+  //           moment = _song.getFirstSongMomentAtNextRow(moment.momentNumber);
+  //         }
+  //         logger.log(
+  //           _logSongMasterBump,
+  //           '  _displayRowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment',
+  //         );
+  //         if (moment != null) {
+  //           _songMaster.skipToMomentNumber(_song, moment.momentNumber);
+  //         }
+  //       } else {
+  //         //  bump backwards
+  //         SongMoment? moment = _song.getFirstSongMomentAtPriorRow(originalMoment.momentNumber);
+  //         while (moment != null && _lyricsTable.songMomentNumberToGridRow(moment.momentNumber) == originalRow) {
+  //           moment = _song.getFirstSongMomentAtPriorRow(moment.momentNumber);
+  //         }
+  //         logger.log(
+  //           _logSongMasterBump,
+  //           '  _displayRowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment',
+  //         );
+  //         if (moment != null) {
+  //           _songMaster.skipToMomentNumber(_song, moment.momentNumber);
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   _playListItemPositionsListener() {
     if (!_songUpdateService.isLeader) {

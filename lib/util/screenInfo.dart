@@ -5,6 +5,8 @@ import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import '../app/appOptions.dart';
+
 //  diagnostic logging enables
 const Level _screenInfoLogFontsize = Level.debug;
 
@@ -27,21 +29,23 @@ class ScreenInfo {
     _isWayTooNarrow = _mediaWidth <= 425;
     _titleScaleFactor = max(1, _mediaWidth / minLogicalPixels);
     logger.log(
-        _screenInfoLogFontsize,
-        'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $_fontSize'
-        ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
+      _screenInfoLogFontsize,
+      'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $_fontSize'
+      ', narrow: $_isTooNarrow, title: $_titleScaleFactor',
+    );
 
     logger.log(
-        _screenInfoLogFontsize,
-        // 'devicePixelRatio: $devicePixelRatio,'
-        ' ($_mediaWidth,$_mediaHeight)');
+      _screenInfoLogFontsize,
+      // 'devicePixelRatio: $devicePixelRatio,'
+      ' ($_mediaWidth,$_mediaHeight)',
+    );
   }
 
   ScreenInfo.defaultValue()
-      : _isDefaultValue = true,
-        // place holders only:
-        _mediaWidth = 1920,
-        _mediaHeight = 1080 {
+    : _isDefaultValue = true,
+      // place holders only:
+      _mediaWidth = 1920,
+      _mediaHeight = 1080 {
     _isTooNarrow = false; //  logical pixels
     _titleScaleFactor = 1;
     _fontSize = 16;
@@ -57,6 +61,8 @@ class ScreenInfo {
   /// Computed optimal font size.
   double get fontSize => _fontSize;
   late double _fontSize;
+
+  Size get size => Size(_mediaWidth, _mediaHeight);
 
   double get mediaWidth => _mediaWidth;
   late double _mediaWidth;

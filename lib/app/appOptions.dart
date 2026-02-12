@@ -44,6 +44,7 @@ enum StorageValue {
   reducedNashvilleDots,
   simplifiedChords,
   showRepeatCounts,
+  dynamicDisplaySize,
 }
 
 enum TapToAdvance { never, upOrDown }
@@ -75,10 +76,13 @@ class AppOptions extends ChangeNotifier {
 
   /// Must be called and waited for prior to appOptions first use!
   /// fixme: this arrangement should be improved!
-  Future<void> init() async {
-    var usTimer = UsTimer();
+  Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();
-
+    await _load();
+  }
+  
+  Future<void> _load() async {
+    var usTimer = UsTimer();
     _userDisplayStyle =
         Util.enumFromString(
           await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
@@ -120,6 +124,7 @@ class AppOptions extends ChangeNotifier {
     _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
     _simplifiedChords = await _readBool(StorageValue.simplifiedChords.name, defaultValue: _simplifiedChords);
     _showRepeatCounts = await _readBool(StorageValue.showRepeatCounts.name, defaultValue: _showRepeatCounts);
+    _dynamicDisplaySize = await _readBool(StorageValue.dynamicDisplaySize.name, defaultValue: true);
     _alwaysUseTheNewestSongOnRead = await _readBool(
       'alwaysUseTheNewestSongOnRead',
       defaultValue: _alwaysUseTheNewestSongOnRead,
@@ -148,8 +153,9 @@ class AppOptions extends ChangeNotifier {
     reducedNashvilleDots = await _readBool(StorageValue.reducedNashvilleDots.name, defaultValue: true);
   }
 
-  clear() {
-    _prefs.clear();
+  void clear() async {
+   await _prefs.clear();
+   await _load();
   }
 
   /// A persistent debug flag for internal software development use.
@@ -462,6 +468,18 @@ class AppOptions extends ChangeNotifier {
   /// True if the user wants the app to repeat counts on the player screen
   bool get showRepeatCounts => _showRepeatCounts;
   bool _showRepeatCounts = false;
+
+  set dynamicDisplaySize(bool value) {
+    if (_dynamicDisplaySize == value) {
+      return;
+    }
+    _dynamicDisplaySize = value;
+    _saveBool(StorageValue.dynamicDisplaySize.name, value);
+  }
+
+  /// True if the user wants the app to repeat counts on the player screen
+  bool get dynamicDisplaySize => _dynamicDisplaySize;
+  bool _dynamicDisplaySize = true;
 
   /// The current selected web socket host.
   /// An empty string will indicate the web socket should remain idle.

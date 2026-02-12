@@ -67,6 +67,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:bsteele_music_flutter/screens/about.dart';
 
@@ -205,7 +206,7 @@ void main() async {
 
   //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
-  await appOptions.init(); //  initialize the options from the stored values
+  await appOptions.initialize(); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
   if (host

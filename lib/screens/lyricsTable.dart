@@ -110,7 +110,7 @@ Size _computeInlineSpanSize(final InlineSpan inLineSpan, {TextScaler? textScaler
     textDirection: TextDirection.ltr,
     maxLines: maxLines ?? _maxLines,
     textScaler: textScaler ?? TextScaler.noScaling,
-  )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
+  )..layout(maxWidth: maxWidth ?? app.displaySize.width);
   Size ret = textPainter.size;
   textPainter.dispose();
   return ret;
@@ -961,8 +961,8 @@ class LyricsTable {
           width = max(width, row[c]!.buildSize.width);
         }
 
-        if (width < app.screenInfo.mediaWidth / 5) {
-          width = app.screenInfo.mediaWidth / 5;
+        if (width < app.displaySize.width / 5) {
+          width = app.displaySize.width / 5;
         }
 
         for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
@@ -1172,11 +1172,11 @@ class LyricsTable {
           //  assume that most of the media height is available
           const maxHeightFraction = 0.8;
           //  fixme: only approximate!
-          final double maxHeight = maxHeightFraction * (app.screenInfo.mediaHeight - kToolbarHeight);
+          final double maxHeight = maxHeightFraction * (app.displaySize.height - kToolbarHeight);
 
           logger.log(
             _logLyricSectionHeights,
-            'app.screenInfo: _scaleFactor: ${to3(_scaleFactor)}, mediaHeight: ${app.screenInfo.mediaHeight}',
+            'app.displaySize: _scaleFactor: ${to3(_scaleFactor)}, height: ${app.displaySize.height}',
           );
           double lyricSectionHeight = 0;
           double maxLyricSectionHeight = 0;
@@ -1219,7 +1219,7 @@ class LyricsTable {
 
           //  limit height
           if (maxLyricSectionHeight > 0) {
-            double hScaleFactor =  maxHeight / maxLyricSectionHeight;
+            double hScaleFactor = 0.97 * maxHeight / maxLyricSectionHeight;
             logger.log(
               _logLyricSectionHeights,
               'maxLyricSectionHeight: $maxLyricSectionHeight/$maxHeight'
@@ -2093,8 +2093,8 @@ class LyricsTable {
   /// compute screen size values used here and on other screens
   void _computeScreenSizes() {
     App app = App();
-    _screenWidth = app.screenInfo.mediaWidth;
-    _screenHeight = app.screenInfo.mediaHeight;
+    _screenWidth = app.displaySize.width;
+    _screenHeight = app.displaySize.height;
 
     //  rough in the basic fontSize
     _chordFontSizeUnscaled = 65; // max for hdmi resolution
@@ -2543,7 +2543,7 @@ class _SongCellWidget extends StatefulWidget {
   ///  efficiency compromised for const StatelessWidget song cell
   Size get computedBuildSize {
     //  add a tolerance
-    var width = columnWidth ?? app.screenInfo.mediaWidth;
+    var width = columnWidth ?? app.displaySize.width;
     var ret = (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText, maxLines: _maxLines, maxWidth: width) +

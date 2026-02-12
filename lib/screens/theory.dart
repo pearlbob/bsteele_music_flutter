@@ -196,7 +196,7 @@ class TheoryState extends State<TheoryWidget> {
                           color: _backgroundColor,
                           child: Row(
                             children: [
-                              Text('Parent Major Key: ', style: _boldStyle),
+                              Text('Key: ', style: _boldStyle),
                               DropdownButton<music_key.Key>(
                                 items: music_key.KeyEnum.values.reversed.map((final music_key.KeyEnum value) {
                                   return DropdownMenuItem<music_key.Key>(

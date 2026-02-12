@@ -100,7 +100,8 @@ Down arrow also advances one row in play, one section in pause.
 Up arrow backs up one row in play, one section in pause.
 Keyboard enter starts the manual play mode. Subsequent enters toggle between manual play and play.
 Number pad enter toggles the pause on and off.  In pause the leader is responsible for song progress.
-With z or q, the play stops and goes back to the play list.''';
+With Z forces manual pause.  The user is responsible for manual advance of the sections.
+With Q, the play stops and goes back to the play list.''';
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -537,13 +538,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
-    boxMarker = app.screenInfo.mediaHeight * _scrollAlignment;  //  default only
+    boxMarker = app.screenInfo.mediaHeight * _scrollAlignment; //  fixed location
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
       musicKey: _displaySongKey,
       initialHeightOffset: boxMarker,
     );
-    boxMarker *= _lyricsTable.scaleFactor; //  decrease based on lyrics table auto scale
 
     ScrollPhysics scrollPhysics = ClampingScrollPhysics();
     switch (appOptions.userDisplayStyle) {
@@ -1415,7 +1415,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       } else if (e.logicalKey == LogicalKeyboardKey.pageDown) {
         _sectionBump(1);
         return KeyEventResult.handled;
-      } else if (e.logicalKey == LogicalKeyboardKey.keyZ || e.logicalKey == LogicalKeyboardKey.keyQ) {
+      } else if (e.logicalKey == LogicalKeyboardKey.keyZ) {
+        _performPause(force: true);
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.keyQ) {
         if (_songUpdateState.isPlaying) {
           _performStop();
         } else {
@@ -2905,7 +2908,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
-  static const _scrollAlignment = 0.2;
+  static const _scrollAlignment = 0.15;
   double boxMarker = app.screenInfo.mediaHeight * _scrollAlignment; //  initial default only
   double _fontSize = 14;
 

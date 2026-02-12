@@ -1149,7 +1149,6 @@ class LyricsTable {
         break;
     }
     _scaleFactor = min(_scaleFactor, 1.0);
-    // _scaleFactor /= app.screenInfo.devicePixelRatio; //fixme: why?
 
     logger.log(_logFontSize, '_scaleFactor: $_scaleFactor, ${app.screenInfo.fontSize}');
     logger.log(
@@ -1220,7 +1219,7 @@ class LyricsTable {
 
           //  limit height
           if (maxLyricSectionHeight > 0) {
-            double hScaleFactor = maxHeight / maxLyricSectionHeight;
+            double hScaleFactor =  maxHeight / maxLyricSectionHeight;
             logger.log(
               _logLyricSectionHeights,
               'maxLyricSectionHeight: $maxLyricSectionHeight/$maxHeight'

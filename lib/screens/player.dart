@@ -1382,6 +1382,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       } else if (e.logicalKey == LogicalKeyboardKey.arrowUp || e.logicalKey == LogicalKeyboardKey.numpadSubtract) {
         _sectionBump(-1);
         return KeyEventResult.handled;
+      } else if (
+      //  workaround for cheap foot pedal... only outputs b
+      e.logicalKey == LogicalKeyboardKey.keyB) {
+        _forwardSwitchPressed();
+        return KeyEventResult.handled;
       }
 
       //  consume all keys if in manual pause
@@ -1397,11 +1402,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       //  process the keys while in a non-pause mode
       if (e.logicalKey == LogicalKeyboardKey.keyM) {
         _tempoTap();
-        return KeyEventResult.handled;
-      } else if (
-      //  workaround for cheap foot pedal... only outputs b
-      e.logicalKey == LogicalKeyboardKey.keyB) {
-        _forwardSwitchPressed();
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         _bpmBump(1);

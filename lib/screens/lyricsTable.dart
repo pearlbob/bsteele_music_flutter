@@ -8,7 +8,7 @@ import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/grid_coordinate.dart';
 import 'package:bsteele_music_lib/songs/chord_section.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/lyric.dart';
 import 'package:bsteele_music_lib/songs/lyric_section.dart';
 import 'package:bsteele_music_lib/songs/measure.dart';
@@ -202,7 +202,7 @@ class LyricSectionNotifier extends ChangeNotifier {
 
 /// compute a lyrics table
 class LyricsTable {
-  List<Widget> lyricsTableItems(Song song, {music_key.Key? musicKey, double initialHeightOffset = 100}) {
+  List<Widget> lyricsTableItems(Song song, {musical_key.MajorKey? musicKey, double initialHeightOffset = 100}) {
     var usTimer = UsTimer();
     _song = song;
     displayMusicKey = musicKey ?? song.key;
@@ -1710,9 +1710,9 @@ class LyricsTable {
   /// Transcribe the chord section to a text span, adding Nashville notation when appropriate.
   TextSpan _chordSectionTextSpan(
     final ChordSection chordSection,
-    final music_key.Key originalKey,
+    final musical_key.MajorKey originalKey,
     int transpositionOffset, {
-    final music_key.Key? displayMusicKey,
+    final musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
   }) {
     style = style ?? _coloredChordTextStyle;
@@ -1826,9 +1826,9 @@ class LyricsTable {
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
   TextSpan _measureNashvilleSelectionTextSpan(
     final Measure measure,
-    final music_key.Key originalKey,
+    final musical_key.MajorKey originalKey,
     int transpositionOffset, {
-    final music_key.Key? displayMusicKey,
+    final musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
     final bool showBeats = true,
     withInversion = true,
@@ -1886,9 +1886,9 @@ class LyricsTable {
 
   TextSpan _measureTextSpan(
     final Measure measure,
-    final music_key.Key originalKey,
+    final musical_key.MajorKey originalKey,
     final int transpositionOffset, {
-    final music_key.Key? displayMusicKey,
+    final musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
     final bool showBeats = false,
     final withInversion = false,
@@ -1990,9 +1990,9 @@ class LyricsTable {
 
   TextSpan _nashvilleMeasureTextSpan(
     final Measure measure,
-    final music_key.Key originalKey,
+    final musical_key.MajorKey originalKey,
     final int transpositionOffset, {
-    final music_key.Key? displayMusicKey,
+    final musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
   }) {
     final keyOffset = originalKey.getHalfStep();
@@ -2308,7 +2308,7 @@ class LyricsTable {
   List<double> _songMomentNumberToDisplayOffset = [];
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
 
-  music_key.Key displayMusicKey = music_key.Key.C;
+  musical_key.MajorKey displayMusicKey = musical_key.MajorKey.C;
   final RegExp verticalBarAndSpacesRegExp = RegExp(r'\s*\|\s*');
 }
 
@@ -2900,7 +2900,7 @@ class _BeatMarkCustomPainter extends CustomPainter {
 ScaleNote scaleNoteByAccidentalExpressionChoice(
   final ScaleNote scaleNote,
   final AccidentalExpressionChoice choice, {
-  final music_key.Key? key,
+  final musical_key.MajorKey? key,
 }) {
   //  process scale note by accidental choice
   switch (choice) {
@@ -2911,6 +2911,6 @@ ScaleNote scaleNoteByAccidentalExpressionChoice(
     case .easyRead:
       return scaleNote.asEasyRead();
     case .byKey:
-      return (key ?? music_key.Key.getDefault()).isSharp ? scaleNote.asSharp() : scaleNote.asFlat();
+      return (key ?? musical_key.MajorKey.getDefault()).isSharp ? scaleNote.asSharp() : scaleNote.asFlat();
   }
 }

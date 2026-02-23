@@ -8,7 +8,7 @@ import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_id.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
@@ -986,7 +986,7 @@ class SingersState extends State<Singers> {
 
   AppWrap appWrapSongExplicit(
     final Song? song, {
-    final music_key.Key? key,
+    final musical_key.MajorKey? key,
     final int? bpm,
     final String? performer,
     final bool enable = true,

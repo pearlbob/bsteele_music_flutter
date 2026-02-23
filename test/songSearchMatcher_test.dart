@@ -15,7 +15,7 @@ void main() {
         title: 'A blue tune',
         artist: 'bob',
         copyright: 'copyright nobody 2022',
-        key: Key.getDefault(),
+        key: MajorKey.getDefault(),
         beatsPerMinute: MusicConstants.defaultBpm,
         beatsPerBar: 4,
         unitsPerMeasure: 4,

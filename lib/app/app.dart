@@ -7,7 +7,7 @@ import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_section.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/section.dart';
 import 'package:bsteele_music_lib/songs/section_version.dart';
@@ -34,7 +34,7 @@ String userName =
     Song.defaultUser;
 
 //  intentionally global to share with singer screen    fixme?
-music_key.Key? playerSelectedSongKey;
+musical_key.MajorKey? playerSelectedSongKey;
 int? playerSelectedBpm = MusicConstants.defaultBpm;
 String? playerSinger;
 

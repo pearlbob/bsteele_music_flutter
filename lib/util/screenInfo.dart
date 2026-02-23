@@ -5,8 +5,6 @@ import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
-import '../app/appOptions.dart';
-
 //  diagnostic logging enables
 const Level _screenInfoLogFontsize = Level.debug;
 

@@ -15,7 +15,7 @@ void main() {
         title: 'After Midnight',
         artist: 'Eric Clapton',
         copyright: 'BMG',
-        key: Key.D,
+        key: MajorKey.D,
         beatsPerMinute: 110,
         beatsPerBar: 4,
         unitsPerMeasure: 4,

@@ -14,7 +14,7 @@ import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/chord_section.dart';
 import 'package:bsteele_music_lib/songs/chord_section_grid_data.dart';
 import 'package:bsteele_music_lib/songs/chord_section_location.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/measure_comment.dart';
 import 'package:bsteele_music_lib/songs/measure_node.dart';
@@ -596,7 +596,7 @@ class EditState extends State<Edit> {
                                               title: '',
                                               artist: '',
                                               copyright: '',
-                                              key: music_key.Key.getDefault(),
+                                              key: musical_key.MajorKey.getDefault(),
                                               beatsPerMinute: 106,
                                               beatsPerBar: 4,
                                               unitsPerMeasure: 4,
@@ -782,13 +782,13 @@ class EditState extends State<Edit> {
                                     crossAxisAlignment: WrapCrossAlignment.center,
                                     children: [
                                       Text("Key: ", style: _labelTextStyle),
-                                      appDropdownButton<music_key.Key>(
-                                        music_key.Key.values
+                                      appDropdownButton<musical_key.MajorKey>(
+                                        musical_key.MajorKey.values
                                             .toList()
                                             .reversed
-                                            .map((music_key.Key value) {
-                                              logger.t('keySelectDropdownMenuItems: music_key.Key value: $value');
-                                              return appDropdownMenuItem<music_key.Key>(
+                                            .map((musical_key.MajorKey value) {
+                                              logger.t('keySelectDropdownMenuItems: musical_key.MajorKey value: $value');
+                                              return appDropdownMenuItem<musical_key.MajorKey>(
                                                 value: value,
                                                 child: Text(
                                                   '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
@@ -3864,7 +3864,7 @@ class EditState extends State<Edit> {
   bool showHints = false;
 
   SectionVersion sectionVersion = SectionVersion.defaultInstance;
-  ScaleNote keyChordNote = music_key.Key.getDefault().getKeyScaleNote();
+  ScaleNote keyChordNote = musical_key.MajorKey.getDefault().getKeyScaleNote();
 
   final List<ChangeNotifier> disposeList = []; //  fixme: workaround to dispose the text controllers
 

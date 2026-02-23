@@ -12,7 +12,7 @@ import 'package:bsteele_music_lib/songs/chord.dart';
 import 'package:bsteele_music_lib/songs/chord_anticipation_or_delay.dart';
 import 'package:bsteele_music_lib/songs/chord_component.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
@@ -44,7 +44,7 @@ double _fontSize = 24;
 Offset? _dragStart;
 Offset? _dragEnd;
 
-music_key.Key _key = music_key.Key.getDefault();
+musical_key.MajorKey _key = musical_key.MajorKey.getDefault();
 
 bool get _isShowScaleNumbers => sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index];
 
@@ -781,7 +781,7 @@ class _FretBoardPainter extends CustomPainter {
     //  compute scale notes
     Chord chord = _getChord(); //  fixme!!!!!!!!!!!!!!!!!!!
     ScaleChord scaleChord = chord.scaleChord;
-    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(chord.scaleChord.scaleNote.halfStep);
+    musical_key.MajorKey rootKey = musical_key.MajorKey.getKeyByHalfStep(chord.scaleChord.scaleNote.halfStep);
     final fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
       fretBoardNotes.add(_key.inKey(
@@ -892,7 +892,7 @@ class _FretBoardPainter extends CustomPainter {
   //   return fretWidths[n];
   // }
 
-  final music_key.Key keyE = music_key.Key.E;
+  final musical_key.MajorKey keyE = musical_key.MajorKey.E;
 
   late Canvas canvas;
   final List<double> fretLocations = [];

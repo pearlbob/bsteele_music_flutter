@@ -9,7 +9,7 @@ import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid_coordinate.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/ninjam.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
@@ -51,13 +51,13 @@ final _playMomentNotifier = PlayMomentNotifier();
 final _songMasterNotifier = SongMasterNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
 
-music_key.Key _selectedSongKey = music_key.Key.C;
+musical_key.MajorKey _selectedSongKey = musical_key.MajorKey.C;
 
 /// Display the song moments in sequential order.
 /// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
 class Leader extends StatefulWidget {
-  Leader({this.song, super.key, music_key.Key? musicKey, int? bpm, String? singer}) {
+  Leader({this.song, super.key, musical_key.MajorKey? musicKey, int? bpm, String? singer}) {
     playerSelectedSongKey = musicKey; //  to be read later at initialization
     playerSelectedBpm = bpm ?? _song.beatsPerMinute;
     playerSinger = singer;
@@ -235,11 +235,11 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
       if (firstScaleNote != null && _song.key.getKeyScaleNote() == firstScaleNote) {
         firstScaleNote = null; //  not needed
       }
-      List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
+      List<musical_key.MajorKey?> rolledKeyList = List.generate(steps, (i) {
         return null;
       });
 
-      List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(_song.key); //temp loc
+      List<musical_key.MajorKey> list = musical_key.MajorKey.keysByHalfStepFrom(_song.key); //temp loc
       for (int i = 0; i <= halfOctave; i++) {
         rolledKeyList[i] = list[halfOctave - i];
       }
@@ -252,7 +252,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
       final double onStringWidth = textWidth(context, _headerTextStyle, onString);
 
       for (int i = 0; i < steps; i++) {
-        music_key.Key value = rolledKeyList[i] ?? _selectedSongKey;
+        musical_key.MajorKey value = rolledKeyList[i] ?? _selectedSongKey;
 
         //  deal with the Gb/F# duplicate issue
         if (value.halfStep == _selectedSongKey.halfStep) {
@@ -273,7 +273,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
         }
 
         _keyDropDownMenuList.add(
-          appDropdownMenuItem<music_key.Key>(
+          appDropdownMenuItem<musical_key.MajorKey>(
             value: value,
             child: AppWrap(
               children: [
@@ -452,7 +452,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                                     message: 'Transcribe the song to the selected key.',
                                     child: Text('Key: ', style: _headerTextStyle, softWrap: false),
                                   ),
-                                  appDropdownButton<music_key.Key>(
+                                  appDropdownButton<musical_key.MajorKey>(
                                     _keyDropDownMenuList,
                                     onChanged: (value) {
                                       setState(() {
@@ -739,9 +739,9 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   }
 
   /// Adjust the displayed
-  _setSelectedSongKey(music_key.Key key) {
+  _setSelectedSongKey(musical_key.MajorKey key) {
     //  add any offset
-    music_key.Key newDisplayKey = key.nextKeyByHalfSteps(_displayKeyOffset);
+    musical_key.MajorKey newDisplayKey = key.nextKeyByHalfSteps(_displayKeyOffset);
 
     //  deal with capo
     if (_showCapo) {
@@ -783,7 +783,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
 
   late final FocusNode _rawKeyboardListenerFocusNode;
 
-  music_key.Key _displaySongKey = music_key.Key.C;
+  musical_key.MajorKey _displaySongKey = musical_key.MajorKey.C;
   int _displayKeyOffset = 0;
 
   NinJam _ninJam = NinJam.empty();
@@ -801,7 +801,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   double _fontSize = 14;
 
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
-  List<DropdownMenuItem<music_key.Key>> _keyDropDownMenuList = [];
+  List<DropdownMenuItem<musical_key.MajorKey>> _keyDropDownMenuList = [];
 
   Timer? _idleTimer;
 

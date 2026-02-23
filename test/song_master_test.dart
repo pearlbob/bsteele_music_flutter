@@ -59,7 +59,7 @@ void main() async {
       title: 'A song',
       artist: 'bob',
       copyright: 'bsteele.com',
-      key: Key.C,
+      key: MajorKey.C,
       beatsPerMinute: bpm,
       beatsPerBar: beatsPerBar,
       unitsPerMeasure: 4,

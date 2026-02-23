@@ -114,17 +114,17 @@ void main() async {
     // logger.i('errorMessage: "${errorMessage.data}"');
     // expect(errorMessage.data, contains('chords'));
 
-    // DropdownButton<music_key.Key> keyDropdownButton = Find.findDropDownByAppKey(AppKeyEnum.editEditKeyDropdown);
+    // DropdownButton<musical_key.MajorKey> keyDropdownButton = Find.findDropDownByAppKey(AppKeyEnum.editEditKeyDropdown);
     // expect(keyDropdownButton.items, isNotEmpty);
     // expect(keyDropdownButton.items!.length, MusicConstants.halfStepsPerOctave + 1);
-    // expect(keyDropdownButton.value, music_key.Key.getDefault());
+    // expect(keyDropdownButton.value, musical_key.MajorKey.getDefault());
     // logger.t('keyDropdownButton.value: ${keyDropdownButton.value}');
 
     // {
     //   var keyDropdownFinder = DropDownFinderByAppKey(AppKeyEnum.editEditKeyDropdown);
     //   expect(keyDropdownFinder, findsOneWidget);
     //
-    //   for (var musicKey in music_key.Key.values) {
+    //   for (var musicKey in musical_key.MajorKey.values) {
     //     switch (musicKey.keyEnum) {
     //       case .Gb:
     //       case .Db:

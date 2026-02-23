@@ -98,7 +98,7 @@ abstract class SheetNotation {
   final double postHeight;
   late final double totalHeight;
 
-  final musical_key.Key _key = app.selectedSong.key;
+  final musical_key.MajorKey _key = app.selectedSong.key;
 
   final SheetDisplay sheetDisplay;
 
@@ -344,7 +344,7 @@ class _SheetStaffNotation extends SheetNotation {
     }
 
     Pitch? pitch = _key.mappedPitch(sn.pitch!);
-    double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
+    double staffPosition = musical_key.MajorKey.getStaffPosition(_clef, pitch);
 
     double myAccidentalDx = accidentalDx ?? dx;
     double theRootDx = rootDx ?? dx;
@@ -485,7 +485,7 @@ class _SheetStaffNotation extends SheetNotation {
 
   /// render the key symbols (sharps or flats)
   void _renderKeyStaffSymbols() {
-    if (_key == musical_key.Key.getDefault()) {
+    if (_key == musical_key.MajorKey.getDefault()) {
       return;
     }
 
@@ -628,7 +628,7 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
       int downCount = 0;
       for (var pitch in pitches) {
         //  find if this staff position has had an accidental in this measure
-        double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
+        double staffPosition = musical_key.MajorKey.getStaffPosition(_clef, pitch);
         Accidental? accidental = _chordMeasureAccidentals[staffPosition]; // prior notes in the measure
         if (accidental != null) {
           //  there was a prior note at this staff position

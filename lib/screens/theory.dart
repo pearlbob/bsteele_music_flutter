@@ -4,7 +4,7 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/songs/chord_component.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/mode.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
@@ -13,9 +13,9 @@ import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/material.dart';
 
 const double _defaultFontSize = 28;
-music_key.Key _key = music_key.Key.getDefault();
+musical_key.MajorKey _key = musical_key.MajorKey.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
-music_key.Key _majorKey = music_key.Key.getDefault();
+musical_key.MajorKey _majorKey = musical_key.MajorKey.getDefault();
 Mode _modeSelected = Mode.ionian;
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 const _halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
@@ -91,9 +91,9 @@ class TheoryState extends State<TheoryWidget> {
                           child: Row(
                             children: [
                               Text('Key: ', style: _style),
-                              DropdownButton<music_key.Key>(
-                                items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                                  return DropdownMenuItem<music_key.Key>(
+                              DropdownButton<musical_key.MajorKey>(
+                                items: musical_key.MajorKey.values.toList().reversed.map((musical_key.MajorKey value) {
+                                  return DropdownMenuItem<musical_key.MajorKey>(
                                     key: ValueKey('half${value.getHalfStep()}'),
                                     value: value,
                                     child: Text(
@@ -197,15 +197,15 @@ class TheoryState extends State<TheoryWidget> {
                           child: Row(
                             children: [
                               Text('Key: ', style: _boldStyle),
-                              DropdownButton<music_key.Key>(
-                                items: music_key.KeyEnum.values.reversed.map((final music_key.KeyEnum value) {
-                                  return DropdownMenuItem<music_key.Key>(
+                              DropdownButton<musical_key.MajorKey>(
+                                items: musical_key.MajorKeyEnum.values.reversed.map((final musical_key.MajorKeyEnum value) {
+                                  return DropdownMenuItem<musical_key.MajorKey>(
                                     key: ValueKey('keyRoot${value.name}'),
-                                    value: music_key.Key.get(value),
+                                    value: musical_key.MajorKey.get(value),
                                     child: Text(
-                                      '${music_key.Key.get(value).toMarkup().padLeft(2)} '
-                                      '${music_key.Key.get(value).keyValue == 0 ? '' : ('  ${music_key.Key.get(value).keyValue.abs()}'
-                                                '${music_key.Key.get(value).keyValue > 0 ? '#' : 'b'} ')}',
+                                      '${musical_key.MajorKey.get(value).toMarkup().padLeft(2)} '
+                                      '${musical_key.MajorKey.get(value).keyValue == 0 ? '' : ('  ${musical_key.MajorKey.get(value).keyValue.abs()}'
+                                                '${musical_key.MajorKey.get(value).keyValue > 0 ? '#' : 'b'} ')}',
                                       style: _style,
                                     ),
                                   );
@@ -324,7 +324,7 @@ class TheoryState extends State<TheoryWidget> {
       children.add(TableRow(children: row));
     }
 
-    music_key.Key rootKey = _key;
+    musical_key.MajorKey rootKey = _key;
 
     {
       //  compute major scale notes
@@ -712,7 +712,7 @@ class TheoryState extends State<TheoryWidget> {
 
     children.add(TableRow(children: row));
 
-    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(_chordRoot.halfStep);
+    musical_key.MajorKey rootKey = musical_key.MajorKey.getKeyByHalfStep(_chordRoot.halfStep);
 
     //  compute scale notes
     var scaleNotes = <ScaleNote>[];
@@ -857,7 +857,7 @@ class TheoryState extends State<TheoryWidget> {
         ),
       );
 
-      music_key.Key musicKey = _majorKey;
+      musical_key.MajorKey musicKey = _majorKey;
       for (var i = 0; i < MusicConstants.notesPerScale; i++) {
         ScaleNote scaleNote = getModeScaleNote(musicKey, _modeSelected, i);
 
@@ -905,7 +905,7 @@ class TheoryState extends State<TheoryWidget> {
       tableRows.add(TableRow(children: row));
     }
 
-    for (var key in music_key.Key.values) {
+    for (var key in musical_key.MajorKey.values) {
       List<Widget> row = [];
       row.add(
         Container(
@@ -1095,7 +1095,7 @@ class TheoryState extends State<TheoryWidget> {
       tableRows.add(TableRow(children: row));
     }
 
-    for (var key in music_key.Key.values) {
+    for (var key in musical_key.MajorKey.values) {
       List<Widget> row = [];
       row.add(
         Container(

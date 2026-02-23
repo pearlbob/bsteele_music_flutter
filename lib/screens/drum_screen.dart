@@ -6,7 +6,7 @@ import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/util/util.dart';
@@ -404,7 +404,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     title: 'drum song',
     artist: 'bob',
     copyright: '2024 none',
-    key: music_key.Key.getDefault(),
+    key: musical_key.MajorKey.getDefault(),
     beatsPerMinute: 120,
     beatsPerBar: 4,
     unitsPerMeasure: 4,

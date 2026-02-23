@@ -45,7 +45,7 @@ class BassStudyTool {
                   if (item is Map) {
                     //  defaults only
                     bool isNote = true;
-                    musical_key.Key key = musical_key.Key.byHalfStep();
+                    musical_key.MajorKey key = musical_key.MajorKey.byHalfStep();
                     int string = 0; //  bass guitar, 0 = E string... yes the numbering is backwards
                     int fret = 0;
                     ChordDescriptor chordDescriptor = ChordDescriptor.major;
@@ -62,7 +62,7 @@ class BassStudyTool {
                           break;
                         case 'chordN': //  encoded
                           int chordN = item[attr];
-                          key = musical_key.Key.byHalfStep(offset: chordN + 7);
+                          key = musical_key.MajorKey.byHalfStep(offset: chordN + 7);
                           logger.t('    $attr: ${chordN.toString()} = $key');
                           break;
                       }

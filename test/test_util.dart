@@ -1,6 +1,6 @@
 import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -199,16 +199,16 @@ class Find {
     return ret;
   }
 
-  static DropdownButton<music_key.Key> findDropDown(String valueKeyString) {
+  static DropdownButton<musical_key.MajorKey> findDropDown(String valueKeyString) {
     var textFinder = DropDownFinder(valueKeyString);
     expect(textFinder, findsOneWidget);
-    var ret = textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
+    var ret = textFinder.evaluate().first.widget as DropdownButton<musical_key.MajorKey>;
     return ret;
   }
 
-// static DropdownButton<music_key.Key> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
+// static DropdownButton<musical_key.MajorKey> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
 //   var textFinder = DropDownFinderByAppKey(appKeyEnum);
-//   var ret = textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
+//   var ret = textFinder.evaluate().first.widget as DropdownButton<musical_key.MajorKey>;
 //   return ret;
 // }
 

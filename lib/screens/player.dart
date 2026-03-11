@@ -21,6 +21,7 @@ import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_moment.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
+import 'package:bsteele_music_lib/util/app_util.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -581,7 +582,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           scrollDirection: Axis.vertical,
           physics: scrollPhysics,
           itemBuilder: (context, index) {
-            logger.log(_logSongList, '_songList($index) ${_song.title}');
+            logger.log(_logSongList, '_songList($index): ${_song.title}');
             return lyricsTableItems[index];
           },
         );
@@ -1706,7 +1707,24 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               bestItemPositionIndex = itemPosition.index;
               bestItemPosition = itemPosition;
             }
-            logger.log(_logPlayerItemPositionSizes, 'itemPosition.index: ${itemPosition.index}');
+            if (_logPlayerItemPositionSizes.value >= Level.info.value ) {
+              final height =
+                  (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge) * MediaQuery.sizeOf(context).height;
+              final displayRelativeOffset = itemPosition.itemLeadingEdge * MediaQuery.sizeOf(context).height;
+              final tableOffset = _lyricsTable.rowToDisplayOffset(itemPosition.index) + 100;
+              // fixme: itemPosition is relative to the first
+              logger.log(
+                _logPlayerItemPositionSizes,
+                'itemPosition.index: ${itemPosition.index}:'
+                // ' itemLeadingEdge: ${itemPosition.itemLeadingEdge}'
+                // ', itemTrailingEdge: ${itemPosition.itemTrailingEdge}'
+                // ' height: ${to6(height)}
+                ', displayOffset: ${to3(displayRelativeOffset)}'
+                    ' - ${to3(tableOffset)} = ${to3(displayRelativeOffset-tableOffset)}',
+
+                //
+              );
+            }
           }
           // logger.i(
           //   'minItemPositionIndex: $minItemPositionIndex'

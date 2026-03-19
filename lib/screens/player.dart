@@ -539,7 +539,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
-    boxMarker = app.screenInfo.mediaHeight * _scrollAlignment; //  fixed location
+    boxMarker =
+        1080 // fixme:  temp fix for:  app.screenInfo.mediaHeight
+            * _scrollAlignment; //  fixed location
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
       musicKey: _displaySongKey,
@@ -1707,20 +1709,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               bestItemPositionIndex = itemPosition.index;
               bestItemPosition = itemPosition;
             }
-            if (_logPlayerItemPositionSizes.value >= Level.info.value ) {
+            if (_logPlayerItemPositionSizes.value >= Level.info.value) {
               final height =
                   (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge) * MediaQuery.sizeOf(context).height;
-              final displayRelativeOffset = itemPosition.itemLeadingEdge * MediaQuery.sizeOf(context).height;
-              final tableOffset = _lyricsTable.rowToDisplayOffset(itemPosition.index) + 100;
+              final rowHeight = _lyricsTable.rowHeight(itemPosition.index-1);
               // fixme: itemPosition is relative to the first
               logger.log(
                 _logPlayerItemPositionSizes,
-                'itemPosition.index: ${itemPosition.index}:'
+                'itemPosition.index: ${itemPosition.index.toString().padLeft(3)}:'
                 // ' itemLeadingEdge: ${itemPosition.itemLeadingEdge}'
                 // ', itemTrailingEdge: ${itemPosition.itemTrailingEdge}'
-                // ' height: ${to6(height)}
-                ', displayOffset: ${to3(displayRelativeOffset)}'
-                    ' - ${to3(tableOffset)} = ${to3(displayRelativeOffset-tableOffset)}',
+                // ' height: ${to3(height, pad: 8)}'
+                ', delta: ${to3(height)}'
+                ' - ${to3(rowHeight)} = ${to3(height - rowHeight)}'
+                    ', ratio: ${to3(height / rowHeight)}',
 
                 //
               );

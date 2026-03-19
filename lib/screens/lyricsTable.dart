@@ -69,6 +69,8 @@ const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
 const Level _logDisplayGrid = Level.debug;
+const Level _logScale = Level.debug;
+
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -1465,8 +1467,8 @@ class LyricsTable {
 
             lastLyricSection = lyricSection;
             //  offset the initial row by the requested amount
-            if ( r == 0 ) {
-              sectionChildren.add( SizedBox(height: initialHeightOffset * _scaleFactor,) );
+            if (r == 0) {
+              sectionChildren.add(SizedBox(height: initialHeightOffset * _scaleFactor));
             }
             items.add(Column(crossAxisAlignment: .start, children: sectionChildren));
             sectionChildren = [];
@@ -1687,7 +1689,8 @@ class LyricsTable {
                   ', lastRepetition: ${marker.lastRepetition}'
                   ', mn: ${cell.firstMomentNumber}'
                   ' to ${cell.lastMomentNumber} / ${cell.measuresPerRepeat}'
-                  ', repeat: ${cell.songMoment?.repeat}',
+                  ', repeat: ${cell.songMoment?.repeat}'
+                  ', height: ${to3(cell.buildSize.height)}',
                 );
                 break;
               default:
@@ -1695,7 +1698,8 @@ class LyricsTable {
                   _logDisplayGrid,
                   '      col $c: ${cell.measureNode} :'
                   ', moment: ${cell.songMoment}'
-                  ', mn: ${cell.firstMomentNumber} to ${cell.lastMomentNumber}',
+                  ', mn: ${cell.firstMomentNumber} to ${cell.lastMomentNumber}'
+                  ', height: ${to3(cell.buildSize.height)}',
                 );
                 break;
             }
@@ -1703,6 +1707,8 @@ class LyricsTable {
         }
       }
     }
+
+    logger.log( _logScale, 'scaleFactor: ${to6(scaleFactor)}');
 
     return items;
   }
@@ -2124,6 +2130,26 @@ class LyricsTable {
       return 0;
     }
     return _rowNumberToDisplayOffset[Util.intLimit(rowNumber, 0, _rowNumberToDisplayOffset.length - 1)];
+  }
+
+  double rowHeight(final int? rowNumber) {
+    if (rowNumber == null) {
+      return 0;
+    }
+
+    var gridRow = _cellGrid.getRow(Util.intLimit(rowNumber, 0, _cellGrid.getRowCount() - 1));
+    if (gridRow == null || gridRow.isEmpty) {
+      return 0;
+    }
+
+    double height = 0;
+    for (var cell in gridRow) {
+      if (cell != null) {
+        height = max(height, cell.buildSize.height);
+      }
+    }
+
+    return height;
   }
 
   double displayOffsetToRowNumber(final double displayOffset) {

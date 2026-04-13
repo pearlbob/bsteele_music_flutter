@@ -541,7 +541,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     boxMarker =
         1080 // fixme:  temp fix for:  app.screenInfo.mediaHeight
-            * _scrollAlignment; //  fixed location
+        *
+        _scrollAlignment; //  fixed location
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
       musicKey: _displaySongKey,
@@ -1353,7 +1354,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               _songMaster.resume();
               break;
             case .pause:
-              _sectionBump(1);
+              //  test for double bumps
+              var now = DateTime.now();
+              Duration diff = now.difference(_lastBumpDateTime);
+              if (diff > _minBumpDuration) {
+                _lastBumpDateTime = now;
+                _sectionBump(1);
+              }
               break;
           }
         }
@@ -1712,7 +1719,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             if (_logPlayerItemPositionSizes.value >= Level.info.value) {
               final height =
                   (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge) * MediaQuery.sizeOf(context).height;
-              final rowHeight = _lyricsTable.rowHeight(itemPosition.index-1);
+              final rowHeight = _lyricsTable.rowHeight(itemPosition.index - 1);
               // fixme: itemPosition is relative to the first
               logger.log(
                 _logPlayerItemPositionSizes,
@@ -1722,7 +1729,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 // ' height: ${to3(height, pad: 8)}'
                 ', delta: ${to3(height)}'
                 ' - ${to3(rowHeight)} = ${to3(height - rowHeight)}'
-                    ', ratio: ${to3(height / rowHeight)}',
+                ', ratio: ${to3(height / rowHeight)}',
 
                 //
               );
@@ -2911,6 +2918,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   int _lastBpmBump = 0;
   int _lastBpmBumpUs = 0;
   static final _bumpSteps = [1, 2, 4];
+  var _lastBumpDateTime = DateTime.now();
+  static const _minBumpDuration = const Duration(milliseconds: 350);
 
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;

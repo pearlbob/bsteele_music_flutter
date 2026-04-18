@@ -681,7 +681,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //  offset the marker
                       Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
                       Container(
-                        constraints: BoxConstraints.tight(Size(42, 8)),
+                        constraints: BoxConstraints.tight(Size(32, 8)),
                         decoration: const BoxDecoration(color: Colors.black87),
                       ),
                     ],
@@ -1257,9 +1257,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           default:
             return Container(
               padding: const .all(5.0),
-              color: (Color.lerp(App.measureContainerBackgroundColor, Colors.white, 0.85) ?? Colors.white).withAlpha(
-                128 + 64 + 32 + 8,
-              ),
+              color:
+                  ((Color.lerp(App.measureContainerBackgroundColor, Colors.white, 0.85)
+                          ??
+                          Colors.white)
+                      .withAlpha(128 + 64 + 32 + 8)).withValues(alpha: 0.75),
               child: AppWrapFullWidth(
                 alignment: .spaceBetween,
                 spacing: _fontSize,

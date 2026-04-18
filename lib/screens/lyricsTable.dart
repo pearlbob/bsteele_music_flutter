@@ -1239,6 +1239,7 @@ class LyricsTable {
 
     //  rescale the grid to fit the window
     _scaleFactor = min(_scaleFactor, 1.0);
+    _scaleFactor *= 0.9;
     _scaleComponents(scaleFactor: _scaleFactor);
     if (_scaleFactor < 1.0) {
       //  reset the widths to scale

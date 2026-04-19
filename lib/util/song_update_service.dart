@@ -19,6 +19,8 @@ const Level _log = Level.debug;
 const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
 const Level _logLeader = Level.debug;
+const Level _logNewHost = Level.debug;
+const Level _logError = Level.debug;
 
 /// fixme: this should be rewritten to use the SongUpdateService from the library!!!!!
 class AppSongUpdateService extends ChangeNotifier {
@@ -49,10 +51,12 @@ class AppSongUpdateService extends ChangeNotifier {
 
     while (_isRunning) //  retry on a failure
     {
+      bool hasError = false;
       _closeWebSocketChannel();
 
       //  look back to the server to possibly find a websocket
       _host = _findTheHost();
+      logger.log(_log, '_host: "$_host"');
       _ipAddress = '';
 
       if (_host.isEmpty) {
@@ -116,14 +120,20 @@ class AppSongUpdateService extends ChangeNotifier {
               }
             },
             onError: (Object error) {
-              logger.log(_log, 'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
+              logger.log(_logError, 'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
               _closeWebSocketChannel();
+              hasError = true;
             },
             onDone: () {
-              logger.log(_log, 'webSocketChannel onDone: at $uri');
+              logger.log(_logError, 'webSocketChannel onDone: at $uri');
               _closeWebSocketChannel();
+              hasError = true;
             },
           );
+
+          if ( hasError) {
+            continue;
+          }
 
           //  See if the server is there, that is, force a response that
           //  confirms the connection
@@ -151,7 +161,7 @@ class AppSongUpdateService extends ChangeNotifier {
 
               //  check connection status
               if (lastHost != _findTheHost()) {
-                logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
+                logger.log(_logNewHost, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
                 _closeWebSocketChannel();
                 _delayMilliseconds = 0;
                 notifyListeners();
@@ -200,8 +210,8 @@ class AppSongUpdateService extends ChangeNotifier {
   String _findTheHost() {
     var host = '';
     if (appOptions.websocketHost.isNotEmpty) {
-      host = appOptions.websocketHost;
-      if (appOptions.websocketHost == AppOptions.idleHost) {
+      host = appOptions.websocketHost.trim();
+      if (host == AppOptions.idleHost) {
         host = ''; //  never a real host
       }
     } else if (kIsWeb && Uri.base.scheme == 'http') {

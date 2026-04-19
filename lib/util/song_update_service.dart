@@ -131,7 +131,7 @@ class AppSongUpdateService extends ChangeNotifier {
             },
           );
 
-          if ( hasError) {
+          if (hasError) {
             continue;
           }
 
@@ -216,7 +216,7 @@ class AppSongUpdateService extends ChangeNotifier {
       }
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       host = Uri.base.authority;
-      if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
+      if (host.contains('bsteele.com') || (kDebugMode && host == 'localhost')) {
         //  there is never a websocket on the web!
         if (_lastNeverHost != host) {
           _lastNeverHost = host;
@@ -294,8 +294,7 @@ class AppSongUpdateService extends ChangeNotifier {
 
   SongUpdate? _songUpdate;
 
-  String get leaderName =>
-      (_isLeader ? appOptions.user : (_songUpdate != null ? _songUpdate!.user : Song.defaultUser));
+  String get leaderName => (_isLeader ? appOptions.user : (_songUpdate != null ? _songUpdate!.user : Song.defaultUser));
   WebSocketChannel? _webSocketChannel;
 
   String get ipAddress => _ipAddress;

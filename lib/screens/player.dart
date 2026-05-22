@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -539,10 +540,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
-    boxMarker =
-        1080 // fixme:  temp fix for:  app.screenInfo.mediaHeight
-        *
-        _scrollAlignment; //  fixed location
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
       musicKey: _displaySongKey,
@@ -654,6 +651,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 'LayoutBuilder constraints: (${constraints.maxWidth},${constraints.maxHeight})'
                 ', boxMarker: ${boxMarker.toStringAsFixed(1)}',
               );
+
+              _mediaHeight = constraints.maxHeight - _menuBarHeight;
+              boxMarker = _mediaHeight * _scrollAlignment; //  fixed location
+              logger.log(_logCenter, 'boxMarker: $boxMarker, mediaHeight: ${app.screenInfo.mediaHeight}');
 
               return Stack(
                 children: <Widget>[
@@ -1257,11 +1258,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           default:
             return Container(
               padding: const .all(5.0),
-              color:
-                  ((Color.lerp(App.measureContainerBackgroundColor, Colors.white, 0.85)
-                          ??
-                          Colors.white)
-                      .withAlpha(128 + 64 + 32 + 8)).withValues(alpha: 0.75),
+              color: ((Color.lerp(App.measureContainerBackgroundColor, Colors.white, 0.85) ?? Colors.white).withAlpha(
+                128 + 64 + 32 + 8,
+              )).withValues(alpha: 0.75),
               child: AppWrapFullWidth(
                 alignment: .spaceBetween,
                 spacing: _fontSize,
@@ -1800,17 +1799,17 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _leaderSongUpdate(momentNumberFound);
             _lastPlayMomentNumber = null;
 
-            logger.log(
-              _logScrollListener,
-              'reposition: itemPositionIndex: $bestItemPositionIndex'
-              ', momentNumberFound: $momentNumberFound'
-              // ', edges: ${bestItemPosition?.itemLeadingEdge} to ${bestItemPosition?.itemTrailingEdge} '
-              ', h: ${((bestItemPosition?.itemTrailingEdge ?? 0) - (bestItemPosition?.itemLeadingEdge ?? 0)) * (_lastSize?.height ?? 1080)} '
-              // ', maxMomentNumberFound: $maxMomentNumberFound'
-              // ', lastPlayMomentNumber: $_lastPlayMomentNumber'
-              ', offset: ${_lyricsTable.rowToDisplayOffset(bestItemPositionIndex)}',
-              // ', rowNumber: ${_lyricsTable.displayOffsetToRowNumber()}'
-            );
+            // logger.log(
+            //   _logScrollListener,
+            //   'reposition: itemPositionIndex: $bestItemPositionIndex'
+            //   ', momentNumberFound: $momentNumberFound'
+            //   // ', edges: ${bestItemPosition?.itemLeadingEdge} to ${bestItemPosition?.itemTrailingEdge} '
+            //   ', h: ${((bestItemPosition?.itemTrailingEdge ?? 0) - (bestItemPosition?.itemLeadingEdge ?? 0)) * (_lastSize?.height ?? 1080)} '
+            //   // ', maxMomentNumberFound: $maxMomentNumberFound'
+            //   // ', lastPlayMomentNumber: $_lastPlayMomentNumber'
+            //   ', offset: ${_lyricsTable.rowToDisplayOffset(bestItemPositionIndex)}',
+            //   // ', rowNumber: ${_lyricsTable.displayOffsetToRowNumber()}'
+            // );
           } else if ((_lastPlayMomentNumber ?? 0) != momentNumberFound) {
             logger.log(
               _logScrollListener,
@@ -1820,7 +1819,57 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           }
         }
         break;
+
       case SongUpdateState.pause:
+        //  scrolling while paused as master
+        if (!_isAutoScrolling) {
+          SplayTreeSet<ItemPosition> positions = SplayTreeSet<ItemPosition>((p1, p2) {
+            return p1.index.compareTo(p2.index);
+          })..addAll(_itemPositionsListener.itemPositions.value);
+          ItemPosition? best;
+          for (var position in _itemPositionsListener.itemPositions.value) {
+            if (position.itemLeadingEdge < _scrollAlignment && position.itemTrailingEdge >= _scrollAlignment) {
+              best = position;
+              break;
+            }
+          }
+
+          int bestRow = 0;
+          if (best != null) {
+            bestRow = best.index - 1;
+            var bestMoment = _song.getFirstSongMomentAtRow(bestRow);
+            if (bestMoment != null) {
+              if ((_songMaster.momentNumber ?? _song.songMoments.length) < bestMoment.momentNumber) {
+                logger.i('scroll master up to row: $bestRow  moment: $bestMoment');
+                // _songMaster.skipToMomentNumber(_song, bestMoment.momentNumber);
+                // _itemScrollToRow(bestRow);
+              } else {
+                var nextRowMoment = _song.getFirstSongMomentAtNextRow(bestRow);
+                if (nextRowMoment != null)
+                  if ((_songMaster.momentNumber ?? 0) > nextRowMoment.momentNumber) {
+                    logger.i('scroll master down to row: $bestRow  moment: $bestMoment');
+                    // _songMaster.skipToMomentNumber(_song, bestMoment.momentNumber);
+                    // _itemScrollToRow(bestRow);
+                  }
+              }
+            }
+          }
+
+          logger.log(
+            _logScrollListener,
+            'ScrollListener: '
+            'master: row: ${_lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber ?? 0)}'
+            // ', first: ${positions.first.index}'
+            ', best: $bestRow: ${to3(best?.itemLeadingEdge ?? 0)} ->${to3(best?.itemTrailingEdge ?? 0)}'
+            ', _isAutoScrolling: $_isAutoScrolling'
+            // '   last: ${positions.last.index} @ ${to3(positions.last.itemTrailingEdge)}'
+            ', _scrollAlignment: $_scrollAlignment'
+            ', lyrics: ${_lyricsTable.rowToLyricSectionIndex(bestRow)}'
+            ' from $positions',
+          );
+        }
+
+        break;
       case SongUpdateState.playing:
       case SongUpdateState.playHold:
         //  done by the song update service
@@ -1879,41 +1928,45 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 : const Duration(milliseconds: 500));
 
       //  local scroll
-      _itemScrollController
-          .scrollTo(index: row + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
-          .then((value) {
-            logger.log(
-              _logScrollAnimation,
-              'scrollTo(): post: _lastRowIndex: $row'
-              ', boxMarker: $boxMarker',
-            );
-            //
-            // var index = _lyricsTable.rowToLyricSectionIndex(row);
-            // var lastRow = _lyricsTable.lastRowInSection(row);
-            // var lyricSection = _song.lyricSections[index];
-            // var moment = _song.getSongMoment(_lyricsTable.gridRowToMomentNumber(row));
-            // var chordSectionBeatCount = moment?.chordSection.beatCount ?? 0;
-            //
-            // if (chordSectionBeatCount > 0) {
-            //   var bpm = playerSelectedBpm ?? _song.beatsPerMinute;
-            //   assert(bpm > 0);
-            //   var duration = Duration(seconds: (chordSectionBeatCount * 60 / bpm).ceil());
-            //
-            //   logger.i(
-            //     'finished scrolling to row: $row'
-            //     ', lastRow: $lastRow '
-            //     ', lyricSection: $lyricSection '
-            //     ', moment: $moment'
-            //     ', beats: $chordSectionBeatCount'
-            //     ', bpm: $bpm = ${to3(60 / bpm)} s/beat'
-            //         ', duration: $duration'
-            //   );
-            //
-            //   //  scroll to the end of the section at roughly play speed
-            //   _itemScrollController
-            //       .scrollTo(index: lastRow + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear);
-            // }
-          });
+      if (_itemScrollController.isAttached) {
+        _isAutoScrolling = true;
+        _itemScrollController
+            .scrollTo(index: row + 1, alignment: _scrollAlignment - 0.075, duration: duration, curve: Curves.linear)
+            .then((value) {
+              _isAutoScrolling = false;
+              logger.log(
+                _logScrollAnimation,
+                'scrollTo(): post: _lastRowIndex: $row'
+                ', boxMarker: $boxMarker',
+              );
+              //
+              // var index = _lyricsTable.rowToLyricSectionIndex(row);
+              // var lastRow = _lyricsTable.lastRowInSection(row);
+              // var lyricSection = _song.lyricSections[index];
+              // var moment = _song.getSongMoment(_lyricsTable.gridRowToMomentNumber(row));
+              // var chordSectionBeatCount = moment?.chordSection.beatCount ?? 0;
+              //
+              // if (chordSectionBeatCount > 0) {
+              //   var bpm = playerSelectedBpm ?? _song.beatsPerMinute;
+              //   assert(bpm > 0);
+              //   var duration = Duration(seconds: (chordSectionBeatCount * 60 / bpm).ceil());
+              //
+              //   logger.i(
+              //     'finished scrolling to row: $row'
+              //     ', lastRow: $lastRow '
+              //     ', lyricSection: $lyricSection '
+              //     ', moment: $moment'
+              //     ', beats: $chordSectionBeatCount'
+              //     ', bpm: $bpm = ${to3(60 / bpm)} s/beat'
+              //         ', duration: $duration'
+              //   );
+              //
+              //   //  scroll to the end of the section at roughly play speed
+              //   _itemScrollController
+              //       .scrollTo(index: lastRow + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear);
+              // }
+            });
+      }
 
       logger.log(
         _logScrollAnimation,
@@ -2930,6 +2983,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   ScrollablePositionedList? _songList;
   final ItemScrollController _itemScrollController = ItemScrollController();
+  bool _isAutoScrolling = false;
 
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   int _lastRowIndex = 0;
@@ -2940,7 +2994,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   static const _scrollAlignment = 0.15;
-  double boxMarker = app.screenInfo.mediaHeight * _scrollAlignment; //  initial default only
+  static const double _menuBarHeight = 56.0;
+  static double _mediaHeight = 1080 - _menuBarHeight; //  initial default only
+  double boxMarker = _mediaHeight * _scrollAlignment; //  initial default only
   double _fontSize = 14;
 
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

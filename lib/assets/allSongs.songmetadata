@@ -1738,7 +1738,7 @@
     ]
   },
   {
-    "id": "Song_Black_Magic_Woman_by_Santana",
+    "id": "Song_Black_Magic_Woman_Single_by_Fleetwood_Mac_coverBy_Santana",
     "metadata": [
       {
         "name": "Jam",
@@ -3010,6 +3010,15 @@
     ]
   },
   {
+    "id": "Song_Come_To_Me_by_Bonnie_Raitt",
+    "metadata": [
+      {
+        "name": "Vocalist",
+        "value": "Female"
+      }
+    ]
+  },
+  {
     "id": "Song_Come_To_Visit_by_Vicki",
     "metadata": [
       {
@@ -3045,15 +3054,6 @@
       {
         "name": "Subgenre",
         "value": "Pop rock"
-      }
-    ]
-  },
-  {
-    "id": "Song_Come_to_Me_by_Bonnie_Raitt",
-    "metadata": [
-      {
-        "name": "Vocalist",
-        "value": "Female"
       }
     ]
   },
@@ -3195,7 +3195,7 @@
     ]
   },
   {
-    "id": "Song_Crazy_Train_by_Ozzy_Ozbourne",
+    "id": "Song_Crazy_Train_by_Ozzy_Osbourne",
     "metadata": [
       {
         "name": "Genre",
@@ -5471,7 +5471,7 @@
     ]
   },
   {
-    "id": "Song_Green_Onions_by_Booker_T_the_M_G_s",
+    "id": "Song_Green_Onions_by_Booker_T_the_MGs",
     "metadata": [
       {
         "name": "Genre",
@@ -6781,7 +6781,7 @@
     ]
   },
   {
-    "id": "Song_Id_Rather_be_Blind_by_Etta_James",
+    "id": "Song_Id_Rather_Go_Blind_by_Etta_James",
     "metadata": [
       {
         "name": "Genre",

@@ -80,7 +80,7 @@ const Level _logSongMasterBump = Level.debug;
 const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositionSizes = Level.debug;
-const Level _logScrollListener = Level.debug;
+const Level _logScrollListener = Level.info;
 const Level _logScrollAnimation = Level.debug;
 const Level _logSongList = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
@@ -737,7 +737,25 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   }
                                 }
                               },
-                              child: _songList,
+                              child:
+                                  //  watch the mouse scrolling of the play list
+                                  NotificationListener<ScrollMetricsNotification>(
+                                    onNotification: (notification) {
+                                      assert(notification.metrics.hasPixels);
+                                      // assert(notification.metrics.hasViewportDimension);
+                                      final pixels =
+                                          notification.metrics.pixels -
+                                          _scrollAlignment * notification.metrics.viewportDimension;
+                                      print(
+                                        'pixels: ${to3(pixels)}'
+                                        ', row: ${_lyricsTable.pixelHeightToRow(pixels)}',
+                                        // ', dimension: ${notification.metrics.viewportDimension}',
+                                      );
+
+                                      return true;
+                                    },
+                                    child: _songList!,
+                                  ),
                             ),
                           ),
                         ),
@@ -1823,49 +1841,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       case SongUpdateState.pause:
         //  scrolling while paused as master
         if (!_isAutoScrolling) {
-          SplayTreeSet<ItemPosition> positions = SplayTreeSet<ItemPosition>((p1, p2) {
-            return p1.index.compareTo(p2.index);
-          })..addAll(_itemPositionsListener.itemPositions.value);
-          ItemPosition? best;
-          for (var position in _itemPositionsListener.itemPositions.value) {
-            if (position.itemLeadingEdge < _scrollAlignment && position.itemTrailingEdge >= _scrollAlignment) {
-              best = position;
-              break;
-            }
-          }
-
-          int bestRow = 0;
-          if (best != null) {
-            bestRow = best.index - 1;
-            var bestMoment = _song.getFirstSongMomentAtRow(bestRow);
-            if (bestMoment != null) {
-              if ((_songMaster.momentNumber ?? _song.songMoments.length) < bestMoment.momentNumber) {
-                logger.i('scroll master up to row: $bestRow  moment: $bestMoment');
-                // _songMaster.skipToMomentNumber(_song, bestMoment.momentNumber);
-                // _itemScrollToRow(bestRow);
-              } else {
-                var nextRowMoment = _song.getFirstSongMomentAtNextRow(bestRow);
-                if (nextRowMoment != null)
-                  if ((_songMaster.momentNumber ?? 0) > nextRowMoment.momentNumber) {
-                    logger.i('scroll master down to row: $bestRow  moment: $bestMoment');
-                    // _songMaster.skipToMomentNumber(_song, bestMoment.momentNumber);
-                    // _itemScrollToRow(bestRow);
-                  }
-              }
-            }
-          }
-
           logger.log(
             _logScrollListener,
             'ScrollListener: '
-            'master: row: ${_lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber ?? 0)}'
-            // ', first: ${positions.first.index}'
-            ', best: $bestRow: ${to3(best?.itemLeadingEdge ?? 0)} ->${to3(best?.itemTrailingEdge ?? 0)}'
+            'master: row: '
             ', _isAutoScrolling: $_isAutoScrolling'
-            // '   last: ${positions.last.index} @ ${to3(positions.last.itemTrailingEdge)}'
-            ', _scrollAlignment: $_scrollAlignment'
-            ', lyrics: ${_lyricsTable.rowToLyricSectionIndex(bestRow)}'
-            ' from $positions',
+            ', _scrollAlignment: $_scrollAlignment',
           );
         }
 

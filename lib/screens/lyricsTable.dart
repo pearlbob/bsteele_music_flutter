@@ -70,7 +70,7 @@ const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
 const Level _logDisplayGrid = Level.debug;
 const Level _logScale = Level.debug;
-
+const Level _logPixelHeightToRow = Level.info;
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -924,7 +924,7 @@ class LyricsTable {
 
     //  look for column widths and heights
     var widths = List<double>.filled(displayGrid.maxColumnCount, 0);
-    var heights = List<double>.filled(displayGrid.getRowCount(), 0);
+    _heights = List<double>.filled(displayGrid.getRowCount(), 0);
     for (var r = 0; r < displayGrid.getRowCount(); r++) {
       var row = displayGrid.getRow(r);
       assert(row != null);
@@ -945,10 +945,10 @@ class LyricsTable {
             break;
         }
 
-        heights[r] = max(heights[r], cell.buildSize.height);
+        _heights[r] = max(_heights[r], cell.buildSize.height);
       }
     }
-    logger.log(_logHeights, 'raw heights: $heights');
+    logger.log(_logHeights, 'raw heights: $_heights');
 
     switch (appOptions.userDisplayStyle) {
       case .banner:
@@ -1009,7 +1009,7 @@ class LyricsTable {
           logger.log(_logHeights, 'banner new height: $height');
 
           //  apply the new height
-          heights[r] = height;
+          _heights[r] = height;
           for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
             var cell = _cellGrid.get(r, c);
             if (cell != null) {
@@ -1019,7 +1019,7 @@ class LyricsTable {
         }
 
         logger.log(_logHeights, 'banner widths: $widths');
-        logger.log(_logHeights, 'banner heights: $heights');
+        logger.log(_logHeights, 'banner heights: $_heights');
         break;
 
       case .highContrast:
@@ -1059,7 +1059,7 @@ class LyricsTable {
             logger.log(_logHeights, 'highContrast new height: $height');
 
             //  apply the new height at all
-            heights[0] = height;
+            _heights[0] = height;
             for (int r = 0; r < _cellGrid.getRowCount(); r++) {
               var row = _cellGrid.getRow(r);
               assert(row != null);
@@ -1076,7 +1076,7 @@ class LyricsTable {
         }
 
         logger.log(_logHeights, 'highContrast widths: $widths');
-        logger.log(_logHeights, 'highContrast heights: $heights');
+        logger.log(_logHeights, 'highContrast heights: $_heights');
         break;
       default:
         break;
@@ -1113,7 +1113,7 @@ class LyricsTable {
       ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
       ', padding: ${_paddingSize.toStringAsFixed(2)}',
     );
-    var totalHeight = heights.fold<double>(0.0, (previous, e) => previous + e + 2.0 * _marginSize);
+    var totalHeight = _heights.fold<double>(0.0, (previous, e) => previous + e + 2.0 * _marginSize);
 
     assert(totalWidth > 0);
     assert(totalHeight > 0);
@@ -1212,7 +1212,7 @@ class LyricsTable {
               }
             }
 
-            lyricSectionHeight += heights[r];
+            lyricSectionHeight += _heights[r];
           }
           //  last section
           if (lyricSection != null) {
@@ -1253,8 +1253,8 @@ class LyricsTable {
       //     'screenWidth: $screenWidth, widthSum: $widthSum, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
 
       //  reset the heights to scale
-      for (var i = 0; i < heights.length; i++) {
-        heights[i] = heights[i] * _scaleFactor;
+      for (var i = 0; i < _heights.length; i++) {
+        _heights[i] = _heights[i] * _scaleFactor;
       }
     } else {
       _unusedMargin = max(0, (screenWidth - totalWidth) / 2);
@@ -1262,7 +1262,7 @@ class LyricsTable {
       //     'screenWidth: $screenWidth, totalWidth: $totalWidth, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
     }
 
-    logger.log(_logHeights, 'scaled heights: $heights');
+    logger.log(_logHeights, 'scaled heights: $_heights');
     if (_logFontSize.index <= Level.info.index) {
       var scaledTotal = widths.fold(0.0, (p, e) => p + e);
       logger.log(_logFontSize, 'scaled widths.last: ${widths.last}, fraction: ${widths.last / scaledTotal}');
@@ -1303,14 +1303,14 @@ class LyricsTable {
             _cellGrid.set(r, c, cell);
             // logger.log(_logHeights,
             //     'heights: r:$r, ${heights[r].toStringAsFixed(1)} vs ${cell.buildSize.height.toStringAsFixed(1)}');
-            heights[r] = max(heights[r], cell.buildSize.height);
+            _heights[r] = max(_heights[r], cell.buildSize.height);
           }
         }
       }
-      logger.log(_logHeights, 'heights: ${heights.join(', ')}');
+      logger.log(_logHeights, 'heights: ${_heights.join(', ')}');
       logger.log(
         _logHeights,
-        'totalHeights: ${heights.reduce((acc, value) {
+        'totalHeights: ${_heights.reduce((acc, value) {
           return acc + value;
         })}'
         ', _scaleFactor: $_scaleFactor',
@@ -1340,14 +1340,14 @@ class LyricsTable {
             for (var r = 0; r < BannerColumn.values.length; r++) {
               var cell = _cellGrid.get(r, c);
               assert(cell != null);
-              columnChildren.add(cell!.copyWith(size: Size(widths[c], heights[r])));
+              columnChildren.add(cell!.copyWith(size: Size(widths[c], _heights[r])));
             }
             Widget columnWidget = Column(crossAxisAlignment: .start, children: columnChildren);
             logger.t('banner columnChildren: ${columnChildren.map((c) => c.size)}');
             items.add(columnWidget);
           }
         }
-        logger.log(_logHeights, 'banner scaled heights: $heights');
+        logger.log(_logHeights, 'banner scaled heights: $_heights');
 
         for (var c = 0; c < song.songMoments.length; c++) {
           for (var r = 0; r < BannerColumn.values.length; r++) {
@@ -1370,7 +1370,7 @@ class LyricsTable {
             for (var c = 0; c < row.length; c++) {
               var cell = _cellGrid.get(r, c);
               if (cell != null) {
-                rowChildren.add(cell.copyWith(size: Size(widths[c], heights[0])));
+                rowChildren.add(cell.copyWith(size: Size(widths[c], _heights[0])));
               }
             }
             items.add(
@@ -1381,7 +1381,7 @@ class LyricsTable {
             );
           }
         }
-        logger.log(_logHeights, 'highContrast scaled heights: $heights');
+        logger.log(_logHeights, 'highContrast scaled heights: $_heights');
         break;
 
       //  other user display styles
@@ -1439,7 +1439,7 @@ class LyricsTable {
                   lyricSection: lyricSection!,
                   row: r,
                   width: arrowIndicatorWidth * _scaleFactor,
-                  height: heights[r],
+                  height: _heights[r],
                   fontSize: _chordFontSizeUnscaled * _scaleFactor,
                   momentNumber: momentNumber,
                 );
@@ -1489,7 +1489,7 @@ class LyricsTable {
         items.add(Text('Release/Label: ${song.copyright}', style: _lyricsTextStyle));
         break;
       case .highContrast:
-        items.add(AppSpace(verticalSpace: heights[0]));
+        items.add(AppSpace(verticalSpace: _heights[0]));
         break;
       default:
         items.add(
@@ -1547,7 +1547,7 @@ class LyricsTable {
             '  ($c,$r): songMoment: $songMoment, repeat: ${songMoment?.repeat}/${songMoment?.repeatMax}'
             ', lyricsLines: ${songMoment?.lyricSection.lyricsLines.length}'
             ', lyricSection.index: ${songMoment?.lyricSection.index}'
-            ', height: ${heights[r].toStringAsFixed(1)}'
+            ', height: ${_heights[r].toStringAsFixed(1)}'
             ', ${cell.richText.text.toPlainText()}',
 
             // ',  ${cell?.measureNode}'
@@ -1555,7 +1555,7 @@ class LyricsTable {
         }
 
         _rowNumberToDisplayOffset[r] = offset;
-        offset += heights[r] + _marginSize / 2 + _paddingSize / 2;
+        offset += _heights[r] + _marginSize / 2 + _paddingSize / 2;
       }
     }
     // logger.i('height spacing: ${_marginSize / 2 + _paddingSize / 2}');
@@ -1582,10 +1582,10 @@ class LyricsTable {
 
         //  prep for the next row
         if (r != lastR) {
-          if (r >= heights.length) {
-            logger.i('fixme: error here: $r >= ${heights.length}, $songMoment');
+          if (r >= _heights.length) {
+            logger.i('fixme: error here: $r >= ${_heights.length}, $songMoment');
           } else {
-            offset += heights[r] + _marginSize / 2 + _paddingSize / 2;
+            offset += _heights[r] + _marginSize / 2 + _paddingSize / 2;
             lastR = r;
           }
         }
@@ -1673,7 +1673,7 @@ class LyricsTable {
         var row = _cellGrid.getRow(r);
         assert(row != null);
         row = row!;
-        logger.log(_logDisplayGrid, 'row $r:  height: ${heights[r]}');
+        logger.log(_logDisplayGrid, 'row $r:  height: ${_heights[r]}');
 
         for (var c = 0; c < row.length; c++) {
           var cell = _cellGrid.get(r, c);
@@ -1708,7 +1708,7 @@ class LyricsTable {
       }
     }
 
-    logger.log( _logScale, 'scaleFactor: ${to6(scaleFactor)}');
+    logger.log(_logScale, 'scaleFactor: ${to6(scaleFactor)}');
 
     return items;
   }
@@ -2285,6 +2285,19 @@ class LyricsTable {
     _margin = EdgeInsets.all(_marginSize);
   }
 
+  int pixelHeightToRow(final double height) {
+    double sum = 0;
+    for (int i = 0; i < _heights.length; i++) {
+      sum += _heights[i];
+      if (height <= sum) {
+        logger.log( _logPixelHeightToRow, 'pixelHeightToRow: ${to3(height)}: row: $i'
+            ', error: ${to3(height- sum)}, sum: ${to3(sum)}, height: ${to3(_heights[i])}');
+        return i;
+      }
+    }
+    return 0;
+  }
+
   late Song _song;
 
   NashvilleSelection _nashvilleSelection = NashvilleSelection.off;
@@ -2329,6 +2342,7 @@ class LyricsTable {
 
   int get rowCount => _rowCount;
   int _rowCount = 0;
+  List<double> _heights = [];
 
   List<double> _rowNumberToDisplayOffset = [];
   List<double> _songMomentNumberToDisplayOffset = [];

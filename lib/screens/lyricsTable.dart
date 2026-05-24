@@ -1165,14 +1165,13 @@ class LyricsTable {
       case .player:
         {
           //  try:
-          //  I Love Rock 'n' Roll by Arrows, cover by Joan Jett & the Blackhearts: max lyric length: 16
           //  Rockstar by Nickelback: max lyric length: 12  C3:
           //  Hey Hey What Can I Do by Led Zeppelin: max lyric length: 11  outro
           //  I Wanna Be Like You by Christopher Walken: max lyric length: 35
           //  Rock & Roll by Velvet Underground, The: max lyric length: 23  outro
 
           //  assume that most of the media height is available
-          const maxHeightFraction = 0.8;
+          const maxHeightFraction = 0.66;
           //  fixme: only approximate!
           final double maxHeight = maxHeightFraction * (app.displaySize.height - kToolbarHeight);
 
@@ -1317,6 +1316,15 @@ class LyricsTable {
       );
     }
 
+    {
+      double offset = 0;
+      _pixelOffsets = List.generate(_heights.length, (i) {
+        double ret = offset;
+        offset += _heights[i];
+        return ret;
+      });
+    }
+
     logger.log(_logLyricsBuild, 'lyricsBuild: scaling: ${usTimer.deltaToString()}');
 
     List<Widget> items = [];
@@ -1440,6 +1448,7 @@ class LyricsTable {
                   row: r,
                   width: arrowIndicatorWidth * _scaleFactor,
                   height: _heights[r],
+                  pixelOffset: rowToPixelOffset(r),
                   fontSize: _chordFontSizeUnscaled * _scaleFactor,
                   momentNumber: momentNumber,
                 );
@@ -2133,23 +2142,8 @@ class LyricsTable {
   }
 
   double rowHeight(final int? rowNumber) {
-    if (rowNumber == null) {
-      return 0;
-    }
-
-    var gridRow = _cellGrid.getRow(Util.intLimit(rowNumber, 0, _cellGrid.getRowCount() - 1));
-    if (gridRow == null || gridRow.isEmpty) {
-      return 0;
-    }
-
-    double height = 0;
-    for (var cell in gridRow) {
-      if (cell != null) {
-        height = max(height, cell.buildSize.height);
-      }
-    }
-
-    return height;
+    if (_heights.isEmpty || rowNumber == null) return 0;
+    return _heights[Util.indexLimit(rowNumber, _heights)];
   }
 
   double displayOffsetToRowNumber(final double displayOffset) {
@@ -2285,17 +2279,25 @@ class LyricsTable {
     _margin = EdgeInsets.all(_marginSize);
   }
 
-  int pixelHeightToRow(final double height) {
-    double sum = 0;
-    for (int i = 0; i < _heights.length; i++) {
-      sum += _heights[i];
-      if (height <= sum) {
-        logger.log( _logPixelHeightToRow, 'pixelHeightToRow: ${to3(height)}: row: $i'
-            ', error: ${to3(height- sum)}, sum: ${to3(sum)}, height: ${to3(_heights[i])}');
+  int pixelOffsetToRow(final double offset) {
+    for (int i = 0; i < _pixelOffsets.length; i++) {
+      var pixelOffset = _pixelOffsets[i];
+      if (offset <= pixelOffset) {
+        logger.log(
+          _logPixelHeightToRow,
+          'pixelOffsetToRow: ${to3(offset)}: row: $i'
+          ', error: ${to3((offset - pixelOffset) / _heights[i])}'
+          ', pixelOffset: ${to3(pixelOffset)}, height: ${to3(_heights[i])}',
+        );
         return i;
       }
     }
     return 0;
+  }
+
+  double rowToPixelOffset(final int row) {
+    if (_pixelOffsets.isEmpty) return 0;
+    return _pixelOffsets[Util.indexLimit(row, _pixelOffsets)];
   }
 
   late Song _song;
@@ -2343,6 +2345,7 @@ class LyricsTable {
   int get rowCount => _rowCount;
   int _rowCount = 0;
   List<double> _heights = [];
+  List<double> _pixelOffsets = [];
 
   List<double> _rowNumberToDisplayOffset = [];
   List<double> _songMomentNumberToDisplayOffset = [];
@@ -2360,6 +2363,7 @@ class _LyricSectionIndicatorCellWidget extends StatefulWidget {
     required this.row,
     required this.width,
     required this.height,
+    required this.pixelOffset,
     this.fontSize = appDefaultFontSize,
     this.momentNumber,
   }) : index = lyricSection.index;
@@ -2374,6 +2378,7 @@ class _LyricSectionIndicatorCellWidget extends StatefulWidget {
   final double fontSize;
   final double width;
   final double height;
+  final double pixelOffset;
   final int index;
   final int? momentNumber;
 }
@@ -2467,8 +2472,9 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
           : (kDebugMode
                 ? Text(
                     '${widget.row.toString()}'
-                    '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
-                    style: appTextStyle,
+                    '\n${to0(widget.pixelOffset, pad: 0)}',
+                    // '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
+                    style: appTextStyle.copyWith(fontSize: 20),
                   )
                 : NullWidget()), // hold the horizontal space in the grid
     );

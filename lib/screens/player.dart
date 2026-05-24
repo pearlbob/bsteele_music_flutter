@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -77,11 +76,12 @@ const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
-const Level _logCenter = Level.debug;
+const Level _logCenter = Level.info;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositionSizes = Level.debug;
-const Level _logScrollListener = Level.info;
-const Level _logScrollAnimation = Level.debug;
+const Level _logScrollListener = Level.debug;
+const Level _logScrollAnimation = Level.info;
+const Level _logScrollMetricsNotification = Level.info;
 const Level _logSongList = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -651,10 +651,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 'LayoutBuilder constraints: (${constraints.maxWidth},${constraints.maxHeight})'
                 ', boxMarker: ${boxMarker.toStringAsFixed(1)}',
               );
-
-              _mediaHeight = constraints.maxHeight - _menuBarHeight;
+              if (_mediaHeight <= 0) _mediaHeight = constraints.maxHeight - kToolbarHeight; //  approximate
               boxMarker = _mediaHeight * _scrollAlignment; //  fixed location
-              logger.log(_logCenter, 'boxMarker: $boxMarker, mediaHeight: ${app.screenInfo.mediaHeight}');
+              logger.log(
+                _logCenter,
+                'boxMarker: $boxMarker, mediaHeight: ${app.screenInfo.mediaHeight}'
+                ', _mediaHeight: $_mediaHeight',
+              );
 
               return Stack(
                 children: <Widget>[
@@ -685,6 +688,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         constraints: BoxConstraints.tight(Size(32, 8)),
                         decoration: const BoxDecoration(color: Colors.black87),
                       ),
+                      if (kDebugMode)
+                        Container(
+                          decoration: const BoxDecoration(color: Colors.white),
+                          child: Text('${boxMarker.toInt()}'),
+                        ),
                     ],
                   ),
 
@@ -742,16 +750,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   NotificationListener<ScrollMetricsNotification>(
                                     onNotification: (notification) {
                                       assert(notification.metrics.hasPixels);
-                                      // assert(notification.metrics.hasViewportDimension);
+                                      assert(notification.metrics.hasViewportDimension);
+                                      _mediaHeight = notification.metrics.viewportDimension;
                                       final pixels =
                                           notification.metrics.pixels -
-                                          _scrollAlignment * notification.metrics.viewportDimension;
-                                      print(
-                                        'pixels: ${to3(pixels)}'
-                                        ', row: ${_lyricsTable.pixelHeightToRow(pixels)}',
-                                        // ', dimension: ${notification.metrics.viewportDimension}',
+                                          _adjustedScrollAlignment * notification.metrics.viewportDimension;
+                                      logger.log(
+                                        _logScrollMetricsNotification,
+                                        'scroll: '
+                                        'row: ${_lyricsTable.pixelOffsetToRow(pixels)}'
+                                        ', pixels: ${to3(pixels)}'
+                                        ', raw pixels: ${to3(notification.metrics.pixels)}'
+                                        ', dimension: ${notification.metrics.viewportDimension}'
+                                        ', zero: ${_adjustedScrollAlignment * notification.metrics.viewportDimension}',
                                       );
-
                                       return true;
                                     },
                                     child: _songList!,
@@ -1521,12 +1533,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _songMaster.playDrums(widget._song, _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
-  double boxCenterHeight() {
-    // fixme: this is might be wrong, but is a reasonable initial guess
-    var height = app.screenInfo.mediaHeight * _scrollAlignment;
-    return height;
-  }
-
   _clearCountIn() {
     _updateCountIn(_areDrumsMuted ? 0 : -countInMax);
   }
@@ -1844,7 +1850,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           logger.log(
             _logScrollListener,
             'ScrollListener: '
-            'master: row: '
+            'master: row: ???'
             ', _isAutoScrolling: $_isAutoScrolling'
             ', _scrollAlignment: $_scrollAlignment',
           );
@@ -1890,16 +1896,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       double rowTime = _song.displayRowBeats(row) * 60.0 / (playerSelectedBpm ?? _song.beatsPerMinute);
       priorIndex ??= _lastRowIndex;
       _lastRowIndex = row;
-      // if (row > priorIndex && nextRowMomentNumber > rowMomentNumber) {
-      //   rowTime = ((_song.getSongMoment(nextRowMomentNumber)?.beatNumber ?? 0) -
-      //           (_song.getSongMoment(rowMomentNumber)?.beatNumber ?? 0)) *
-      //       60.0 /
-      //       _song.beatsPerMinute;
-      //   logger.log(
-      //       _logScrollAnimation,
-      //       'scrollTo(): index: $row, rowMomentNumber: $rowMomentNumber to $nextRowMomentNumber: '
-      //           ' rowTime: ${rowTime.toStringAsFixed(3)}');
-      // }
 
       var duration =
           force //
@@ -1911,8 +1907,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       //  local scroll
       if (_itemScrollController.isAttached) {
         _isAutoScrolling = true;
+        _adjustedScrollAlignment = _scrollAlignment - (_lyricsTable.rowHeight(row) / (2 * _mediaHeight));
         _itemScrollController
-            .scrollTo(index: row + 1, alignment: _scrollAlignment - 0.075, duration: duration, curve: Curves.linear)
+            .scrollTo(
+              index: row + 1,
+              alignment: _adjustedScrollAlignment,
+              duration: duration,
+              curve: Curves.linear,
+            )
             .then((value) {
               _isAutoScrolling = false;
               logger.log(
@@ -1920,32 +1922,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 'scrollTo(): post: _lastRowIndex: $row'
                 ', boxMarker: $boxMarker',
               );
-              //
-              // var index = _lyricsTable.rowToLyricSectionIndex(row);
-              // var lastRow = _lyricsTable.lastRowInSection(row);
-              // var lyricSection = _song.lyricSections[index];
-              // var moment = _song.getSongMoment(_lyricsTable.gridRowToMomentNumber(row));
-              // var chordSectionBeatCount = moment?.chordSection.beatCount ?? 0;
-              //
-              // if (chordSectionBeatCount > 0) {
-              //   var bpm = playerSelectedBpm ?? _song.beatsPerMinute;
-              //   assert(bpm > 0);
-              //   var duration = Duration(seconds: (chordSectionBeatCount * 60 / bpm).ceil());
-              //
-              //   logger.i(
-              //     'finished scrolling to row: $row'
-              //     ', lastRow: $lastRow '
-              //     ', lyricSection: $lyricSection '
-              //     ', moment: $moment'
-              //     ', beats: $chordSectionBeatCount'
-              //     ', bpm: $bpm = ${to3(60 / bpm)} s/beat'
-              //         ', duration: $duration'
-              //   );
-              //
-              //   //  scroll to the end of the section at roughly play speed
-              //   _itemScrollController
-              //       .scrollTo(index: lastRow + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear);
-              // }
             });
       }
 
@@ -2955,7 +2931,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   int _lastBpmBumpUs = 0;
   static final _bumpSteps = [1, 2, 4];
   var _lastBumpDateTime = DateTime.now();
-  static const _minBumpDuration = const Duration(milliseconds: 350);
+  static const _minBumpDuration = const Duration(milliseconds: 650);
 
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;
@@ -2975,8 +2951,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   static const _scrollAlignment = 0.15;
-  static const double _menuBarHeight = 56.0;
-  static double _mediaHeight = 1080 - _menuBarHeight; //  initial default only
+  double _adjustedScrollAlignment = _scrollAlignment; //  initial default only
+  static double _mediaHeight = 0; //  initial default only
   double boxMarker = _mediaHeight * _scrollAlignment; //  initial default only
   double _fontSize = 14;
 

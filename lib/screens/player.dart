@@ -76,11 +76,10 @@ const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
-const Level _logCenter = Level.info;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositionSizes = Level.debug;
 const Level _logScrollListener = Level.debug;
-const Level _logScrollAnimation = Level.info;
+const Level _logScrollAnimation = Level.debug;
 const Level _logScrollMetricsNotification = Level.info;
 const Level _logSongList = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
@@ -540,6 +539,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
+    _playerHeight = app.displaySize.height - kToolbarHeight; //  fixme: approximate?
+    boxMarker = _playerHeight * _scrollAlignment; //  fixed location
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
       musicKey: _displaySongKey,
@@ -644,140 +645,142 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         return Scaffold(
           backgroundColor: theme.colorScheme.surface,
           appBar: backBar,
-          body: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              logger.log(
-                _logCenter,
-                'LayoutBuilder constraints: (${constraints.maxWidth},${constraints.maxHeight})'
-                ', boxMarker: ${boxMarker.toStringAsFixed(1)}',
-              );
-              if (_mediaHeight <= 0) _mediaHeight = constraints.maxHeight - kToolbarHeight; //  approximate
-              boxMarker = _mediaHeight * _scrollAlignment; //  fixed location
-              logger.log(
-                _logCenter,
-                'boxMarker: $boxMarker, mediaHeight: ${app.screenInfo.mediaHeight}'
-                ', _mediaHeight: $_mediaHeight',
-              );
-
-              return Stack(
-                children: <Widget>[
-                  //  smooth background
-                  if (appOptions.userDisplayStyle != .highContrast)
-                    Container(
-                      constraints: constraints,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: .topCenter,
-                          end: .bottomCenter,
-                          colors: const <Color>[
-                            App.screenBackgroundColor,
-                            App.measureContainerBackgroundColor,
-                            App.screenBackgroundColor,
-                          ],
-                          stops: [0.0, boxMarker / constraints.maxHeight, 1.0],
-                        ),
-                      ),
+          body: Stack(
+            children: <Widget>[
+              //  smooth background
+              if (appOptions.userDisplayStyle != .highContrast)
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: .topCenter,
+                      end: .bottomCenter,
+                      colors: const <Color>[
+                        App.screenBackgroundColor,
+                        App.measureContainerBackgroundColor,
+                        App.screenBackgroundColor,
+                      ],
+                      stops: [0.0, boxMarker / _playerHeight, 1.0],
                     ),
-
-                  //  center marker
-                  Column(
-                    children: [
-                      //  offset the marker
-                      Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
-                      Container(
-                        constraints: BoxConstraints.tight(Size(32, 8)),
-                        decoration: const BoxDecoration(color: Colors.black87),
-                      ),
-                      if (kDebugMode)
-                        Container(
-                          decoration: const BoxDecoration(color: Colors.white),
-                          child: Text('${boxMarker.toInt()}'),
-                        ),
-                    ],
                   ),
+                ),
 
-                  Column(
-                    children: [
-                      if (appOptions.userDisplayStyle != .highContrast)
-                        _songControls()
-                      else
-                        _highContrastSongControls(),
+              //  center marker
+              Column(
+                children: [
+                  //  offset the marker
+                  Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
+                  Container(
+                    constraints: BoxConstraints.tight(Size(32, 8)),
+                    decoration: const BoxDecoration(color: Colors.black87),
+                  ),
+                  if (kDebugMode)
+                    Container(
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: Text('${boxMarker.toInt()}'),
+                    ),
+                ],
+              ),
 
-                      //  song chords and lyrics
-                      if (lyricsTableItems.isNotEmpty)
-                        Expanded(
-                          child: Focus(
-                            focusNode: _rawKeyboardListenerFocusNode,
-                            onKeyEvent: _playerOnKeyEvent,
-                            autofocus: true,
-                            child: GestureDetector(
-                              onTapDown: (details) {
-                                //  doesn't apply to pro display style
-                                if (appOptions.userDisplayStyle == .proPlayer) {
-                                  return;
-                                }
+              Column(
+                children: [
+                  if (appOptions.userDisplayStyle != .highContrast) _songControls() else _highContrastSongControls(),
 
-                                //  respond to taps above and below the middle of the screen
-                                if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                                  if (_songUpdateState != .playing) {
-                                    //  start manual play
-                                    _setStatePlay();
-                                  } else {
-                                    //  while playing:
-                                    var offset = _tableGlobalOffset();
-                                    if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
-                                      //  tablet left arrow
-                                      _bpmBump(-1);
-                                    } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
-                                      //  tablet right arrow
-                                      _bpmBump(1);
+                  //  song chords and lyrics
+                  if (lyricsTableItems.isNotEmpty)
+                    Expanded(
+                      child: Focus(
+                        focusNode: _rawKeyboardListenerFocusNode,
+                        onKeyEvent: _playerOnKeyEvent,
+                        autofocus: true,
+                        child: GestureDetector(
+                          onTapDown: (details) {
+                            //  doesn't apply to pro display style
+                            if (appOptions.userDisplayStyle == .proPlayer) {
+                              return;
+                            }
+
+                            //  respond to taps above and below the middle of the screen
+                            if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
+                              if (_songUpdateState != .playing) {
+                                //  start manual play
+                                _setStatePlay();
+                              } else {
+                                //  while playing:
+                                var offset = _tableGlobalOffset();
+                                if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
+                                  //  tablet left arrow
+                                  _bpmBump(-1);
+                                } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
+                                  //  tablet right arrow
+                                  _bpmBump(1);
+                                } else {
+                                  if (details.globalPosition.dy > offset.dy) {
+                                    if (details.globalPosition.dy < _playerHeight / 2) {
+                                      //  tablet up arrow
+                                      _songMaster.repeatSectionIncrement();
                                     } else {
-                                      if (details.globalPosition.dy > offset.dy) {
-                                        if (details.globalPosition.dy < constraints.maxHeight / 2) {
-                                          //  tablet up arrow
-                                          _songMaster.repeatSectionIncrement();
-                                        } else {
-                                          //  tablet down arrow
-                                          _songMaster.skipToCurrentSection();
-                                        }
-                                      }
+                                      //  tablet down arrow
+                                      _songMaster.skipToCurrentSection();
                                     }
                                   }
                                 }
-                              },
-                              child:
-                                  //  watch the mouse scrolling of the play list
-                                  NotificationListener<ScrollMetricsNotification>(
-                                    onNotification: (notification) {
-                                      assert(notification.metrics.hasPixels);
-                                      assert(notification.metrics.hasViewportDimension);
-                                      _mediaHeight = notification.metrics.viewportDimension;
-                                      final pixels =
-                                          notification.metrics.pixels -
-                                          _adjustedScrollAlignment * notification.metrics.viewportDimension;
+                              }
+                            }
+                          },
+                          child:
+                              //  watch the mouse scrolling of the play list
+                              NotificationListener<ScrollMetricsNotification>(
+                                onNotification: (notification) {
+                                  assert(notification.metrics.hasPixels);
+                                  assert(notification.metrics.hasViewportDimension);
+                                  _playerHeight = notification.metrics.viewportDimension;
+                                  final pixels =
+                                      notification.metrics.pixels +
+                                      _adjustedScrollAlignment * notification.metrics.viewportDimension;
+                                  _lastRowFound = _lyricsTable.pixelOffsetToRow(pixels);
+
+                                  if (!_songUpdateService.isFollowing &&
+                                      !_isAutoScrolling &&
+                                      _lastRowFound != _lastRowIndex) {
+                                    var rowLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowIndex);
+                                    var foundLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowFound);
+
+                                    if (rowLyricSectionIndex != foundLyricSectionIndex) {
+                                      var sectionRow = _lyricsTable.lyricSectionIndexToRow(foundLyricSectionIndex);
+                                      SongMoment? newSectionMoment = _song.getFirstSongMomentAtRow(sectionRow);
+                                      if (newSectionMoment != null) {
+                                        _songMaster.skipToMomentNumber(_song, newSectionMoment.momentNumber);
+                                      }
                                       logger.log(
                                         _logScrollMetricsNotification,
-                                        'scroll: '
-                                        'row: ${_lyricsTable.pixelOffsetToRow(pixels)}'
-                                        ', pixels: ${to3(pixels)}'
-                                        ', raw pixels: ${to3(notification.metrics.pixels)}'
-                                        ', dimension: ${notification.metrics.viewportDimension}'
-                                        ', zero: ${_adjustedScrollAlignment * notification.metrics.viewportDimension}',
-                                      );
-                                      return true;
-                                    },
-                                    child: _songList!,
-                                  ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                                        'scrollMetrics: '
+                                        'error: ${_lastRowFound - _lastRowIndex}'
+                                        ', _lastRowIndex: $_lastRowIndex'
+                                        ', lyric: $rowLyricSectionIndex'
+                                        ', _lastRowFound: $_lastRowFound'
+                                        ', lyric: $foundLyricSectionIndex'
+                                        ', lyric sectionRow: $sectionRow',
 
-                  _songPlayTally(),
+                                        // ', pixels: ${to3(pixels)}'
+                                        // ', raw pixels: ${to3(notification.metrics.pixels)}'
+                                        // ', dimension: ${notification.metrics.viewportDimension}'
+                                        // ', zero: ${_adjustedScrollAlignment * notification.metrics.viewportDimension}'
+                                      );
+                                    }
+                                  }
+
+                                  return true;
+                                },
+                                child: _songList!,
+                              ),
+                        ),
+                      ),
+                    ),
                 ],
-              );
-            },
+              ),
+
+              _songPlayTally(),
+            ],
           ),
         );
       },
@@ -1907,19 +1910,15 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       //  local scroll
       if (_itemScrollController.isAttached) {
         _isAutoScrolling = true;
-        _adjustedScrollAlignment = _scrollAlignment - (_lyricsTable.rowHeight(row) / (2 * _mediaHeight));
+        _adjustedScrollAlignment = _scrollAlignment - (_lyricsTable.rowHeight(row + 1) / (2 * _playerHeight));
         _itemScrollController
-            .scrollTo(
-              index: row + 1,
-              alignment: _adjustedScrollAlignment,
-              duration: duration,
-              curve: Curves.linear,
-            )
+            .scrollTo(index: row + 1, alignment: _adjustedScrollAlignment, duration: duration, curve: Curves.linear)
             .then((value) {
               _isAutoScrolling = false;
               logger.log(
                 _logScrollAnimation,
                 'scrollTo(): post: _lastRowIndex: $row'
+                ', lastRowFound: $_lastRowFound'
                 ', boxMarker: $boxMarker',
               );
             });
@@ -2931,7 +2930,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   int _lastBpmBumpUs = 0;
   static final _bumpSteps = [1, 2, 4];
   var _lastBumpDateTime = DateTime.now();
-  static const _minBumpDuration = const Duration(milliseconds: 650);
+  static const _minBumpDuration = const Duration(milliseconds: 400);
 
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;
@@ -2952,8 +2951,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   static const _scrollAlignment = 0.15;
   double _adjustedScrollAlignment = _scrollAlignment; //  initial default only
-  static double _mediaHeight = 0; //  initial default only
-  double boxMarker = _mediaHeight * _scrollAlignment; //  initial default only
+  static double _playerHeight = 0; //  initial default only
+  double boxMarker = _playerHeight * _scrollAlignment; //  initial default only
+  int _lastRowFound = 0;
   double _fontSize = 14;
 
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

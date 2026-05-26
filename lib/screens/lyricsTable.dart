@@ -70,7 +70,7 @@ const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
 const Level _logDisplayGrid = Level.debug;
 const Level _logScale = Level.debug;
-const Level _logPixelHeightToRow = Level.info;
+const Level _logPixelHeightToRow = Level.debug;
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -1171,7 +1171,7 @@ class LyricsTable {
           //  Rock & Roll by Velvet Underground, The: max lyric length: 23  outro
 
           //  assume that most of the media height is available
-          const maxHeightFraction = 0.66;
+          const maxHeightFraction = 0.75;
           //  fixme: only approximate!
           final double maxHeight = maxHeightFraction * (app.displaySize.height - kToolbarHeight);
 
@@ -1316,14 +1316,26 @@ class LyricsTable {
       );
     }
 
-    {
-      double offset = 0;
-      _pixelOffsets = List.generate(_heights.length, (i) {
-        double ret = offset;
-        offset += _heights[i];
-        return ret;
-      });
-    }
+    // //  even up the row sizes for diagnostic reasons
+    // if (false && kDebugMode) {
+    //   double maxD = 0;
+    //   for (var d in _heights) {
+    //     maxD = max(maxD, d);
+    //   }
+    //   maxD = max(200, maxD.ceilToDouble());
+    //   for (int i = 0; i < _heights.length; i++) {
+    //     _heights[i] = maxD;
+    //   }
+    //   for (var r = 0; r < _cellGrid.getRowCount(); r++) {
+    //     var row = _cellGrid.getRow(r)!;
+    //     for (var c = 0; c < row.length; c++) {
+    //       var cell = _cellGrid.get(r, c);
+    //       if (cell != null) {
+    //         _cellGrid.set(r, c, cell.copyWith(size: Size(cell.buildSize.width, maxD)));
+    //       }
+    //     }
+    //   }
+    // }
 
     logger.log(_logLyricsBuild, 'lyricsBuild: scaling: ${usTimer.deltaToString()}');
 
@@ -1340,6 +1352,7 @@ class LyricsTable {
     logger.log(_logLyricsBuild, 'lyricsBuild: songMoment mapping: ${usTimer.deltaToString()}');
 
     //  box up the children, applying necessary widths and heights
+    double initialHeight = 0;
     switch (appOptions.userDisplayStyle) {
       case .banner:
         {
@@ -1477,7 +1490,10 @@ class LyricsTable {
             lastLyricSection = lyricSection;
             //  offset the initial row by the requested amount
             if (r == 0) {
+              initialHeight = initialHeightOffset * _scaleFactor;
               sectionChildren.add(SizedBox(height: initialHeightOffset * _scaleFactor));
+              //  not included in heights so they match the rows
+              //  see the use of the initial height in the pixel offsets below
             }
             items.add(Column(crossAxisAlignment: .start, children: sectionChildren));
             sectionChildren = [];
@@ -1715,6 +1731,15 @@ class LyricsTable {
           }
         }
       }
+    }
+
+    {
+      double offset = initialHeight;//  add any initial height to the first row
+      _pixelOffsets = List.generate(_heights.length, (i) {
+        double ret = offset;
+        offset += _heights[i] + 2; //  fixme: account for unexpected spacing
+        return ret;
+      });
     }
 
     logger.log(_logScale, 'scaleFactor: ${to6(scaleFactor)}');
@@ -2283,16 +2308,17 @@ class LyricsTable {
     for (int i = 0; i < _pixelOffsets.length; i++) {
       var pixelOffset = _pixelOffsets[i];
       if (offset <= pixelOffset) {
+        var row = max(i - 1, 0);
         logger.log(
           _logPixelHeightToRow,
-          'pixelOffsetToRow: ${to3(offset)}: row: $i'
-          ', error: ${to3((offset - pixelOffset) / _heights[i])}'
+          'pixelOffsetToRow: ${to3(offset)}: row: $row'
+          ', pixel error: ${to3(offset - pixelOffset)}'
           ', pixelOffset: ${to3(pixelOffset)}, height: ${to3(_heights[i])}',
         );
-        return i;
+        return row;
       }
     }
-    return 0;
+    return _pixelOffsets.length - 1;
   }
 
   double rowToPixelOffset(final int row) {
@@ -2453,7 +2479,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
         : NullWidget();
 
     return SizedBox(
-      width: widget.width,
+      width: selected || !kDebugMode ? widget.width : 40,
       child: selected
           ? DecoratedBox(
               decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),
@@ -2474,7 +2500,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
                     '${widget.row.toString()}'
                     '\n${to0(widget.pixelOffset, pad: 0)}',
                     // '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
-                    style: appTextStyle.copyWith(fontSize: 20),
+                    style: appTextStyle.copyWith(fontSize: 16),
                   )
                 : NullWidget()), // hold the horizontal space in the grid
     );

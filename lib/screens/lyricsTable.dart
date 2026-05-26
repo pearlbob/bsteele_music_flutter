@@ -1708,7 +1708,7 @@ class LyricsTable {
                 var marker = cell.measureNode as MeasureRepeatMarker;
                 logger.log(
                   _logDisplayGrid,
-                  '      col $c: ${cell.measureNode} :'
+                      '      col $c: ${cell.measureNode.toString().padLeft(8)}'
                   ', moment: ${cell.songMoment}'
                   ', repetition: ${marker.repetition}'
                   ', lastRepetition: ${marker.lastRepetition}'
@@ -1721,7 +1721,7 @@ class LyricsTable {
               default:
                 logger.log(
                   _logDisplayGrid,
-                  '      col $c: ${cell.measureNode} :'
+                  '      col $c: ${cell.measureNode.toString().padLeft(8)}'
                   ', moment: ${cell.songMoment}'
                   ', mn: ${cell.firstMomentNumber} to ${cell.lastMomentNumber}'
                   ', lyric: ${cell.lyricSectionIndex}'
@@ -1731,6 +1731,12 @@ class LyricsTable {
             }
           }
         }
+      }
+
+      logger.log(_logDisplayGrid, '\n_lyricSectionIndexToRowMap:');
+      for ( var i = 0; i < _lyricSectionIndexToRowMap.length; i++ ) {
+        logger.log(_logDisplayGrid, 'index ${i.toString().padLeft(2)}:  lyricSectionIndexToRow: ${lyricSectionIndexToRow(i)
+        }');
       }
     }
 
@@ -2480,7 +2486,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
         : NullWidget();
 
     return SizedBox(
-      width: selected || !kDebugMode ? widget.width : 50,
+      width: selected || !kDebugMode ? widget.width : 60,
       child: selected
           ? DecoratedBox(
               decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),

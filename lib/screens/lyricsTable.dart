@@ -68,7 +68,7 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
-const Level _logDisplayGrid = Level.debug;
+const Level _logDisplayGrid = Level.info;
 const Level _logScale = Level.debug;
 const Level _logPixelHeightToRow = Level.debug;
 
@@ -1724,6 +1724,7 @@ class LyricsTable {
                   '      col $c: ${cell.measureNode} :'
                   ', moment: ${cell.songMoment}'
                   ', mn: ${cell.firstMomentNumber} to ${cell.lastMomentNumber}'
+                  ', lyric: ${cell.lyricSectionIndex}'
                   ', height: ${to3(cell.buildSize.height)}',
                 );
                 break;
@@ -2479,7 +2480,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
         : NullWidget();
 
     return SizedBox(
-      width: selected || !kDebugMode ? widget.width : 40,
+      width: selected || !kDebugMode ? widget.width : 50,
       child: selected
           ? DecoratedBox(
               decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),
@@ -2497,7 +2498,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
             )
           : (kDebugMode
                 ? Text(
-                    '${widget.row.toString()}'
+                    '${widget.row.toString()} ${widget.momentNumber??''}'
                     '\n${to0(widget.pixelOffset, pad: 0)}',
                     // '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
                     style: appTextStyle.copyWith(fontSize: 16),

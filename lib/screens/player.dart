@@ -741,7 +741,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
                                   if (!_songUpdateService.isFollowing &&
                                       !_isAutoScrolling &&
-                                      _lastRowFound != _lastRowIndex) {
+                                       _lastRowFound != _lastRowIndex) {
                                     var rowLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowIndex);
                                     var foundLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowFound);
 
@@ -749,17 +749,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       var sectionRow = _lyricsTable.lyricSectionIndexToRow(foundLyricSectionIndex);
                                       SongMoment? newSectionMoment = _song.getFirstSongMomentAtRow(sectionRow);
                                       if (newSectionMoment != null) {
-                                        _songMaster.skipToMomentNumber(_song, newSectionMoment.momentNumber);
+                                        // _songMaster.skipToMomentNumber(_song, newSectionMoment.momentNumber);
                                       }
                                       logger.log(
                                         _logScrollMetricsNotification,
                                         'scrollMetrics: '
                                         'error: ${_lastRowFound - _lastRowIndex}'
                                         ', _lastRowIndex: $_lastRowIndex'
-                                        ', lyric: $rowLyricSectionIndex'
+                                        // ', lyric: $rowLyricSectionIndex'
                                         ', _lastRowFound: $_lastRowFound'
-                                        ', lyric: $foundLyricSectionIndex'
-                                        ', lyric sectionRow: $sectionRow',
+                                        // ', lyric: $foundLyricSectionIndex'
+                                            ', lyric sectionRow: $sectionRow'
+                                        ', newSectionMoment: ${newSectionMoment?.momentNumber}',
 
                                         // ', pixels: ${to3(pixels)}'
                                         // ', raw pixels: ${to3(notification.metrics.pixels)}'

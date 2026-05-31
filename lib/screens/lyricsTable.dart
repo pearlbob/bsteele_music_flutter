@@ -68,7 +68,7 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
-const Level _logDisplayGrid = Level.info;
+const Level _logDisplayGrid = Level.debug;
 const Level _logScale = Level.debug;
 const Level _logPixelHeightToRow = Level.debug;
 

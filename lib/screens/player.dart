@@ -723,60 +723,61 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             }
                           },
                           child:
-                              //  watch the mouse scrolling of the play list
-                              NotificationListener<ScrollMetricsNotification>(
-                                onNotification: (notification) {
-                                  assert(notification.metrics.hasPixels);
-                                  assert(notification.metrics.hasViewportDimension);
-                                  final pixels = notification.metrics.pixels + _adjustedScrollAlignment * _playerHeight;
-                                  _lastRowFound = _lyricsTable.pixelOffsetToRow(pixels);
-
-                                  if (!_songUpdateService.isFollowing &&
-                                      !_isAutoScrolling &&
-                                      _lastRowFound != _lastRowIndex) {
-                                    var rowLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowIndex);
-                                    var foundLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowFound);
-
-                                    if (rowLyricSectionIndex != foundLyricSectionIndex) {
-                                      var sectionRow = _lyricsTable.lyricSectionIndexToRow(foundLyricSectionIndex);
-                                      SongMoment? newSectionMoment = _song.getSongMoment(
-                                        _lyricsTable.gridRowToMomentNumber(sectionRow),
-                                      );
-                                      if (newSectionMoment != null) {
-                                        _songMaster.skipToMomentNumber(_song, newSectionMoment.momentNumber);
-                                      }
-                                      logger.log(
-                                        _logScrollMetricsNotification,
-                                        'scrollMetrics: '
-                                        'error: ${_lastRowFound - _lastRowIndex}'
-                                        ', _lastRowIndex: $_lastRowIndex'
-                                        // ', lyric: $rowLyricSectionIndex'
-                                        ', _lastRowFound: $_lastRowFound'
-                                        ', lyric: $foundLyricSectionIndex'
-                                        ', row: $sectionRow'
-                                        ', newSectionMoment: ${newSectionMoment?.momentNumber}'
-                                        ', _isAutoScrolling: $_isAutoScrolling',
-
-                                        // ', pixels: ${to3(pixels)}'
-                                        // ', raw pixels: ${to3(notification.metrics.pixels)}'
-                                        // ', dimension: ${notification.metrics.viewportDimension}'
-                                        // ', zero: ${_adjustedScrollAlignment * notification.metrics.viewportDimension}'
-                                      );
-                                    }
-                                  }
-
-                                  if (!_isAutoScrolling)
-                                    logger.log(
-                                      _logScrollMetricsNotification,
-                                      'scrollMetrics: _isAutoScrolling: $_isAutoScrolling'
-                                      ', raw pixels: ${notification.metrics.pixels}'
-                                      ', ${DateTime.now()}',
-                                    );
-
-                                  return true;
-                                },
-                                child: _songList!,
-                              ),
+                              // //  watch the mouse scrolling of the play list
+                              // NotificationListener<ScrollMetricsNotification>(
+                              //   onNotification: (notification) {
+                              //     assert(notification.metrics.hasPixels);
+                              //     assert(notification.metrics.hasViewportDimension);
+                              //     final pixels = notification.metrics.pixels + _adjustedScrollAlignment * _playerHeight;
+                              //     _lastRowFound = _lyricsTable.pixelOffsetToRow(pixels);
+                              //
+                              //     if (!_songUpdateService.isFollowing &&
+                              //         !_isAutoScrolling &&
+                              //         _lastRowFound != _lastRowIndex) {
+                              //       var rowLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowIndex);
+                              //       var foundLyricSectionIndex = _lyricsTable.rowToLyricSectionIndex(_lastRowFound);
+                              //
+                              //       if (rowLyricSectionIndex != foundLyricSectionIndex) {
+                              //         var sectionRow = _lyricsTable.lyricSectionIndexToRow(foundLyricSectionIndex);
+                              //         SongMoment? newSectionMoment = _song.getSongMoment(
+                              //           _lyricsTable.gridRowToMomentNumber(sectionRow),
+                              //         );
+                              //         if (newSectionMoment != null) {
+                              //           // _songMaster.skipToMomentNumber(_song, newSectionMoment.momentNumber);
+                              //         }
+                              //         logger.log(
+                              //           _logScrollMetricsNotification,
+                              //           'scrollMetrics: '
+                              //           'error: ${_lastRowFound - _lastRowIndex}'
+                              //           ', _lastRowIndex: $_lastRowIndex'
+                              //           // ', lyric: $rowLyricSectionIndex'
+                              //           ', _lastRowFound: $_lastRowFound'
+                              //           ', lyric: $foundLyricSectionIndex'
+                              //           ', row: $sectionRow'
+                              //           ', newSectionMoment: ${newSectionMoment?.momentNumber}'
+                              //           ', _isAutoScrolling: $_isAutoScrolling',
+                              //
+                              //           // ', pixels: ${to3(pixels)}'
+                              //           // ', raw pixels: ${to3(notification.metrics.pixels)}'
+                              //           // ', dimension: ${notification.metrics.viewportDimension}'
+                              //           // ', zero: ${_adjustedScrollAlignment * notification.metrics.viewportDimension}'
+                              //         );
+                              //       }
+                              //     }
+                              //
+                              //     if (!_isAutoScrolling)
+                              //       logger.log(
+                              //         _logScrollMetricsNotification,
+                              //         'scrollMetrics: _isAutoScrolling: $_isAutoScrolling'
+                              //         ', raw pixels: ${notification.metrics.pixels}'
+                              //         ', ${DateTime.now()}',
+                              //       );
+                              //
+                              //     return true;
+                              //   },
+                              //   child:
+                                _songList!,
+                              // ),
                         ),
                       ),
                     ),
@@ -1762,28 +1763,31 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   ///  deal with new row requests while still scrolling to the old row
   Future<void> _itemScrollToItemScrollTargetRow(Duration duration) async {
-    _isAutoScrolling = true;
-    while (_itemScrollTargetRequest != null) {
-      //  capture the most recent request
+    // _isAutoScrolling = true;
+    // while (_itemScrollTargetRequest != null) {
+    //   //  capture the most recent request
       int row = _itemScrollTargetRequest!;
       _itemScrollTargetRequest = null;
 
-      _itemScrollController
-          .scrollTo(index: row + 1, alignment: _adjustedScrollAlignment, duration: duration, curve: Curves.linear)
-          .then((value) {
-            logger.log(
-              _logScrollAnimation,
-              'scrollTo(): post: _lastRowIndex: $row'
-              ', lastRowFound: $_lastRowFound'
-              ', boxMarker: $boxMarker',
-            );
-          });
 
-      //  idle, waiting for scroll to finish
-      await Future.delayed(duration + const Duration(milliseconds: 60));
-      duration = const Duration(milliseconds: 100); //  be quicker on a repeat
-    }
-    _isAutoScrolling = false;
+
+      _itemScrollController.jumpTo(index: row+1, alignment: _scrollAlignment);
+      // _itemScrollController
+      //     .scrollTo(index: row + 1, alignment: _adjustedScrollAlignment, duration: duration, curve: Curves.linear)
+      //     .then((value) {
+      //       logger.log(
+      //         _logScrollAnimation,
+      //         'scrollTo(): post: _lastRowIndex: $row'
+      //         ', lastRowFound: $_lastRowFound'
+      //         ', boxMarker: $boxMarker',
+      //       );
+      //     });
+      //
+      // //  idle, waiting for scroll to finish
+      // await Future.delayed(duration + const Duration(milliseconds: 60));
+      // duration = const Duration(milliseconds: 100); //  be quicker on a repeat
+    // }
+    // _isAutoScrolling = false;
   }
 
   // String _songMomentsToString() {

@@ -21,6 +21,7 @@ import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_moment.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
+import 'package:bsteele_music_lib/util/app_util.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +79,7 @@ const Level _logSongMasterBump = Level.trace;
 const Level _logLeaderSongUpdate = Level.trace;
 const Level _logScrollAnimation = Level.trace;
 const Level _logScrollMetricsNotification = Level.trace;
+const Level _logScreenTap = Level.info;
 const Level _logSongList = Level.trace;
 const Level _logManualPlayScrollAnimation = Level.trace;
 const Level _logDataReminderState = Level.trace;
@@ -696,28 +698,41 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
                             //  respond to taps above and below the middle of the screen
                             if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                              if (_songUpdateState != .playing) {
-                                //  start manual play
-                                _setStatePlay();
-                              } else {
-                                //  while playing:
-                                var offset = _tableGlobalOffset();
-                                if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
-                                  //  tablet left arrow
-                                  _bpmBump(-1);
-                                } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
-                                  //  tablet right arrow
-                                  _bpmBump(1);
+                              //  change the song state implied by the tap
+                              switch (_songUpdateState) {
+                                case .none:
+                                case .idle:
+                                case .drumTempo:
+                                  _setStatePause();
+                                  break;
+                                case .playHold:
+                                  _setStatePlay();
+                                  break;
+                                case .pause:
+                                case .playing:
+                                  break;
+                              }
+
+                              //  top half backs up, bottom half advances
+                              final offset = _tableGlobalOffset();
+                              final y = details.globalPosition.dy;
+                              if (y > offset.dy) {
+                                if (y < _playerHeight / 2) {
+                                  //  tablet up
+                                  _sectionBump(-1);
+                                  logger.log(
+                                    _logScreenTap,
+                                    'screenTap: up,   offset: $y/$_playerHeight'
+                                    ' = ${to3(y / _playerHeight)}',
+                                  );
                                 } else {
-                                  if (details.globalPosition.dy > offset.dy) {
-                                    if (details.globalPosition.dy < _playerHeight / 2) {
-                                      //  tablet up arrow
-                                      _songMaster.repeatSectionIncrement();
-                                    } else {
-                                      //  tablet down arrow
-                                      _songMaster.skipToCurrentSection();
-                                    }
-                                  }
+                                  //  tablet down
+                                  _sectionBump(1);
+                                  logger.log(
+                                    _logScreenTap,
+                                    'screenTap: down, offset: $y/$_playerHeight'
+                                    ' = ${to3(y / _playerHeight)}',
+                                  );
                                 }
                               }
                             }
@@ -776,8 +791,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               //     return true;
                               //   },
                               //   child:
-                                _songList!,
-                              // ),
+                              _songList!,
+                          // ),
                         ),
                       ),
                     ),
@@ -1766,26 +1781,24 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     // _isAutoScrolling = true;
     // while (_itemScrollTargetRequest != null) {
     //   //  capture the most recent request
-      int row = _itemScrollTargetRequest!;
-      _itemScrollTargetRequest = null;
+    int row = _itemScrollTargetRequest!;
+    _itemScrollTargetRequest = null;
 
-
-
-      _itemScrollController.jumpTo(index: row+1, alignment: _scrollAlignment);
-      // _itemScrollController
-      //     .scrollTo(index: row + 1, alignment: _adjustedScrollAlignment, duration: duration, curve: Curves.linear)
-      //     .then((value) {
-      //       logger.log(
-      //         _logScrollAnimation,
-      //         'scrollTo(): post: _lastRowIndex: $row'
-      //         ', lastRowFound: $_lastRowFound'
-      //         ', boxMarker: $boxMarker',
-      //       );
-      //     });
-      //
-      // //  idle, waiting for scroll to finish
-      // await Future.delayed(duration + const Duration(milliseconds: 60));
-      // duration = const Duration(milliseconds: 100); //  be quicker on a repeat
+    _itemScrollController.jumpTo(index: row + 1, alignment: _scrollAlignment);
+    // _itemScrollController
+    //     .scrollTo(index: row + 1, alignment: _adjustedScrollAlignment, duration: duration, curve: Curves.linear)
+    //     .then((value) {
+    //       logger.log(
+    //         _logScrollAnimation,
+    //         'scrollTo(): post: _lastRowIndex: $row'
+    //         ', lastRowFound: $_lastRowFound'
+    //         ', boxMarker: $boxMarker',
+    //       );
+    //     });
+    //
+    // //  idle, waiting for scroll to finish
+    // await Future.delayed(duration + const Duration(milliseconds: 60));
+    // duration = const Duration(milliseconds: 100); //  be quicker on a repeat
     // }
     // _isAutoScrolling = false;
   }

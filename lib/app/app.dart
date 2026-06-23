@@ -208,13 +208,10 @@ class App {
   };
 
   Size get displaySize {
-    if (appOptions.dynamicDisplaySize) {
-      return screenInfo.size;
-    }
-    return const Size(1920, 1080);
+    return screenInfo.size;
   }
 
-  /// A single instance of the screen information class for common use.
+  /// A single instance of the screeninformation class for common use.
   ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refresh often for window size changes
   bool isEditReady = false;
   bool isScreenBig = true;

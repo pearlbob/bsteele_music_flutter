@@ -52,25 +52,26 @@ get it right next time:  repeats in measure column
 */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.debug;
-const Level _logFontSizeDetail = Level.debug;
-const Level _logLyricSectionIndicatorCellState = Level.debug;
-const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
-const Level _logLyricsBuild = Level.debug;
-const Level _logLocationGrid = Level.debug;
-const Level _logHeights = Level.debug;
-const Level _logLyricSectionHeights = Level.debug;
-const Level _logLyricsTableItems = Level.debug;
-const Level _logLyricsTableItemDisplayOffsets = Level.debug;
-const Level _logLyricSectionNotifier = Level.debug;
-// const Level _logSongCellStateBuild = Level.debug;
-const Level _logSongCellOffsetList = Level.debug;
-const Level _logChildBuilder = Level.debug;
-const Level _logSelectedCellState = Level.debug;
-const Level _logPlayMoment = Level.debug;
-const Level _logDisplayGrid = Level.debug;
-const Level _logScale = Level.debug;
-const Level _logPixelHeightToRow = Level.debug;
+const Level _logFontSize = .trace;
+const Level _logFontSizeDetail = .trace;
+const Level _logLyricSectionIndicatorCellState = .trace;
+const Level _logLyricSectionIndicatorCellStateChild = .trace;
+const Level _logLyricsBuild = .trace;
+const Level _logLocationGrid = .trace;
+const Level _logHeights = .trace;
+const Level _logLyricSectionHeights = .trace;
+const Level _logLyricsTableItems = .trace;
+const Level _logLyricsTableItemDisplayOffsets = .trace;
+const Level _logLyricSectionNotifier = .trace;
+// const Level _logSongCellStateBuild = .trace;
+const Level _logSongCellOffsetList = .trace;
+const Level _logChildBuilder = .trace;
+const Level _logSelectedCellState = .trace;
+const Level _logPlayMoment = .trace;
+const Level _logDisplayGrid = .trace;
+const Level _logScale = .trace;
+const Level _logPixelOffsets = .trace;
+const Level _logPixelHeightToRow = .trace;
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -1139,7 +1140,7 @@ class LyricsTable {
           var oldScaleFactor = _scaleFactor;
           _scaleFactor = min(
             _scaleFactor,
-            screenHeight *
+            _screenHeight *
                 0.65 //  fixme: this is only close, empirically
                 /
                 totalHeight,
@@ -1247,7 +1248,7 @@ class LyricsTable {
         widths[i] = w;
         widthSum += w + _paddingSize + 2 * marginSize;
       }
-      _unusedMargin = max(0, (screenWidth - widthSum) / 2);
+      _unusedMargin = max(0, (screenWidth - widthSum) / 2) * 0.8; //  safety
       // logger.log(_logFontSize,
       //     'screenWidth: $screenWidth, widthSum: $widthSum, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
 
@@ -1460,7 +1461,6 @@ class LyricsTable {
                   lyricSection: lyricSection!,
                   row: r,
                   width: arrowIndicatorWidth * _scaleFactor,
-                  height: _heights[r],
                   pixelOffset: rowToPixelOffset(r),
                   fontSize: _chordFontSizeUnscaled * _scaleFactor,
                   momentNumber: momentNumber,
@@ -1708,7 +1708,7 @@ class LyricsTable {
                 var marker = cell.measureNode as MeasureRepeatMarker;
                 logger.log(
                   _logDisplayGrid,
-                      '      col $c: ${cell.measureNode.toString().padLeft(8)}'
+                  '      col $c: ${cell.measureNode.toString().padLeft(8)}'
                   ', moment: ${cell.songMoment}'
                   ', repetition: ${marker.repetition}'
                   ', lastRepetition: ${marker.lastRepetition}'
@@ -1734,19 +1734,26 @@ class LyricsTable {
       }
 
       logger.log(_logDisplayGrid, '\n_lyricSectionIndexToRowMap:');
-      for ( var i = 0; i < _lyricSectionIndexToRowMap.length; i++ ) {
-        logger.log(_logDisplayGrid, 'index ${i.toString().padLeft(2)}:  lyricSectionIndexToRow: ${lyricSectionIndexToRow(i)
-        }');
+      for (var i = 0; i < _lyricSectionIndexToRowMap.length; i++) {
+        logger.log(
+          _logDisplayGrid,
+          'index ${i.toString().padLeft(2)}:  lyricSectionIndexToRow: ${lyricSectionIndexToRow(i)}',
+        );
       }
     }
 
     {
-      double offset = initialHeight;//  add any initial height to the first row
+      double offset = initialHeight; //  add any initial height to the first row
       _pixelOffsets = List.generate(_heights.length, (i) {
         double ret = offset;
         offset += _heights[i] + 2; //  fixme: account for unexpected spacing
         return ret;
       });
+      if (_logPixelOffsets.index <= Level.info.index) {
+        logger.log(_logPixelOffsets, '_pixelOffsets:');
+        int i = 0;
+        _pixelOffsets.forEach((d) => logger.log(_logPixelOffsets, '  ${i++}: $d'));
+      }
     }
 
     logger.log(_logScale, 'scaleFactor: ${to6(scaleFactor)}');
@@ -2314,15 +2321,15 @@ class LyricsTable {
   int pixelOffsetToRow(final double offset) {
     for (int i = 0; i < _pixelOffsets.length; i++) {
       var pixelOffset = _pixelOffsets[i];
+      logger.log(
+        _logPixelHeightToRow,
+        '  pixelOffsetToRow: ${to3(offset)}:  _pixelOffsets[$i]:  ${to3(pixelOffset)}',
+        // ', pixel error: ${to3(offset - pixelOffset)}'
+      );
+
       if (offset <= pixelOffset) {
-        var row = max(i - 1, 0);
-        logger.log(
-          _logPixelHeightToRow,
-          'pixelOffsetToRow: ${to3(offset)}: row: $row'
-          ', pixel error: ${to3(offset - pixelOffset)}'
-          ', pixelOffset: ${to3(pixelOffset)}, height: ${to3(_heights[i])}',
-        );
-        return row;
+        logger.log(_logPixelHeightToRow, '  row: $i');
+        return i;
       }
     }
     return _pixelOffsets.length - 1;
@@ -2341,10 +2348,7 @@ class LyricsTable {
   double get screenWidth => _screenWidth;
   double _screenWidth = 1920; //  initial value only
 
-  double get unusedMargin => _unusedMargin;
   double _unusedMargin = 0;
-
-  double get screenHeight => _screenHeight;
   double _screenHeight = 1080; //  initial value only
 
   double _chordFontSizeUnscaled = appDefaultFontSize;
@@ -2395,7 +2399,6 @@ class _LyricSectionIndicatorCellWidget extends StatefulWidget {
     required this.lyricSection,
     required this.row,
     required this.width,
-    required this.height,
     required this.pixelOffset,
     this.fontSize = appDefaultFontSize,
     this.momentNumber,
@@ -2410,7 +2413,6 @@ class _LyricSectionIndicatorCellWidget extends StatefulWidget {
   final int row;
   final double fontSize;
   final double width;
-  final double height;
   final double pixelOffset;
   final int index;
   final int? momentNumber;
@@ -2486,9 +2488,20 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
         : NullWidget();
 
     return SizedBox(
-      width: selected || !kDebugMode ? widget.width : 60,
-      child: selected
-          ? DecoratedBox(
+      width: widget.width + (kDebugMode ? 130 : 0),
+      child: Row(
+        children: [
+          if (kDebugMode)
+            Text(
+              '${widget.row.toString()}'
+              ' ${widget.momentNumber ?? ''}'
+              '\n${to0(widget.pixelOffset, pad: 0)}',
+              // '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
+              style: appTextStyle.copyWith(fontSize: 16),
+            ),
+          if (kDebugMode) AppSpace(),
+          if (selected)
+            DecoratedBox(
               decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),
               child: Stack(
                 alignment: AlignmentDirectional.center,
@@ -2501,15 +2514,9 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
                   repeatCountWidget,
                 ],
               ),
-            )
-          : (kDebugMode
-                ? Text(
-                    '${widget.row.toString()} ${widget.momentNumber??''}'
-                    '\n${to0(widget.pixelOffset, pad: 0)}',
-                    // '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
-                    style: appTextStyle.copyWith(fontSize: 16),
-                  )
-                : NullWidget()), // hold the horizontal space in the grid
+            ),
+        ],
+      ),
     );
   }
 

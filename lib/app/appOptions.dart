@@ -124,7 +124,6 @@ class AppOptions extends ChangeNotifier {
     _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
     _simplifiedChords = await _readBool(StorageValue.simplifiedChords.name, defaultValue: _simplifiedChords);
     _showRepeatCounts = await _readBool(StorageValue.showRepeatCounts.name, defaultValue: _showRepeatCounts);
-    _dynamicDisplaySize = await _readBool(StorageValue.dynamicDisplaySize.name, defaultValue: true);
     _alwaysUseTheNewestSongOnRead = await _readBool(
       'alwaysUseTheNewestSongOnRead',
       defaultValue: _alwaysUseTheNewestSongOnRead,
@@ -468,18 +467,6 @@ class AppOptions extends ChangeNotifier {
   /// True if the user wants the app to repeat counts on the player screen
   bool get showRepeatCounts => _showRepeatCounts;
   bool _showRepeatCounts = false;
-
-  set dynamicDisplaySize(bool value) {
-    if (_dynamicDisplaySize == value) {
-      return;
-    }
-    _dynamicDisplaySize = value;
-    _saveBool(StorageValue.dynamicDisplaySize.name, value);
-  }
-
-  /// True if the user wants the app to repeat counts on the player screen
-  bool get dynamicDisplaySize => _dynamicDisplaySize;
-  bool _dynamicDisplaySize = true;
 
   /// The current selected web socket host.
   /// An empty string will indicate the web socket should remain idle.

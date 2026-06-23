@@ -29,7 +29,6 @@ import 'package:flutter/services.dart';
 import 'package:gamepads/gamepads.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
@@ -67,25 +66,26 @@ final _lyricSectionNotifier = LyricSectionNotifier();
 musical_key.MajorKey _selectedSongKey = musical_key.MajorKey.C;
 
 //  diagnostic logging enables
-const Level _logBuild = Level.trace;
-const Level _logScroll = Level.trace;
-const Level _logMode = Level.trace;
-const Level _logKeyboard = Level.trace;
-const Level _logMusicKey = Level.trace;
-const Level _logLeaderFollower = Level.trace;
-const Level _logBPM = Level.trace;
-const Level _logSongMaster = Level.trace;
-const Level _logSongMasterBump = Level.trace;
-const Level _logLeaderSongUpdate = Level.trace;
-const Level _logScrollAnimation = Level.trace;
-const Level _logScrollMetricsNotification = Level.trace;
-const Level _logScreenTap = Level.info;
-const Level _logSongList = Level.trace;
-const Level _logManualPlayScrollAnimation = Level.trace;
-const Level _logDataReminderState = Level.trace;
-const Level _logTempoListener = Level.trace;
-const Level _logDispose = Level.trace;
-//  ^const Level .* = Level.info;
+const Level _logBuild = .trace;
+const Level _logScroll = .trace;
+const Level _logMode = .trace;
+const Level _logKeyboard = .trace;
+const Level _logMusicKey = .trace;
+const Level _logLeaderFollower = .trace;
+const Level _logBPM = .trace;
+const Level _logSongMaster = .trace;
+const Level _logSongMasterBump = .trace;
+const Level _logLeaderSongUpdate = .trace;
+const Level _logScrollAnimation = .trace;
+const Level _logScrollPosition = .info;
+// const Level _logScrollMetricsNotification = .trace;
+const Level _logScreenTap = .info;
+const Level _logSongList = .trace;
+const Level _logManualPlayScrollAnimation = .trace;
+const Level _logDataReminderState = .trace;
+const Level _logTempoListener = .trace;
+const Level _logDispose = .trace;
+//  ^const Level .* = .*\.info;
 
 const String _playStopPauseHints = '''\n
 Space bar starts a manual play.  You will have to space bar for the next section.
@@ -225,6 +225,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _gamePad.addListener(() {
       _forwardSwitchPressed();
     });
+
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients) {
+        final pixels = _scrollController.position.pixels;
+        logger.log(
+          _logScrollPosition,
+          'scrollController.position: ${to1(pixels)}'
+          ', row: ${_lyricsTable.pixelOffsetToRow(pixels)}'
+          ', row pixels: ${to1(_lyricsTable.rowToPixelOffset(_lyricsTable.pixelOffsetToRow(pixels)))}',
+        );
+      }
+    });
   }
 
   _assignNewSong(final Song song) {
@@ -283,6 +295,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _bpmTextEditingController.dispose();
     _rawKeyboardListenerFocusNode.dispose();
     _gamePad.cancel();
+    _scrollController.dispose();
 
     super.dispose();
 
@@ -547,11 +560,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     ScrollPhysics scrollPhysics = ClampingScrollPhysics();
     switch (appOptions.userDisplayStyle) {
       case .banner:
-        _songList ??= ScrollablePositionedList.builder(
+        _songList ??= ListView.builder(
           itemCount: _song.songMoments.length + 1,
+          controller: _scrollController,
           scrollDirection: Axis.horizontal,
-          itemScrollController: _itemScrollController,
-          itemPositionsListener: _itemPositionsListener,
           physics: scrollPhysics,
           itemBuilder: (context, index) {
             logger.log(_logSongList, '_songList($index)');
@@ -560,10 +572,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         );
         break;
       case .highContrast:
-        _songList ??= ScrollablePositionedList.builder(
+        _songList ??= ListView.builder(
           itemCount: lyricsTableItems.length,
-          itemScrollController: _itemScrollController,
-          itemPositionsListener: _itemPositionsListener,
+          controller: _scrollController,
           physics: scrollPhysics,
           itemBuilder: (BuildContext context, int index) {
             logger.log(_logSongList, '_songList($index)');
@@ -573,10 +584,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       default:
         //  all other display styles
-        _songList ??= ScrollablePositionedList.builder(
+        _songList = ListView.builder(
           itemCount: lyricsTableItems.length,
-          itemScrollController: _itemScrollController,
-          itemPositionsListener: _itemPositionsListener,
+          controller: _scrollController,
           scrollDirection: Axis.vertical,
           physics: scrollPhysics,
           itemBuilder: (context, index) {
@@ -663,11 +673,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
               //  center marker
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   //  offset the marker
                   Container(color: Colors.cyanAccent, constraints: BoxConstraints.tight(Size(0, boxMarker))),
                   Container(
-                    constraints: BoxConstraints.tight(Size(32, 8)),
+                    constraints: BoxConstraints.tight(Size(kDebugMode ? 700 : 32, 8)),
                     decoration: const BoxDecoration(color: Colors.black87),
                   ),
                   if (kDebugMode)
@@ -1735,72 +1746,36 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   _itemScrollToRow(final int requestedRow, {final bool force = false, int? priorIndex}) {
-    //logger.i('_itemScrollToRow($row, $force, $priorIndex):');
-    if (_itemScrollController.isAttached) {
-      int row = Util.intLimit(requestedRow, 0, _lyricsTable.rowCount);
+    int row = Util.intLimit(requestedRow, 0, _lyricsTable.rowCount);
 
-      //  guess a duration based on the song and the row
-      double rowTime = _song.displayRowBeats(row) * 60.0 / (playerSelectedBpm ?? _song.beatsPerMinute);
-      priorIndex ??= _lastRowIndex;
-      _lastRowIndex = row;
+    //  guess a duration based on the song and the row
+    double rowTime = _song.displayRowBeats(row) * 60.0 / (playerSelectedBpm ?? _song.beatsPerMinute);
+    priorIndex ??= _lastRowIndex;
+    _lastRowIndex = row;
 
-      var duration =
-          force //
-          ? const Duration(milliseconds: 200)
-          : (row >= priorIndex && _songMaster.songUpdateState.isPlaying
-                ? Duration(milliseconds: (0.3 * rowTime * Duration.millisecondsPerSecond).toInt())
-                : const Duration(milliseconds: 500));
+    var duration =
+        force //
+        ? const Duration(milliseconds: 200)
+        : (row >= priorIndex && _songMaster.songUpdateState.isPlaying
+              ? Duration(milliseconds: (0.3 * rowTime * Duration.millisecondsPerSecond).toInt())
+              : const Duration(milliseconds: 500));
 
-      //  local scroll
-      _adjustedScrollAlignment = _scrollAlignment - (_lyricsTable.rowHeight(row + 1) / (2 * _playerHeight));
-      if (!_itemScrollController.isAttached) {
-        return;
-      }
+    _scrollToScrollTargetRow(row, duration);
 
-      _itemScrollTargetRequest = row;
-      if (_isAutoScrolling) {
-        logger.log(_logScrollAnimation, 'double scrolling: index: $row, alignment: $_adjustedScrollAlignment');
-      } else {
-        _itemScrollToItemScrollTargetRow(duration);
-      }
-
-      logger.log(
-        _logScrollAnimation,
-        'scrollTo(): row: $row'
-        ', boxMarker: $boxMarker'
-        ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
-        // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-        ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}',
-        //
-      );
-    }
+    logger.log(
+      _logScrollAnimation,
+      'scrollTo(): row: $row'
+      ', boxMarker: $boxMarker'
+      ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
+      // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
+      ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}',
+      //
+    );
   }
 
   ///  deal with new row requests while still scrolling to the old row
-  Future<void> _itemScrollToItemScrollTargetRow(Duration duration) async {
-    // _isAutoScrolling = true;
-    // while (_itemScrollTargetRequest != null) {
-    //   //  capture the most recent request
-    int row = _itemScrollTargetRequest!;
-    _itemScrollTargetRequest = null;
-
-    _itemScrollController.jumpTo(index: row + 1, alignment: _scrollAlignment);
-    // _itemScrollController
-    //     .scrollTo(index: row + 1, alignment: _adjustedScrollAlignment, duration: duration, curve: Curves.linear)
-    //     .then((value) {
-    //       logger.log(
-    //         _logScrollAnimation,
-    //         'scrollTo(): post: _lastRowIndex: $row'
-    //         ', lastRowFound: $_lastRowFound'
-    //         ', boxMarker: $boxMarker',
-    //       );
-    //     });
-    //
-    // //  idle, waiting for scroll to finish
-    // await Future.delayed(duration + const Duration(milliseconds: 60));
-    // duration = const Duration(milliseconds: 100); //  be quicker on a repeat
-    // }
-    // _isAutoScrolling = false;
+  Future<void> _scrollToScrollTargetRow(final int row, final Duration duration) async {
+    _scrollController.jumpTo(_lyricsTable.rowToPixelOffset(row) - boxMarker);
   }
 
   // String _songMomentsToString() {
@@ -2804,12 +2779,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   Widget _countInWidget = NullWidget();
   int? _lastPlayMomentNumber;
 
-  ScrollablePositionedList? _songList;
-  final ItemScrollController _itemScrollController = ItemScrollController();
-  int? _itemScrollTargetRequest;
-  bool _isAutoScrolling = false;
+  ListView? _songList;
 
-  final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
+  final ScrollController _scrollController = ScrollController();
   int _lastRowIndex = 0;
   double minScrollOffset = 0;
 
@@ -2818,10 +2790,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   static const _scrollAlignment = 0.15;
-  double _adjustedScrollAlignment = _scrollAlignment; //  initial default only
   static double _playerHeight = 0; //  initial default only
   double boxMarker = _playerHeight * _scrollAlignment; //  initial default only
-  int _lastRowFound = 0;
   double _fontSize = 14;
 
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

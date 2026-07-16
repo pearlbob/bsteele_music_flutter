@@ -69,7 +69,7 @@ class UtilWeb implements UtilWorkaround {
   Future<List<NameValue>> _getFiles(final String? accept) async {
     var allowedExtensions = accept == null ? null : [accept.startsWith('.') ? accept.substring(1) : accept];
     logger.i('file accept: "$accept"');
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: allowedExtensions,
@@ -80,7 +80,9 @@ class UtilWeb implements UtilWorkaround {
       for (PlatformFile file in result.files) {
         logger.i('file name: ${file.name}, path: "${file.path}"');
         logger.i('   size: "${file.size}"');
-        String contents = utf8.decode(file.bytes?.toList() ?? []);
+        String utf8String = utf8.decode((file.path ?? '').codeUnits);
+        final String base64String = utf8String.toString().split(',').last;
+        var contents = utf8.decode(base64Decode(base64String));
         logger.i('   toString(): $contents');
         ret.add(NameValue(file.name, contents));
       }

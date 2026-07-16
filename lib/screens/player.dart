@@ -2772,7 +2772,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   int _lastBpmBumpUs = 0;
   static final _bumpSteps = [1, 2, 4];
   var _lastBumpDateTime = DateTime.now();
-  static const _minBumpDuration = const Duration(milliseconds: 400);
+  static const _minBumpDuration = const Duration(milliseconds: 200);
 
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;

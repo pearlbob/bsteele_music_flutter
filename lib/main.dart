@@ -106,6 +106,12 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 /*
+fixme:
+bounce on follower at end of song, can't reach the last row
+stuck in pause after end of song play
+ */
+
+/*
 linux start size and location:
 in linux/my_application.cc, line 50 or so
   gtk_window_set_default_size(window, 1920, 1080);

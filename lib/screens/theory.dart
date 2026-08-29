@@ -198,7 +198,7 @@ class TheoryState extends State<TheoryWidget> {
                             children: [
                               Text('Key: ', style: _boldStyle),
                               DropdownButton<musical_key.MajorKey>(
-                                items: musical_key.MajorKeyEnum.values.reversed.map((final musical_key.MajorKeyEnum value) {
+                                items: musical_key.MajorKeyEnum.values.reversed.map((musical_key.MajorKeyEnum value) {
                                   return DropdownMenuItem<musical_key.MajorKey>(
                                     key: ValueKey('keyRoot${value.name}'),
                                     value: musical_key.MajorKey.get(value),
@@ -288,7 +288,7 @@ class TheoryState extends State<TheoryWidget> {
     );
   }
 
-  Widget _title(final String title) {
+  Widget _title(String title) {
     return Container(
       color: _backgroundColor,
       padding: _padding,

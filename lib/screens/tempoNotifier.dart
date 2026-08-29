@@ -8,7 +8,7 @@ const Level _log = Level.debug;
 TempoNotifier tempoNotifier = TempoNotifier();
 
 class TempoNotifier extends ChangeNotifier {
-  set songTempoUpdate(final SongTempoUpdate? newSongTempoUpdate) {
+  set songTempoUpdate(SongTempoUpdate? newSongTempoUpdate) {
     if (newSongTempoUpdate != null &&
         (newSongTempoUpdate.songId != _songTempoUpdate?.songId ||
             newSongTempoUpdate.currentBeatsPerMinute != _songTempoUpdate?.currentBeatsPerMinute)) {

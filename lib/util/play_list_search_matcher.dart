@@ -7,7 +7,7 @@ import 'package:bsteele_music_flutter/screens/playList.dart';
 abstract class PlayListSearchMatcher {
   bool matches(PlayListItem item, {year = false});
 
-  set search(final String? search) {
+  set search(String? search) {
     var s = (search ?? '').trim().replaceAll("[^\\w\\s']+", '');
     //  a tiny attempt to defend against a bad regex
     if (s.endsWith('\\')) {
@@ -30,7 +30,7 @@ abstract class PlayListSearchMatcher {
 }
 
 class SongPlayListSearchMatcher extends PlayListSearchMatcher {
-  SongPlayListSearchMatcher({final String? search}) {
+  SongPlayListSearchMatcher({String? search}) {
     this.search = search;
   }
 
@@ -71,7 +71,7 @@ class SongPlayListSearchMatcher extends PlayListSearchMatcher {
             (song.coverArtist.isNotEmpty && _searchRegex!.hasMatch(song.coverArtist)) ||
             (year && _searchRegex!.hasMatch(song.getCopyrightYear().toString())) ||
             _searchRegex!.hasMatch(song.songId.toUnderScorelessString()) //  removes contractions
-        );
+            );
   }
 }
 

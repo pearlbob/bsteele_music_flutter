@@ -22,8 +22,8 @@ class LyricsEntries extends ChangeNotifier {
   }
 
   LyricsEntries.fromSong(this._song, {OnLyricsLineChangedCallback? onLyricsLineChangedCallback, TextStyle? textStyle})
-      : _onLyricsLineChangedCallback = onLyricsLineChangedCallback,
-        _textStyle = textStyle {
+    : _onLyricsLineChangedCallback = onLyricsLineChangedCallback,
+      _textStyle = textStyle {
     _focusLyricSection = null;
     updateEntriesFromSong();
     logger.log(_debugLyricEntry, 'LyricsEntries.fromSong: lyrics: ${_song.lyricsAsString().replaceAll('\n', '\\n')}');
@@ -33,12 +33,14 @@ class LyricsEntries extends ChangeNotifier {
   void updateEntriesFromSong() {
     _entries.clear();
     for (final lyricSection in _song.lyricSections) {
-      _entries.add(LyricsDataEntry.fromSong(
-        lyricSection,
-        _lyricsEntriesCallback,
-        onLyricsLineChangedCallback: _onLyricsLineChangedCallback,
-        textStyle: _textStyle,
-      ));
+      _entries.add(
+        LyricsDataEntry.fromSong(
+          lyricSection,
+          _lyricsEntriesCallback,
+          onLyricsLineChangedCallback: _onLyricsLineChangedCallback,
+          textStyle: _textStyle,
+        ),
+      );
     }
     logger.log(_debugLyricEntry, 'updateEntriesFromSong(): ${identityHashCode(_song)}:\n<${asRawLyrics()}>');
   }
@@ -66,16 +68,27 @@ class LyricsEntries extends ChangeNotifier {
     var index = _entries.indexOf(entry);
     if (index >= 0) {
       _entries.insert(
+        index,
+        LyricsDataEntry._fromChordSection(
+          chordSection,
           index,
-          LyricsDataEntry._fromChordSection(chordSection, index,
-              textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
+          textStyle: _textStyle,
+          lyricsEntriesCallback: _lyricsEntriesCallback,
+        ),
+      );
     }
   }
 
   void addChordSection(ChordSection chordSection) {
     logger.log(_debugLyricEntry, 'addChordSection(${chordSection.toMarkup()}):');
-    _entries.add(LyricsDataEntry._fromChordSection(chordSection, _entries.length,
-        textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
+    _entries.add(
+      LyricsDataEntry._fromChordSection(
+        chordSection,
+        _entries.length,
+        textStyle: _textStyle,
+        lyricsEntriesCallback: _lyricsEntriesCallback,
+      ),
+    );
     logger.log(_debugLyricEntry, '   _entries: ${_entries.length}');
   }
 
@@ -167,10 +180,7 @@ class LyricsEntries extends ChangeNotifier {
     entry.addEmptyLine(textStyle: _textStyle);
   }
 
-  void deleteLyricLine(
-    LyricsDataEntry entry,
-    int i,
-  ) {
+  void deleteLyricLine(LyricsDataEntry entry, int i) {
     logger.log(_debugLyricEntry, 'delete lyrics line at $entry, line $i');
     entry._lyricsLines.removeAt(i).dispose();
   }
@@ -220,14 +230,20 @@ class LyricsDataEntry {
     LyricsEntriesCallback? lyricsEntriesCallback, {
     OnLyricsLineChangedCallback? onLyricsLineChangedCallback,
     TextStyle? textStyle,
-  })  : _textStyle = textStyle,
-        _lyricsEntriesCallback = lyricsEntriesCallback {
+  }) : _textStyle = textStyle,
+       _lyricsEntriesCallback = lyricsEntriesCallback {
     if (lyricSection.lyricsLines.isNotEmpty
-        //  note: allow empty (blank) lines, i.e. lyricSection.lyricsLines.first can be empty
-        ) {
+    //  note: allow empty (blank) lines, i.e. lyricSection.lyricsLines.first can be empty
+    ) {
       _lyricsLines = List.from(lyricSection.lyricsLines)
-          .map((line) => _LyricsLine(line, _lyricsLineCallback,
-              onLyricsLineChangedCallback: onLyricsLineChangedCallback, textStyle: _textStyle))
+          .map(
+            (line) => _LyricsLine(
+              line,
+              _lyricsLineCallback,
+              onLyricsLineChangedCallback: onLyricsLineChangedCallback,
+              textStyle: _textStyle,
+            ),
+          )
           .toList();
 
       //  copy the focus
@@ -239,14 +255,17 @@ class LyricsDataEntry {
     }
   }
 
-  LyricsDataEntry._fromChordSection(ChordSection chordSection, int index,
-      {TextStyle? textStyle, LyricsEntriesCallback? lyricsEntriesCallback})
-      : lyricSection = LyricSection(chordSection.sectionVersion, index),
-        _textStyle = textStyle,
-        _lyricsEntriesCallback = lyricsEntriesCallback;
+  LyricsDataEntry._fromChordSection(
+    ChordSection chordSection,
+    int index, {
+    TextStyle? textStyle,
+    LyricsEntriesCallback? lyricsEntriesCallback,
+  }) : lyricSection = LyricSection(chordSection.sectionVersion, index),
+       _textStyle = textStyle,
+       _lyricsEntriesCallback = lyricsEntriesCallback;
 
   ///
-  void _lyricsLineCallback(_LyricsLine oldLyricsLine, final List<String> newLyricsLines) {
+  void _lyricsLineCallback(_LyricsLine oldLyricsLine, List<String> newLyricsLines) {
     var index = _lyricsLines.indexOf(oldLyricsLine);
     if (index < 0) {
       throw 'cannot find: <oldLyricsLine> in $_lyricsLines';
@@ -262,8 +281,10 @@ class LyricsDataEntry {
         _lyricsLines.insert(newIndex++, lastNewLyricsLine);
       }
       logger.d('newLines: $_lyricsLines');
-      logger.d('lastNewLyricsLine: <$lastNewLyricsLine> requestFocus():'
-          ' $lyricSection $index+${newLyricsLines.length - 1}');
+      logger.d(
+        'lastNewLyricsLine: <$lastNewLyricsLine> requestFocus():'
+        ' $lyricSection $index+${newLyricsLines.length - 1}',
+      );
       lastNewLyricsLine!.requestFocus();
     }
     _focusLyricSection = lyricSection;
@@ -403,7 +424,7 @@ class _LyricsLine {
 
   requestFocus() {
     logger.t('_LyricsLine.requestFocus()');
-    assert(wasDisposed==false);
+    assert(wasDisposed == false);
     if (!_focusNode.hasFocus) {
       _focusNode.requestFocus();
     }
@@ -412,7 +433,7 @@ class _LyricsLine {
   void dispose() {
     logger.t('_LyricsLine.dispose()');
     //fixme!!!!!!!!!!!!!!!!!!!! _controller.dispose();
-  //fixme!!!!!!!!!!!!!!!!!!!!  _focusNode.dispose();
+    //fixme!!!!!!!!!!!!!!!!!!!!  _focusNode.dispose();
     wasDisposed = true;
   }
 
@@ -427,5 +448,5 @@ class _LyricsLine {
   final TextEditingController _controller = TextEditingController();
   late final String _originalText;
 
- bool wasDisposed = false;
+  bool wasDisposed = false;
 }

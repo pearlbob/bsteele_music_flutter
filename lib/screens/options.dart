@@ -414,16 +414,12 @@ class OptionsState extends State<Options> {
                         ButtonSegment<bool>(
                           value: false,
                           label: Text('No Repeats', style: buttonTextStyle()),
-                          tooltip: appOptions.toolTips
-                              ? 'Do not show repeat counts on repeats.'
-                              : null,
+                          tooltip: appOptions.toolTips ? 'Do not show repeat counts on repeats.' : null,
                         ),
                         ButtonSegment<bool>(
                           value: true,
                           label: Text('Show Repeats', style: buttonTextStyle()),
-                          tooltip: appOptions.toolTips
-                              ? 'Show repeat counts on repeats.  For example: x2/4'
-                              : null,
+                          tooltip: appOptions.toolTips ? 'Show repeat counts on repeats.  For example: x2/4' : null,
                         ),
                       ],
                       selected: <bool>{appOptions.showRepeatCounts},

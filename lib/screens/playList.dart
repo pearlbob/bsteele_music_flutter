@@ -70,12 +70,12 @@ abstract class PlayListItem implements Comparable<PlayListItem> {
   int compareTo(PlayListItem other);
 
   Widget toWidget(
-    final BuildContext context,
-    final PlayListItemAction? playListItemAction,
-    final bool isEditing,
-    final VoidCallback? refocus,
-    final bool bunch,
-    final PlayListSortType? playListSortType,
+    BuildContext context,
+    PlayListItemAction? playListItemAction,
+    bool isEditing,
+    VoidCallback? refocus,
+    bool bunch,
+    PlayListSortType? playListSortType,
   );
 
   String get title;
@@ -92,12 +92,12 @@ class SongPlayListItem implements PlayListItem {
 
   @override
   Widget toWidget(
-    final BuildContext context,
-    final PlayListItemAction? playListItemAction,
-    final bool isEditing,
-    final VoidCallback? refocus,
-    final bool bunch,
-    final PlayListSortType? playListSortType,
+    BuildContext context,
+    PlayListItemAction? playListItemAction,
+    bool isEditing,
+    VoidCallback? refocus,
+    bool bunch,
+    PlayListSortType? playListSortType,
   ) {
     AppWrap songWidget;
     if (songPerformance != null) {
@@ -359,11 +359,11 @@ class PlayListGroup {
   bool get isNotEmpty => group.isNotEmpty;
 
   Widget _indexToWidget(
-    final BuildContext context,
+    BuildContext context,
     int index,
-    final bool isEditing,
-    final VoidCallback? refocus,
-    final PlayListSortType? playListSortType,
+    bool isEditing,
+    VoidCallback? refocus,
+    PlayListSortType? playListSortType,
   ) {
     for (var itemList in group) {
       if (index >= itemList.length) {
@@ -1026,7 +1026,7 @@ class PlayListState extends State<PlayList> {
     return _searchTextFieldController.text.isEmpty;
   }
 
-  set text(final String text) {
+  set text(String text) {
     setState(() {
       _searchTextFieldController.text = text;
     });

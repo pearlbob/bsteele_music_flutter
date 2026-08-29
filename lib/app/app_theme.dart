@@ -86,7 +86,7 @@ Widget appCircledIcon(
 }
 
 /// Icon widget with the application look
-Icon appIcon(IconData? iconData, {final Key? key, final Color? color, final double? size}) {
+Icon appIcon(IconData? iconData, {Key? key, Color? color, double? size}) {
   return Icon(
     iconData,
     key: key,
@@ -156,10 +156,10 @@ class AppTheme {
 
 ElevatedButton appButton(
   String commandName, {
-  required final VoidCallback? onPressed,
-  final Color? backgroundColor,
-  final double? fontSize,
-  final dynamic value,
+  required VoidCallback? onPressed,
+  Color? backgroundColor,
+  double? fontSize,
+  dynamic value,
 }) {
   var voidCallback = onPressed == null
       ? null //  show as disabled   //  fixme: does this work?
@@ -356,9 +356,9 @@ Drawer appDrawer({required Widget child, VoidCallback? voidCallback}) {
 
 ListTile appListTile({
   required String title,
-  required final GestureTapCallback? onTap,
+  required GestureTapCallback? onTap,
   TextStyle? style,
-  final bool enabled = true,
+  bool enabled = true,
 }) {
   style = style ?? appTextStyle;
   if (!enabled) {

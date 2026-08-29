@@ -9,7 +9,9 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+
 import 'dart:js_interop';
+
 import 'package:web/web.dart';
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
@@ -66,27 +68,23 @@ class UtilWeb implements UtilWorkaround {
     return ret;
   }
 
-  Future<List<NameValue>> _getFiles(final String? accept) async {
+  Future<List<NameValue>> _getFiles(String? accept) async {
     var allowedExtensions = accept == null ? null : [accept.startsWith('.') ? accept.substring(1) : accept];
     logger.i('file accept: "$accept"');
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+    List<PlatformFile> resultList = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: allowedExtensions,
     );
 
     List<NameValue> ret = [];
-    if (result != null) {
-      for (PlatformFile file in result.files) {
-        logger.i('file name: ${file.name}, path: "${file.path}"');
-        logger.i('   size: "${file.size}"');
-        String contents = utf8.decode(file.bytes?.toList() ?? []);
+
+      for (PlatformFile platformFile in resultList) {
+        logger.i('file name: ${platformFile.name}, path: "${platformFile.path}"');
+        logger.i('   size: "${platformFile.length()}"');
+        String contents = utf8.decode(await platformFile.readAsBytes());
         logger.i('   toString(): $contents');
-        ret.add(NameValue(file.name, contents));
+        ret.add(NameValue(platformFile.name, contents));
       }
-    } else {
-      // User canceled the picker
-    }
 
     return ret;
   }

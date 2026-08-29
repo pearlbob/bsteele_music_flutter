@@ -15,19 +15,19 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'test_util.dart';
 
-
 void main() async {
   Logger.level = Level.debug;
   logger.d('main()');
   TestWidgetsFlutterBinding.ensureInitialized();
 
   PackageInfo.setMockInitialValues(
-      appName: 'appName',
-      packageName: 'packageName',
-      version: 'version',
-      buildNumber: 'buildNumber',
-      buildSignature: 'buildSignature',
-      installerStore: 'installerStore');
+    appName: 'appName',
+    packageName: 'packageName',
+    version: 'version',
+    buildNumber: 'buildNumber',
+    buildSignature: 'buildSignature',
+    installerStore: 'installerStore',
+  );
   packageInfo = await PackageInfo.fromPlatform();
 
   testWidgets('about test', (WidgetTester tester) async {
@@ -35,11 +35,13 @@ void main() async {
 
     await tester.runAsync(() async {
       // Build our app and trigger a frame.
-      await tester.pumpWidget(const MaterialApp(
-        title: 'About Screen',
-        // home: Edit(initialSong: Song.createEmptySong(),)),
-        home: About(),
-      ));
+      await tester.pumpWidget(
+        const MaterialApp(
+          title: 'About Screen',
+          // home: Edit(initialSong: Song.createEmptySong(),)),
+          home: About(),
+        ),
+      );
 
       await tester.pumpAndSettle(const Duration(seconds: 1));
 

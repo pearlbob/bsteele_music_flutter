@@ -44,11 +44,7 @@ class DocumentationState extends State<Documentation> {
         child: Column(
           children: [
             const MarkdownAssetWidget('singer_requester.md'),
-            md.Markdown(
-              data: fileSpec(),
-              styleSheet: _markdownStyleSheet,
-              shrinkWrap: true,
-            ),
+            md.Markdown(data: fileSpec(), styleSheet: _markdownStyleSheet, shrinkWrap: true),
           ],
         ),
       ),
@@ -60,9 +56,9 @@ class DocumentationState extends State<Documentation> {
   String fileSpec() {
     StringBuffer desc = StringBuffer();
     desc.write(
-        //  note: for entry purposes of very long lines, single quotes are used to wrap
-        //  the input but hide the wrap from the markup
-        '''# General File Specification
+      //  note: for entry purposes of very long lines, single quotes are used to wrap
+      //  the input but hide the wrap from the markup
+      '''# General File Specification
 All songs are stored in files with the ".songlyrics" file name extension.
 The file format is compliant with JSON (https://www.json.org/).
 Note that this includes escaping all appropriate characters.
@@ -75,11 +71,11 @@ File information for songs can be written as a JSON object with the following na
 | Name |	Type |	Value Description
 |------|-------|----------------------------------------------------
 '''
-        '|file	|JSON String|	File name of the song\'s file as it exists in the local operating system.\n'
-        '|lastModifiedDate|JavaScript JSDate|The number of milliseconds from'
-        ' the Unix epoch (00:00:00 UTC on 1 January 1970). See javascript File.lastModified.\n'
-        '|song|	JSON object|	The song attributes as described below.\n'
-        '''
+      '|file	|JSON String|	File name of the song\'s file as it exists in the local operating system.\n'
+      '|lastModifiedDate|JavaScript JSDate|The number of milliseconds from'
+      ' the Unix epoch (00:00:00 UTC on 1 January 1970). See javascript File.lastModified.\n'
+      '|song|	JSON object|	The song attributes as described below.\n'
+      '''
         
 
 Musical notes or keys can be noted with either the lowercase 'b'
@@ -96,42 +92,42 @@ Song attributes for songs are be written as a JSON object with the following nam
 | Name |	Type |	Value Description	| Notes |
 |----|----|:------------------:|---|
 | title |	JSON String | The song's title as the user would know it.|'''
-        'For search purposes, titles beginning with "The" will '
-        'have the preposition swapped to the end of the title after a comma.\n'
-        '| artist|	JSON String|	The artist of the song. |For search purposes, artist names beginning with "The" will'
-        ' have the preposition swapped to the end of the artist after a comma.\n'
-        '| coverArtist|	JSON String|	The cover artist of the song. |For search purposes, cover artist names beginning with "The" will'
-        ' have the preposition swapped to the end of the artist after a comma.\n'
-        '| lastModifiedDate|	JavaScript JSDate	|The number of milliseconds from since the Unix'
-        ' epoch (00:00:00 UTC on 1 January 1970). '
-        '|This represents the last time the song (not the file) was modified. See javascript File.lastModified.\n'
-        '|copyright	|JSON String	|The release date and label.	|'
-        ''
-        'Release dates and labels are often difficult to find and may not be proper legally. '
-        'I would appreciate all users to provide a reasonable effort to find the proper data. '
-        ' At the moment, the software only insists that it be non-null. Please do make an effort.'
-        'If you Google the song title plus the word "lyrics", Google will often provide a release date and label.|\n'
-        '| key|	JSON String|	The major key the song is provided in designated as one of the following:'
-        ' G♭, D♭, A♭, E♭, B♭, F, C, G, D, A, E, B, F♯'
-        '|	This will be extended to minor keys eventually.\n'
-        '|defaultBpm	|integer	|The song\'s default beats per minute, i.e. the song\'s tempo.'
-        '|The term default indicates my intention to eventually allow section tempo changes.'
-        'Currently the tempo is restricted between 50 and 400 BPM inclusive.\n'
-        '|timeSignature|	int + "/" + int'
-        '|	The song\'s time signature in the common form of the number of beats in a measure'
-        ' over which note value gets the beatbeats per minute.'
-        '|	Known signatures include "2/4", "3/4", "4/4" (the default), and "6/8".\n'
-        '|chords|	JSON array of strings'
-        '|	The song\'s chord structure written in the chord markup language described below.'
-        '|Generally speaking, each string represents the section identifiers and chords as they'
-        'are to be presented to the user. Do not include the carriage return or newline character'
-        ' within the quoted JSON lines. The application may adjust their presentation.\n'
-        '|lyrics|	JSON array of strings	'
-        '|The song\'s lyric sections written in temporal order'
-        'and in the lyric markup language described below.'
-        '|	Do not include the carriage return or newline character.'
-        'The application may adjust their presentation\n'
-        '''# Chord Markup Language
+      'For search purposes, titles beginning with "The" will '
+      'have the preposition swapped to the end of the title after a comma.\n'
+      '| artist|	JSON String|	The artist of the song. |For search purposes, artist names beginning with "The" will'
+      ' have the preposition swapped to the end of the artist after a comma.\n'
+      '| coverArtist|	JSON String|	The cover artist of the song. |For search purposes, cover artist names beginning with "The" will'
+      ' have the preposition swapped to the end of the artist after a comma.\n'
+      '| lastModifiedDate|	JavaScript JSDate	|The number of milliseconds from since the Unix'
+      ' epoch (00:00:00 UTC on 1 January 1970). '
+      '|This represents the last time the song (not the file) was modified. See javascript File.lastModified.\n'
+      '|copyright	|JSON String	|The release date and label.	|'
+      ''
+      'Release dates and labels are often difficult to find and may not be proper legally. '
+      'I would appreciate all users to provide a reasonable effort to find the proper data. '
+      ' At the moment, the software only insists that it be non-null. Please do make an effort.'
+      'If you Google the song title plus the word "lyrics", Google will often provide a release date and label.|\n'
+      '| key|	JSON String|	The major key the song is provided in designated as one of the following:'
+      ' G♭, D♭, A♭, E♭, B♭, F, C, G, D, A, E, B, F♯'
+      '|	This will be extended to minor keys eventually.\n'
+      '|defaultBpm	|integer	|The song\'s default beats per minute, i.e. the song\'s tempo.'
+      '|The term default indicates my intention to eventually allow section tempo changes.'
+      'Currently the tempo is restricted between 50 and 400 BPM inclusive.\n'
+      '|timeSignature|	int + "/" + int'
+      '|	The song\'s time signature in the common form of the number of beats in a measure'
+      ' over which note value gets the beatbeats per minute.'
+      '|	Known signatures include "2/4", "3/4", "4/4" (the default), and "6/8".\n'
+      '|chords|	JSON array of strings'
+      '|	The song\'s chord structure written in the chord markup language described below.'
+      '|Generally speaking, each string represents the section identifiers and chords as they'
+      'are to be presented to the user. Do not include the carriage return or newline character'
+      ' within the quoted JSON lines. The application may adjust their presentation.\n'
+      '|lyrics|	JSON array of strings	'
+      '|The song\'s lyric sections written in temporal order'
+      'and in the lyric markup language described below.'
+      '|	Do not include the carriage return or newline character.'
+      'The application may adjust their presentation\n'
+      '''# Chord Markup Language
 The chord markup language typically has a format of:
 > (section version? ':' measure*)+
 
@@ -150,11 +146,11 @@ chorus|	C|	Chorus|	A repeating section of the song that typically has lyrics tha
 a	|A	|A	|A section labeled "A" to be used in contrast the "B" section.  A concept borrowed from jazz.
 b	|B	|B	|A section labeled "B" to be used in contrast the "A" section.  A concept borrowed from jazz.
 bridge|	Br|	Bridge|	A non-repeating section often used once to break the repeated section patterns'''
-        ' prior to the last sections of a song.\n'
-        '''coda	|Co|	Coda |	A section used to jump to for an ending or repeat.
+      ' prior to the last sections of a song.\n'
+      '''coda	|Co|	Coda |	A section used to jump to for an ending or repeat.
 tag	|T|	Tag|	A short section that repeats or closely resembles a number of measures from the end'''
-        ' of a previous section. Typically used to end a song.\n'
-        '''outro|	O|	Outro	|The ending section of many songs.
+      ' of a previous section. Typically used to end a song.\n'
+      '''outro|	O|	Outro	|The ending section of many songs.
 
 Capitalization is not significant to section identification.
 
@@ -177,12 +173,12 @@ A scaleNote is one of:
  A, A♯, B, C, C♯, D, D♯, E, F, F♯, G, G♯, G♭, E♭, D♭, B♭, A♭, C♭, E♯, B♯, F♭.
 
 A chordDescriptor is one of:
-'''
-        // '7sus4, 7sus2, 7sus, maug, 13, 11, mmaj7, m7b5, msus2, msus4, add9, jazz7b9, 7#5,
-        // 'flat5, 7b5, 7#9, 7b9, 9, 69, 6, dim7, º7, dim, º, aug5, aug7, aug, sus7, sus4,
-        // 'sus2, sus, m9, m11, m13, m6, maj7, Δ, Maj7, maj9, maj, M9, M7, 2, 4, 5, m7,
-        // '7, m, M, º, major.
-        );
+''',
+      // '7sus4, 7sus2, 7sus, maug, 13, 11, mmaj7, m7b5, msus2, msus4, add9, jazz7b9, 7#5,
+      // 'flat5, 7b5, 7#9, 7b9, 9, 69, 6, dim7, º7, dim, º, aug5, aug7, aug, sus7, sus4,
+      // 'sus2, sus, m9, m11, m13, m6, maj7, Δ, Maj7, maj9, maj, M9, M7, 2, 4, 5, m7,
+      // '7, m, M, º, major.
+    );
     {
       //  find all the chord descriptors
       bool first = true;
@@ -288,19 +284,16 @@ class MarkdownAssetWidget extends StatelessWidget {
   @override
   Widget build(context) {
     return FutureBuilder<String>(
-        future: loadAssetString('lib/assets/$fileName'),
-        builder: (context, AsyncSnapshot<String> snapshot) {
-          if (snapshot.hasData) {
-            var data = snapshot.data ?? 'empty';
-            return md.Markdown(
-              data: data,
-              styleSheet: _markdownStyleSheet,
-              shrinkWrap: true,
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        });
+      future: loadAssetString('lib/assets/$fileName'),
+      builder: (context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.hasData) {
+          var data = snapshot.data ?? 'empty';
+          return md.Markdown(data: data, styleSheet: _markdownStyleSheet, shrinkWrap: true);
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
   }
 
   final String fileName;

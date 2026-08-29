@@ -727,7 +727,6 @@ class MyHomePageState extends State<MyHomePage> {
             //     _navigateToAboutLeader();
             //   },
             // ),
-
             appListTile(
               title: 'About',
               style: navTextStyle,

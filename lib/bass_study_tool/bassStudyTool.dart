@@ -212,7 +212,9 @@ class BassStudyTool {
                       logger.t('    Pitch: $pitch  (string: $string, fret: $fret), $chordDescriptor');
                       if (pitch != null) {
                         SheetNote sn = SheetNote.note(
-                          Clef.bass8vb, pitch, noteDuration.duration,
+                          Clef.bass8vb,
+                          pitch,
+                          noteDuration.duration,
                           // lyrics: lyrics,
                           tied: tied,
                         );
@@ -220,10 +222,7 @@ class BassStudyTool {
                       }
                     } else {
                       //  rest
-                      SheetNote sn = SheetNote.rest(
-                        Clef.bass8vb,
-                        noteDuration.duration,
-                      );
+                      SheetNote sn = SheetNote.rest(Clef.bass8vb, noteDuration.duration);
                       sheetNotes.add(sn);
                     }
                   } else {
@@ -245,11 +244,11 @@ class BassStudyTool {
         return null;
     }
 
-//  if (Logger.level.index <= Level.verbose.index) {
-//    for (SheetNote sn in sheetNotes) {
-//      logger.t(sn.toString());
-//    }
-//  }
+    //  if (Logger.level.index <= Level.verbose.index) {
+    //    for (SheetNote sn in sheetNotes) {
+    //      logger.t(sn.toString());
+    //    }
+    //  }
 
     return sheetNotes;
   }

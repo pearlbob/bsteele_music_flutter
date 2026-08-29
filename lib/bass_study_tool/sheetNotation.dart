@@ -22,9 +22,9 @@ const double _chordFontSize = 24;
 
 abstract class SheetNotation {
   SheetNotation._(this.sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
-      : preHeight = preHeight ?? 0,
-        activeHeight = activeHeight ?? 0,
-        postHeight = postHeight ?? 0 {
+    : preHeight = preHeight ?? 0,
+      activeHeight = activeHeight ?? 0,
+      postHeight = postHeight ?? 0 {
     totalHeight = this.preHeight + this.activeHeight + this.postHeight;
     assert(this.preHeight >= 0);
     assert(this.activeHeight > 0);
@@ -42,7 +42,9 @@ abstract class SheetNotation {
         canvas.drawRect(Rect.fromLTWH(sheetDisplay.index * 30, dy, 10, totalHeight), _transGrey);
         canvas.drawRect(Rect.fromLTWH(sheetDisplay.index * 30 - 5, dy, 10, preHeight), _transBlue);
         canvas.drawRect(
-            Rect.fromLTWH(sheetDisplay.index * 30 + 5, dy + preHeight + activeHeight, 10, postHeight), _transBlue);
+          Rect.fromLTWH(sheetDisplay.index * 30 + 5, dy + preHeight + activeHeight, 10, postHeight),
+          _transBlue,
+        );
       }
     }
 
@@ -56,8 +58,14 @@ abstract class SheetNotation {
   void drawBeat(SongMoment songMoment, double beat) {}
 
   /// render text and return the pixels used
-  double _renderText(String text,
-      {Color? color, double? xOff, double? yOff, double? fontSize, FontWeight? fontWeight}) {
+  double _renderText(
+    String text, {
+    Color? color,
+    double? xOff,
+    double? yOff,
+    double? fontSize,
+    FontWeight? fontWeight,
+  }) {
     //   final double w = 2 * staffSpace * text.length;
     var textPainter = TextPainter(
       text: TextSpan(
@@ -69,10 +77,7 @@ abstract class SheetNotation {
         ),
       ),
       textDirection: TextDirection.ltr,
-    )..layout(
-        minWidth: 10,
-        maxWidth: 400,
-      );
+    )..layout(minWidth: 10, maxWidth: 400);
     // _canvas.drawRect(
     //     Rect.fromLTWH(xOff ?? dx, yOff ?? dy, textPainter.size.width, textPainter.size.height), _transGrey);
     textPainter.paint(_canvas, Offset(xOff ?? dx, yOff ?? dy));
@@ -113,13 +118,17 @@ abstract class SheetNotation {
 
 class SheetTextNotation extends SheetNotation {
   SheetTextNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super._();
+    : super._();
 }
 
 class SheetSectionTextNotation extends SheetTextNotation {
-  SheetSectionTextNotation(super.sheetDisplay,
-      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
+  SheetSectionTextNotation(
+    super.sheetDisplay, {
+    super.preHeight,
+    double? activeHeight,
+    super.postHeight,
+    SheetNoteSymbol? clef,
+  }) : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawNotationStart() {
@@ -130,16 +139,17 @@ class SheetSectionTextNotation extends SheetTextNotation {
   void drawBeat(SongMoment songMoment, double beat) {
     LyricSection lyricSection = songMoment.lyricSection;
     if (beat == 0 &&
-        (lastLyricSection == null //  first lyric section shown
-            ||
-            app.selectedMomentNumber == songMoment.momentNumber //  first lyric section in the display
-            ||
-            lastLyricSection != lyricSection //  different from last lyric section shown
-        )) {
-      dx += _renderText(
-        lyricSection.toString(),
-        fontSize: _chordFontSize,
-      );
+        (lastLyricSection ==
+                null //  first lyric section shown
+                ||
+            app.selectedMomentNumber ==
+                songMoment
+                    .momentNumber //  first lyric section in the display
+                    ||
+            lastLyricSection !=
+                lyricSection //  different from last lyric section shown
+                )) {
+      dx += _renderText(lyricSection.toString(), fontSize: _chordFontSize);
       lastLyricSection = lyricSection;
     }
   }
@@ -148,9 +158,13 @@ class SheetSectionTextNotation extends SheetTextNotation {
 }
 
 class SheetMeasureCountTextNotation extends SheetTextNotation {
-  SheetMeasureCountTextNotation(super.sheetDisplay,
-      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super(activeHeight: activeHeight ?? 2 * _chordFontSize);
+  SheetMeasureCountTextNotation(
+    super.sheetDisplay, {
+    super.preHeight,
+    double? activeHeight,
+    super.postHeight,
+    SheetNoteSymbol? clef,
+  }) : super(activeHeight: activeHeight ?? 2 * _chordFontSize);
 
   @override
   void drawNotationStart() {
@@ -166,9 +180,13 @@ class SheetMeasureCountTextNotation extends SheetTextNotation {
 }
 
 class SheetChordTextNotation extends SheetTextNotation {
-  SheetChordTextNotation(super.sheetDisplay,
-      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
+  SheetChordTextNotation(
+    super.sheetDisplay, {
+    super.preHeight,
+    double? activeHeight,
+    super.postHeight,
+    SheetNoteSymbol? clef,
+  }) : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -189,9 +207,13 @@ class SheetChordTextNotation extends SheetTextNotation {
 }
 
 class SheetLyricsTextNotation extends SheetTextNotation {
-  SheetLyricsTextNotation(super.sheetDisplay,
-      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
+  SheetLyricsTextNotation(
+    super.sheetDisplay, {
+    super.preHeight,
+    double? activeHeight,
+    super.postHeight,
+    SheetNoteSymbol? clef,
+  }) : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -206,9 +228,13 @@ class SheetLyricsTextNotation extends SheetTextNotation {
 }
 
 class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
-  SheetBassNoteNumbersTextNotation(super.sheetDisplay,
-      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
+  SheetBassNoteNumbersTextNotation(
+    super.sheetDisplay, {
+    super.preHeight,
+    double? activeHeight,
+    super.postHeight,
+    SheetNoteSymbol? clef,
+  }) : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -234,9 +260,13 @@ class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
 }
 
 class SheetBassNotesTextNotation extends SheetTextNotation {
-  SheetBassNotesTextNotation(super.sheetDisplay,
-      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
-      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
+  SheetBassNotesTextNotation(
+    super.sheetDisplay, {
+    super.preHeight,
+    double? activeHeight,
+    super.postHeight,
+    SheetNoteSymbol? clef,
+  }) : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -263,7 +293,7 @@ class SheetBassNotesTextNotation extends SheetTextNotation {
 
 class _SheetStaffNotation extends SheetNotation {
   _SheetStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight, Clef? clef})
-      : super._() {
+    : super._() {
     _clef = clef ?? Clef.treble;
     _clefSymbol = _clefSheetNoteSymbol(_clef);
   }
@@ -305,7 +335,10 @@ class _SheetStaffNotation extends SheetNotation {
     var y = dy + preHeight;
     for (int line = 0; line < 5; line++) {
       _canvas.drawLine(
-          Offset(dx, y + line * staffSpace), Offset(_size.width - dx /*-margin?*/, y + line * staffSpace), black);
+        Offset(dx, y + line * staffSpace),
+        Offset(_size.width - dx /*-margin?*/, y + line * staffSpace),
+        black,
+      );
     }
   }
 
@@ -364,13 +397,20 @@ class _SheetStaffNotation extends SheetNotation {
       accidental = _key.accidental(pitch); //  this will be null on a pitch match to the key scale
     }
 
-    logger.t('sn.pitch: ${sn.pitch.toString().padLeft(3)}, pitch: ${pitch.toString().padLeft(3)}'
-        ', key: $_key'
-        ', accidental: $accidental');
+    logger.t(
+      'sn.pitch: ${sn.pitch.toString().padLeft(3)}, pitch: ${pitch.toString().padLeft(3)}'
+      ', key: $_key'
+      ', accidental: $accidental',
+    );
     Rect? accidentalRect;
     if (accidental != null) {
-      accidentalRect = _renderSheetNoteSymbol(_accidentalSheetNoteSymbol(accidental), staffPosition,
-          scale: scale, renderForward: false, x: myAccidentalDx);
+      accidentalRect = _renderSheetNoteSymbol(
+        _accidentalSheetNoteSymbol(accidental),
+        staffPosition,
+        scale: scale,
+        renderForward: false,
+        x: myAccidentalDx,
+      );
       if (rootDx == null) {
         theRootDx += _accidentalStaffSpace * staffSpace * scale;
       }
@@ -384,8 +424,13 @@ class _SheetStaffNotation extends SheetNotation {
 
     logger.d('_measureAccidentals[  $staffPosition  ] = ${_measureAccidentals[staffPosition]} ');
 
-    var rect =
-        _renderSheetNoteSymbol(sn.symbol, staffPosition, renderForward: renderForward, scale: scale, x: theRootDx);
+    var rect = _renderSheetNoteSymbol(
+      sn.symbol,
+      staffPosition,
+      renderForward: renderForward,
+      scale: scale,
+      x: theRootDx,
+    );
     if (accidentalRect != null) {
       rect = rect.expandToInclude(accidentalRect);
     }
@@ -414,30 +459,26 @@ class _SheetStaffNotation extends SheetNotation {
     var yOff = symbol.fixedYOff * scaledStaffSpace;
     var yPos = activeHeight - staffPosition * scaledStaffSpace;
     Rect rect = Rect.fromLTRB(
-        myX + symbol.bounds.left * scaledStaffSpace,
-        y + yOff - yPos + symbol.bounds.top * scaledStaffSpace,
-        myX + symbol.bounds.right * scaledStaffSpace,
-        y + yOff - yPos + symbol.bounds.bottom * scaledStaffSpace);
+      myX + symbol.bounds.left * scaledStaffSpace,
+      y + yOff - yPos + symbol.bounds.top * scaledStaffSpace,
+      myX + symbol.bounds.right * scaledStaffSpace,
+      y + yOff - yPos + symbol.bounds.bottom * scaledStaffSpace,
+    );
 
-    logger.d('${symbol.name} $staffPosition = $yPos'
-        ', ${symbol.bounds.top} to ${symbol.bounds.bottom}, fixedYOff: ${symbol.fixedYOff}');
+    logger.d(
+      '${symbol.name} $staffPosition = $yPos'
+      ', ${symbol.bounds.top} to ${symbol.bounds.bottom}, fixedYOff: ${symbol.fixedYOff}',
+    );
 
     Offset offset = Offset(rect.left, y - yOff - yPos);
     TextPainter(
-      text: TextSpan(
-        text: symbol.character,
-        style: TextStyle(
-          fontFamily: 'Bravura',
-          color: _black.color,
-          fontSize: w,
+        text: TextSpan(
+          text: symbol.character,
+          style: TextStyle(fontFamily: 'Bravura', color: _black.color, fontSize: w),
         ),
-      ),
-      textDirection: TextDirection.ltr,
-    )
-      ..layout(
-        minWidth: 0,
-        maxWidth: w,
+        textDirection: TextDirection.ltr,
       )
+      ..layout(minWidth: 0, maxWidth: w)
       ..paint(_canvas, offset);
 
     if (isStave) {
@@ -471,14 +512,20 @@ class _SheetStaffNotation extends SheetNotation {
     final y = dy + preHeight;
 
     while (staffPosition < 0) {
-      _canvas.drawLine(Offset(dx + (symbol.bounds.left - staveOverhang) * staffSpace, y + staffPosition * staffSpace),
-          Offset(dx + (symbol.bounds.right + staveOverhang) * staffSpace, y + staffPosition * staffSpace), black);
+      _canvas.drawLine(
+        Offset(dx + (symbol.bounds.left - staveOverhang) * staffSpace, y + staffPosition * staffSpace),
+        Offset(dx + (symbol.bounds.right + staveOverhang) * staffSpace, y + staffPosition * staffSpace),
+        black,
+      );
       staffPosition++;
     }
 
     while (staffPosition > staffVerticalGaps) {
-      _canvas.drawLine(Offset(dx + (symbol.bounds.left - staveOverhang) * staffSpace, y + staffPosition * staffSpace),
-          Offset(dx + (symbol.bounds.right + staveOverhang) * staffSpace, y + staffPosition * staffSpace), black);
+      _canvas.drawLine(
+        Offset(dx + (symbol.bounds.left - staveOverhang) * staffSpace, y + staffPosition * staffSpace),
+        Offset(dx + (symbol.bounds.right + staveOverhang) * staffSpace, y + staffPosition * staffSpace),
+        black,
+      );
       staffPosition--;
     }
   }
@@ -542,7 +589,7 @@ class _SheetStaffNotation extends SheetNotation {
 
 class SheetTrebleStaffNotation extends _SheetStaffNotation {
   SheetTrebleStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight})
-      : super(clef: Clef.treble);
+    : super(clef: Clef.treble);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -560,23 +607,22 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
     }
   }
 
-//  fixme: fill in the time signature with something other than common time
-//  fixme: pitch to trebleClef location
-//  fixme: dotted
-//  fixme: tied
-//  fixme: beamed
-//  fixme: align treble and bass measures
-//  fixme: even measure widths
-//  fixme: align notes with their durations
-//  fixme: control line overflow
-//  fixme: staff selection (e.g. bass only, treble + bass, etc)
-//  fixme: multiple accidentals on one chord
-
+  //  fixme: fill in the time signature with something other than common time
+  //  fixme: pitch to trebleClef location
+  //  fixme: dotted
+  //  fixme: tied
+  //  fixme: beamed
+  //  fixme: align treble and bass measures
+  //  fixme: even measure widths
+  //  fixme: align notes with their durations
+  //  fixme: control line overflow
+  //  fixme: staff selection (e.g. bass only, treble + bass, etc)
+  //  fixme: multiple accidentals on one chord
 }
 
 class SheetBassStaffNotation extends _SheetStaffNotation {
   SheetBassStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight})
-      : super(clef: Clef.bass);
+    : super(clef: Clef.bass);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -615,10 +661,7 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
     Rect? chordRect;
     if (chord.scaleChord.scaleNote.isSilent) {
       //  render the rest
-      chordRect = _renderSheetFixedYSymbol(SheetNote.rest(
-        _clef,
-        beats / beatsPerBar,
-      ).symbol);
+      chordRect = _renderSheetFixedYSymbol(SheetNote.rest(_clef, beats / beatsPerBar).symbol);
     } else {
       //  chord declaration over treble staff
       List<Pitch> pitches = chord.pianoChordPitches();
@@ -662,15 +705,12 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
 
       for (var pitch in pitches) {
         logger.d('    pitch: $pitch');
-        SheetNote sheetNote = SheetNote.note(
-          _clef,
-          pitch,
-          beats / beatsPerBar,
-          makeUpNote: isUpChord,
-        );
+        SheetNote sheetNote = SheetNote.note(_clef, pitch, beats / beatsPerBar, makeUpNote: isUpChord);
 
-        logger.d('$chord: chordPitchIndex: $chordPitchIndex, acc: ${chordAccidentals[chordPitchIndex]}'
-            ', accidentalIndex: $accidentalIndex/$accidentalCount');
+        logger.d(
+          '$chord: chordPitchIndex: $chordPitchIndex, acc: ${chordAccidentals[chordPitchIndex]}'
+          ', accidentalIndex: $accidentalIndex/$accidentalCount',
+        );
         double accidentalDx = originalDx + accidentalIndex * _SheetStaffNotation._accidentalStaffSpace * staffSpace;
         logger.d('   accidentalDx: $accidentalDx');
         if (chordAccidentals[chordPitchIndex]) {
@@ -679,19 +719,9 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
 
         Rect rect;
         if (!identical(pitch, pitches.last)) {
-          rect = _renderSheetNote(
-            sheetNote,
-            renderForward: false,
-            accidentalDx: accidentalDx,
-            rootDx: rootDx,
-          );
+          rect = _renderSheetNote(sheetNote, renderForward: false, accidentalDx: accidentalDx, rootDx: rootDx);
         } else {
-          rect = _renderSheetNote(
-            sheetNote,
-            renderForward: true,
-            accidentalDx: accidentalDx,
-            rootDx: rootDx,
-          );
+          rect = _renderSheetNote(sheetNote, renderForward: true, accidentalDx: accidentalDx, rootDx: rootDx);
         }
         chordRect = chordRect?.expandToInclude(rect) ?? rect;
 
@@ -709,7 +739,7 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
 
 class SheetBass8vbStaffNotation extends _SheetStaffNotation {
   SheetBass8vbStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight})
-      : super(clef: Clef.bass8vb);
+    : super(clef: Clef.bass8vb);
 
   @override
   Rect? drawBeat(SongMoment songMoment, double beat) {
@@ -729,9 +759,10 @@ class SheetBass8vbStaffNotation extends _SheetStaffNotation {
           beatRect = beatRect?.expandToInclude(rect) ?? rect;
         } else {
           sn = SheetNote.note(
-              _clef,
-              Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch),
-              chord.beats / chord.beatsPerBar);
+            _clef,
+            Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch),
+            chord.beats / chord.beatsPerBar,
+          );
           Rect rect = _renderSheetNote(sn);
           beatRect = beatRect?.expandToInclude(rect) ?? rect;
         }

@@ -61,9 +61,11 @@ void main() {
       logger.i('allSongs.length: ${app.allSongs.length}');
       assert(app.allSongs.length > 1500);
       var allSongsSongIds = SplayTreeSet<String>();
-      allSongsSongIds.addAll(app.allSongs.map((song) {
-        return song.songId.toString();
-      }));
+      allSongsSongIds.addAll(
+        app.allSongs.map((song) {
+          return song.songId.toString();
+        }),
+      );
       logger.i('allSongsSongIds.length: ${allSongsSongIds.length}');
 
       // //  find all

@@ -103,7 +103,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
     app.clearMessage();
   }
 
-  _assignNewSong(final Song song) {
+  _assignNewSong(Song song) {
     widget.song = song;
     _song = song;
   }
@@ -727,11 +727,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   }
 
   //  only send updates when required
-  _setPlayMomentNotifier(
-    final SongUpdateState songUpdateState,
-    final int playMomentNumber,
-    final SongMoment? songMoment,
-  ) {
+  _setPlayMomentNotifier(SongUpdateState songUpdateState, int playMomentNumber, SongMoment? songMoment) {
     List<GridCoordinate> songMomentToGridCoordinate = _song.songMomentToGridCoordinate;
     if (songMomentToGridCoordinate.isNotEmpty) {
       _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment);

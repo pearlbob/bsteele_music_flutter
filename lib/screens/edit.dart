@@ -237,7 +237,7 @@ class EditState extends State<Edit> {
     }
   }
 
-  void loadSong(final Song songToLoad) {
+  void loadSong(Song songToLoad) {
     logger.log(_editLyricEntry, 'loadSong: ${songToLoad.toMarkup()}');
     selectedEditPoint = null;
     measureEntryIsClear = true;
@@ -787,7 +787,9 @@ class EditState extends State<Edit> {
                                             .toList()
                                             .reversed
                                             .map((musical_key.MajorKey value) {
-                                              logger.t('keySelectDropdownMenuItems: musical_key.MajorKey value: $value');
+                                              logger.t(
+                                                'keySelectDropdownMenuItems: musical_key.MajorKey value: $value',
+                                              );
                                               return appDropdownMenuItem<musical_key.MajorKey>(
                                                 value: value,
                                                 child: Text(
@@ -1106,8 +1108,7 @@ class EditState extends State<Edit> {
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
-                                      text:
-                                          '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
+                                      text: '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
@@ -1131,8 +1132,7 @@ class EditState extends State<Edit> {
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
-                                      text:
-                                          '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
+                                      text: '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
@@ -1210,8 +1210,7 @@ class EditState extends State<Edit> {
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
-                                      text:
-                                          'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
+                                      text: 'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
@@ -1222,8 +1221,7 @@ class EditState extends State<Edit> {
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
-                                      text:
-                                          'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
+                                      text: 'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
@@ -1242,8 +1240,7 @@ class EditState extends State<Edit> {
                                       style: appTextStyle,
                                     ),
                                     TextSpan(
-                                      text:
-                                          'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
+                                      text: 'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
                                       style: appTextStyle,
                                     ),
                                   ],
@@ -3163,7 +3160,7 @@ class EditState extends State<Edit> {
     );
   }
 
-  void updateChordText(final String? s) {
+  void updateChordText(String? s) {
     logger.d('_updateChordText(${s.toString()})');
 
     if (s == null) {
@@ -3433,7 +3430,7 @@ class EditState extends State<Edit> {
   }
 
   ///  speed entry enhancement and validate the entry
-  void preProcessMeasureEntry(final String entry) {
+  void preProcessMeasureEntry(String entry) {
     if (entry.isEmpty) {
       measureEntryCorrection = null;
       measureEntryValid = false;

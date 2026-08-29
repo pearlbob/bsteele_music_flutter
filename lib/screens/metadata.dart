@@ -48,8 +48,10 @@ class MetadataScreenState extends State<MetadataScreen> {
   bool _hasSelectedMetadata(Song song) {
     if (_selectedNameValue.name.isNotEmpty &&
         SongMetadata.where(
-                idIs: song.songId.toString(), nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value)
-            .isNotEmpty) {
+          idIs: song.songId.toString(),
+          nameIs: _selectedNameValue.name,
+          valueIs: _selectedNameValue.value,
+        ).isNotEmpty) {
       return true;
     }
     return false;
@@ -63,13 +65,8 @@ class MetadataScreenState extends State<MetadataScreen> {
     logger.log(_logBuild, 'metadata build: $_selectedNameValue');
 
     final double fontSize = app.screenInfo.fontSize;
-    metadataStyle = generateAppTextStyle(
-      color: Colors.black87,
-      fontSize: fontSize,
-    );
-    smallMetadataStyle = metadataStyle.copyWith(
-      fontSize: 0.75 * fontSize,
-    );
+    metadataStyle = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
+    smallMetadataStyle = metadataStyle.copyWith(fontSize: 0.75 * fontSize);
 
     logger.t('_selectedNameValue: $_selectedNameValue');
 
@@ -97,8 +94,12 @@ class MetadataScreenState extends State<MetadataScreen> {
           if (nameValue.name.isEmpty || SongMetadataGeneratedValue.isGenerated(nameValue)) {
             continue;
           }
-          itemSet
-              .add(DropdownMenuItem<String>(value: nameValue.name, child: Text(nameValue.name, style: metadataStyle)));
+          itemSet.add(
+            DropdownMenuItem<String>(
+              value: nameValue.name,
+              child: Text(nameValue.name, style: metadataStyle),
+            ),
+          );
         }
         nameDropdownMenuItems = itemSet.toList(growable: false);
 
@@ -106,9 +107,16 @@ class MetadataScreenState extends State<MetadataScreen> {
         itemSet.clear();
         var name = _nameTextFieldController.text;
         for (var songIdMetadata in SongMetadata.where(nameIs: name)) {
-          itemSet.addAll(songIdMetadata.nameValues
-              .where((e) => e.name == name)
-              .map((e) => DropdownMenuItem<String>(value: e.value, child: Text(e.value, style: metadataStyle))));
+          itemSet.addAll(
+            songIdMetadata.nameValues
+                .where((e) => e.name == name)
+                .map(
+                  (e) => DropdownMenuItem<String>(
+                    value: e.value,
+                    child: Text(e.value, style: metadataStyle),
+                  ),
+                ),
+          );
         }
         valueDropdownMenuItems = itemSet.toList(growable: false);
       }
@@ -119,277 +127,297 @@ class MetadataScreenState extends State<MetadataScreen> {
         : _emptySelectedNameValue;
 
     return MultiProvider(
-        providers: [
-          //  fixme: has to be a widget level above it's use????
-          ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
-        ],
-        child: Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: appWidgetHelper.appBar(
-            title: 'bsteeleMusicApp Song Metadata',
-            leading: appWidgetHelper.back(
-                canPop: _canPop,
-                onPressed: () {
-                  app.clearMessage();
-                }),
+      providers: [
+        //  fixme: has to be a widget level above it's use????
+        ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
+      ],
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: appWidgetHelper.appBar(
+          title: 'bsteeleMusicApp Song Metadata',
+          leading: appWidgetHelper.back(
+            canPop: _canPop,
+            onPressed: () {
+              app.clearMessage();
+            },
           ),
-          body: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                  mainAxisAlignment: .start,
-                  crossAxisAlignment: .start,
-                  children: <Widget>[
-                    const AppSpace(),
-                    Text(app.message,
-                        style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                        key: const ValueKey('errorMessage')),
-                    const AppSpace(),
-                    //  file stuff
-                    AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                      appButton(
-                        'Write all metadata to file',
-                        onPressed: () {
-                          _saveSongMetadata();
-                        },
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: .start,
+            crossAxisAlignment: .start,
+            children: <Widget>[
+              const AppSpace(),
+              Text(
+                app.message,
+                style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                key: const ValueKey('errorMessage'),
+              ),
+              const AppSpace(),
+              //  file stuff
+              AppWrapFullWidth(
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  appButton(
+                    'Write all metadata to file',
+                    onPressed: () {
+                      _saveSongMetadata();
+                    },
+                  ),
+                  appButton(
+                    'Write all metadata to CSV',
+                    onPressed: () {
+                      _saveSongMetadataAsCSV();
+                    },
+                  ),
+                  appButton(
+                    'Read metadata from file',
+                    onPressed: () {
+                      setState(() {
+                        _filePick(context);
+                      });
+                    },
+                  ),
+                  // if (_selectedNameValue != _emptySelectedNameValue)
+                  //   appButton(
+                  //     'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
+                  //     appKeyEnum: AppKeyEnum.listsSaveSelected,
+                  //     onPressed: () {
+                  //       _saveNameValueSongMetadata(_selectedNameValue);
+                  //       logger.i('save selection: $_selectedNameValue');
+                  //     },
+                  //   ),
+                  appButton(
+                    'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toString() : 'is disabled'}',
+                    onPressed: nameValueIsDeletable(_selectedNameValue)
+                        ? () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: Text(
+                                  'Do you really want to delete the metadata ${_selectedNameValue.toString()}?',
+                                  style: TextStyle(fontSize: metadataStyle.fontSize),
+                                ),
+                                actions: [
+                                  AppWrapFullWidth(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    children: [
+                                      appButton(
+                                        'Yes! Delete all of ${_selectedNameValue.toString()}.',
+                                        onPressed: () {
+                                          logger.log(_logDeleteSong, 'delete: ${_selectedNameValue.toString()}');
+                                          setState(() {
+                                            SongMetadata.removeAll(_selectedNameValue);
+                                            _selectedNameValue = _emptySelectedNameValue;
+                                            appOptions.storeSongMetadata();
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      const AppSpace(space: 100),
+                                      appButton(
+                                        'Cancel',
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                elevation: 24.0,
+                              ),
+                            );
+                          }
+                        : null,
+                  ),
+                ],
+              ),
+              const AppSpace(horizontalSpace: 20),
+              Text('Set or clear metadata Name:Value pairs:', style: metadataStyle.copyWith(fontWeight: .bold)),
+              const AppSpace(horizontalSpace: 20),
+              Row(
+                crossAxisAlignment: .start,
+                children: [
+                  MetadataPopupMenuButton.button(
+                    title: 'Existing metadata',
+                    style: metadataStyle,
+                    showAllValues: false,
+                    onSelected: (value) {
+                      setState(() {
+                        _nameTextFieldController.text = value.name;
+                        _valueTextFieldController.text = value.value;
+                      });
+                    },
+                  ),
+                  const AppSpace(horizontalSpace: 20),
+                  Text('New: ', style: metadataStyle),
+                  Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 10 * app.screenInfo.fontSize,
+                            //  limit text entry display length
+                            child: AppTextField(
+                              controller: _nameTextFieldController,
+                              hintText: "enter name...",
+                              //                 hintStyle: metadataStyle.copyWith(color: Colors.black54),
+                              onChanged: (text) {
+                                setState(() {});
+                              },
+                              fontSize: fontSize,
+                            ),
+                          ),
+                          const AppSpace(),
+                          //  search clear
+                          AppTooltip(
+                            message: 'Clear the name text.',
+                            child: appIconButton(
+                              icon: const Icon(Icons.clear),
+                              iconSize: metadataStyle.fontSize,
+                              onPressed: (() {
+                                setState(() {
+                                  _nameTextFieldController.clear();
+                                  app.clearMessage();
+                                  // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                });
+                              }),
+                            ),
+                          ),
+                        ],
                       ),
-                      appButton(
-                        'Write all metadata to CSV',
-                        onPressed: () {
-                          _saveSongMetadataAsCSV();
-                        },
-                      ),
-                      appButton(
-                        'Read metadata from file',
-                        onPressed: () {
-                          setState(() {
-                            _filePick(context);
-                          });
-                        },
-                      ),
-                      // if (_selectedNameValue != _emptySelectedNameValue)
-                      //   appButton(
-                      //     'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
-                      //     appKeyEnum: AppKeyEnum.listsSaveSelected,
-                      //     onPressed: () {
-                      //       _saveNameValueSongMetadata(_selectedNameValue);
-                      //       logger.i('save selection: $_selectedNameValue');
-                      //     },
-                      //   ),
-                      appButton(
-                        'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toString() : 'is disabled'}',
-                        onPressed: nameValueIsDeletable(_selectedNameValue)
-                            ? () {
-                                showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                          title: Text(
-                                            'Do you really want to delete the metadata ${_selectedNameValue.toString()}?',
-                                            style: TextStyle(fontSize: metadataStyle.fontSize),
-                                          ),
-                                          actions: [
-                                            AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                                              appButton('Yes! Delete all of ${_selectedNameValue.toString()}.',
-                                                  onPressed: () {
-                                                logger.log(_logDeleteSong, 'delete: ${_selectedNameValue.toString()}');
-                                                setState(() {
-                                                  SongMetadata.removeAll(_selectedNameValue);
-                                                  _selectedNameValue = _emptySelectedNameValue;
-                                                  appOptions.storeSongMetadata();
-                                                });
-                                                Navigator.of(context).pop();
-                                              }),
-                                              const AppSpace(space: 100),
-                                              appButton('Cancel', onPressed: () {
-                                                Navigator.of(context).pop();
-                                              }),
-                                            ])
-                                          ],
-                                          elevation: 24.0,
-                                        ));
-                              }
-                            : null,
-                      ),
-                    ]),
-                    const AppSpace(horizontalSpace: 20),
-                    Text('Set or clear metadata Name:Value pairs:',
-                        style: metadataStyle.copyWith(fontWeight: .bold)),
-                    const AppSpace(horizontalSpace: 20),
-                    Row(
-                      crossAxisAlignment: .start,
-                      children: [
-                        MetadataPopupMenuButton.button(
-                          title: 'Existing metadata',
-                          style: metadataStyle,
-                          showAllValues: false,
-                          onSelected: (value) {
+                      const AppSpace(horizontalSpace: 20),
+                      DropdownButton<String>(
+                        hint: Text('Existing names', style: metadataStyle),
+                        items: nameDropdownMenuItems,
+                        onChanged: (value) {
+                          if (value != null && _nameTextFieldController.text != value) {
                             setState(() {
-                              _nameTextFieldController.text = value.name;
-                              _valueTextFieldController.text = value.value;
+                              _nameTextFieldController.text = value;
+                              _valueTextFieldController.text = ''; //  suppose the value is now wrong
                             });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  Text('  :  ', style: metadataStyle),
+                  //  value entry
+                  Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 10 * app.screenInfo.fontSize,
+                            //  limit text entry display length
+                            child: AppTextField(
+                              controller: _valueTextFieldController,
+                              hintText: "enter value...",
+                              onChanged: (text) {
+                                setState(() {
+                                  if (_nameTextFieldController.text.isNotEmpty) {
+                                    _selectedNameValue = NameValue(
+                                      _nameTextFieldController.text,
+                                      _valueTextFieldController.text,
+                                    );
+                                  }
+                                });
+                              },
+                              fontSize: fontSize,
+                            ),
+                          ),
+                          const AppSpace(horizontalSpace: 20),
+                          //  search clear
+                          AppTooltip(
+                            message: 'Clear the value text.',
+                            child: appIconButton(
+                              icon: const Icon(Icons.clear),
+                              iconSize: metadataStyle.fontSize,
+                              onPressed: (() {
+                                setState(() {
+                                  _valueTextFieldController.clear();
+                                  app.clearMessage();
+                                  // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                });
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const AppSpace(horizontalSpace: 20),
+                      if (_nameTextFieldController.text.isNotEmpty)
+                        DropdownButton<String>(
+                          hint: Text('Values of ${_nameTextFieldController.text}', style: metadataStyle),
+                          items: valueDropdownMenuItems,
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _valueTextFieldController.text = value;
+                              });
+                            }
                           },
                         ),
-                        const AppSpace(horizontalSpace: 20),
-                        Text('New: ', style: metadataStyle),
-                        Column(
-                          crossAxisAlignment: .start,
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 10 * app.screenInfo.fontSize,
-                                  //  limit text entry display length
-                                  child: AppTextField(
-                                    controller: _nameTextFieldController,
-                                    hintText: "enter name...",
-                                    //                 hintStyle: metadataStyle.copyWith(color: Colors.black54),
-                                    onChanged: (text) {
-                                      setState(() {});
-                                    },
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                                const AppSpace(),
-                                //  search clear
-                                AppTooltip(
-                                    message: 'Clear the name text.',
-                                    child: appIconButton(
-                                      icon: const Icon(Icons.clear),
-                                      iconSize: metadataStyle.fontSize,
-                                      onPressed: (() {
-                                        setState(() {
-                                          _nameTextFieldController.clear();
-                                          app.clearMessage();
-                                          // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
-                                        });
-                                      }),
-                                    )),
-                              ],
-                            ),
-                            const AppSpace(horizontalSpace: 20),
-                            DropdownButton<String>(
-                                hint: Text('Existing names', style: metadataStyle),
-                                items: nameDropdownMenuItems,
-                                onChanged: (value) {
-                                  if (value != null && _nameTextFieldController.text != value) {
-                                    setState(() {
-                                      _nameTextFieldController.text = value;
-                                      _valueTextFieldController.text = ''; //  suppose the value is now wrong
-                                    });
-                                  }
-                                }),
-                          ],
-                        ),
-                        Text(
-                          '  :  ',
-                          style: metadataStyle,
-                        ),
-                        //  value entry
-                        Column(
-                          crossAxisAlignment: .start,
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 10 * app.screenInfo.fontSize,
-                                  //  limit text entry display length
-                                  child: AppTextField(
-                                    controller: _valueTextFieldController,
-                                    hintText: "enter value...",
-                                    onChanged: (text) {
-                                      setState(() {
-                                        if (_nameTextFieldController.text.isNotEmpty) {
-                                          _selectedNameValue =
-                                              NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
-                                        }
-                                      });
-                                    },
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                                const AppSpace(horizontalSpace: 20),
-                                //  search clear
-                                AppTooltip(
-                                    message: 'Clear the value text.',
-                                    child: appIconButton(
-                                      icon: const Icon(Icons.clear),
-                                      iconSize: metadataStyle.fontSize,
-                                      onPressed: (() {
-                                        setState(() {
-                                          _valueTextFieldController.clear();
-                                          app.clearMessage();
-                                          // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
-                                        });
-                                      }),
-                                    )),
-                              ],
-                            ),
-                            const AppSpace(horizontalSpace: 20),
-                            if (_nameTextFieldController.text.isNotEmpty)
-                              DropdownButton<String>(
-                                  hint: Text('Values of ${_nameTextFieldController.text}', style: metadataStyle),
-                                  items: valueDropdownMenuItems,
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        _valueTextFieldController.text = value;
-                                      });
-                                    }
-                                  }),
-                          ],
-                        ),
-                      ],
-                    ),
+                    ],
+                  ),
+                ],
+              ),
 
-                    Consumer<PlayListRefreshNotifier>(
-                      builder: (context, playListRefreshNotifier, child) => PlayList.byGroup(
-                        PlayListGroup([
-                          PlayListItemList(
-                              '',
-                              app.allSongs
-                                  .map((song) => SongPlayListItem.fromSong(song,
-                                      customWidget: _selectedNameValue != _emptySelectedNameValue &&
-                                              !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ??
-                                                  false)
-                                          ? AppTooltip(
-                                              message: 'Add this $_selectedNameValue to this song',
-                                              child: appIconWithLabelButton(
-                                                icon: appIcon(
-                                                  Icons.add,
-                                                ),
-                                                label: _selectedNameValue.toString(),
-                                                value: SongIdMetadataItem(song, _selectedNameValue),
-                                                fontSize: 0.75 * app.screenInfo.fontSize,
-                                                backgroundColor: Colors.lightGreen,
-                                                onPressed: () {
-                                                  logger.log(_logAddSong,
-                                                      'pressed: ${_selectedNameValue.toString()} to $song');
-                                                  SongMetadata.addSong(song, _selectedNameValue);
-                                                  playListRefreshNotifier.refresh();
-                                                  logger.log(
-                                                      _logAddSong,
-                                                      'metadata: playListRefreshNotifier.positionPixels: '
-                                                      '${playListRefreshNotifier.positionPixels}');
-                                                },
-                                              ),
-                                            )
-                                          : _selectedNameValue != _emptySelectedNameValue
-                                              ? Text(
-                                                  '(already set)',
-                                                  style: smallMetadataStyle,
-                                                )
-                                              : null))
-                                  .toList(growable: false))
-                        ]),
-                        style: metadataStyle,
-                        isEditing: true,
-                        isFromTheTop: false,
-                        showAllFilters: true,
-                        playListSearchMatcher: SongPlayListSearchMatcher(),
-                      ),
+              Consumer<PlayListRefreshNotifier>(
+                builder: (context, playListRefreshNotifier, child) => PlayList.byGroup(
+                  PlayListGroup([
+                    PlayListItemList(
+                      '',
+                      app.allSongs
+                          .map(
+                            (song) => SongPlayListItem.fromSong(
+                              song,
+                              customWidget:
+                                  _selectedNameValue != _emptySelectedNameValue &&
+                                      !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
+                                  ? AppTooltip(
+                                      message: 'Add this $_selectedNameValue to this song',
+                                      child: appIconWithLabelButton(
+                                        icon: appIcon(Icons.add),
+                                        label: _selectedNameValue.toString(),
+                                        value: SongIdMetadataItem(song, _selectedNameValue),
+                                        fontSize: 0.75 * app.screenInfo.fontSize,
+                                        backgroundColor: Colors.lightGreen,
+                                        onPressed: () {
+                                          logger.log(_logAddSong, 'pressed: ${_selectedNameValue.toString()} to $song');
+                                          SongMetadata.addSong(song, _selectedNameValue);
+                                          playListRefreshNotifier.refresh();
+                                          logger.log(
+                                            _logAddSong,
+                                            'metadata: playListRefreshNotifier.positionPixels: '
+                                            '${playListRefreshNotifier.positionPixels}',
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : _selectedNameValue != _emptySelectedNameValue
+                                  ? Text('(already set)', style: smallMetadataStyle)
+                                  : null,
+                            ),
+                          )
+                          .toList(growable: false),
                     ),
-                  ])),
-          floatingActionButton: appWidgetHelper.floatingBack(),
-        ));
+                  ]),
+                  style: metadataStyle,
+                  isEditing: true,
+                  isFromTheTop: false,
+                  showAllFilters: true,
+                  playListSearchMatcher: SongPlayListSearchMatcher(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: appWidgetHelper.floatingBack(),
+      ),
+    );
   }
 
   Widget mapSongToWidget(Song song) {
@@ -406,9 +434,10 @@ class MetadataScreenState extends State<MetadataScreen> {
                   }
                 } else {
                   for (var songIdMetadata in SongMetadata.where(
-                      idIs: song.songId.toString(),
-                      nameIs: _selectedNameValue.name,
-                      valueIs: _selectedNameValue.value)) {
+                    idIs: song.songId.toString(),
+                    nameIs: _selectedNameValue.name,
+                    valueIs: _selectedNameValue.value,
+                  )) {
                     logger.d('remove: $songIdMetadata');
                     SongMetadata.remove(songIdMetadata, _selectedNameValue);
                   }
@@ -433,7 +462,7 @@ class MetadataScreenState extends State<MetadataScreen> {
               }
             });
           },
-        )
+        ),
       ],
     );
   }
@@ -445,34 +474,41 @@ class MetadataScreenState extends State<MetadataScreen> {
     }
 
     showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                '''Do you really want discard all of your metadata changes?
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('''Do you really want discard all of your metadata changes?
 Your changes will not be remembered when you restart.
-Writing a file will allow you to reload your changes later.''',
-                style: metadataStyle,
-              ),
-              actions: [
-                appButton('Don\'t write my changes!', onPressed: () {
-                  app.clearMessage();
-                  Navigator.of(context).pop(); //  the dialog
-                  Navigator.of(context).pop(); //  the screen
-                }),
-                const AppSpace(),
-                appButton('Write the metadata to a file and return', onPressed: () {
-                  _saveSongMetadata();
-                  app.clearMessage();
-                  Navigator.of(context).pop(); //  the dialog
-                  Navigator.of(context).pop(); //  the screen
-                }),
-                const AppSpace(),
-                appButton('Cancel the return... I need to work some more on this.', onPressed: () {
-                  Navigator.of(context).pop();
-                }),
-              ],
-              elevation: 24.0,
-            ));
+Writing a file will allow you to reload your changes later.''', style: metadataStyle),
+        actions: [
+          appButton(
+            'Don\'t write my changes!',
+            onPressed: () {
+              app.clearMessage();
+              Navigator.of(context).pop(); //  the dialog
+              Navigator.of(context).pop(); //  the screen
+            },
+          ),
+          const AppSpace(),
+          appButton(
+            'Write the metadata to a file and return',
+            onPressed: () {
+              _saveSongMetadata();
+              app.clearMessage();
+              Navigator.of(context).pop(); //  the dialog
+              Navigator.of(context).pop(); //  the screen
+            },
+          ),
+          const AppSpace(),
+          appButton(
+            'Cancel the return... I need to work some more on this.',
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+        elevation: 24.0,
+      ),
+    );
     return false;
   }
 
@@ -506,16 +542,7 @@ Writing a file will allow you to reload your changes later.''',
       var subgenre = md.isNotEmpty ? md.first.value : '';
       md = SongMetadata.songMetadata(song, 'Status');
       var status = md.isNotEmpty ? md.first.value : '';
-      rows.add([
-        song.title,
-        song.artist,
-        song.coverArtist,
-        year,
-        jam,
-        genre,
-        subgenre,
-        status,
-      ]);
+      rows.add([song.title, song.artist, song.coverArtist, year, jam, genre, subgenre, status]);
     }
     String message = await UtilWorkaround().writeFileContents(fileName, converter.convert(rows));
     logger.i('_saveMetadata message: $message');

@@ -933,7 +933,7 @@ class SingersState extends State<Singers> {
     );
   }
 
-  Widget mapSongPerformanceToSingerWidget(SongPerformance songPerformance, {final whenPressed = true}) {
+  Widget mapSongPerformanceToSingerWidget(SongPerformance songPerformance, {whenPressed = true}) {
     if (songPerformance.song == null) {
       return Text('null song for ${songPerformance.songIdAsString}');
     }
@@ -985,13 +985,13 @@ class SingersState extends State<Singers> {
   }
 
   AppWrap appWrapSongExplicit(
-    final Song? song, {
-    final musical_key.MajorKey? key,
-    final int? bpm,
-    final String? performer,
-    final bool enable = true,
-    final ValueChanged<bool?>? onChanged,
-    final whenPressed = true,
+    Song? song, {
+    musical_key.MajorKey? key,
+    int? bpm,
+    String? performer,
+    bool enable = true,
+    ValueChanged<bool?>? onChanged,
+    whenPressed = true,
   }) {
     if (song == null) {
       return const AppWrap(children: []);
@@ -1421,5 +1421,4 @@ class SingersState extends State<Singers> {
   static const removeColor = Color(0xFFE57373); //var c = Colors.red[300]: Color(0xFFE57373),
   static const EdgeInsets appendInsets = EdgeInsets.all(3);
   static const EdgeInsets appendPadding = EdgeInsets.all(3);
-
 }

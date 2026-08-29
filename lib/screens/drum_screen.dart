@@ -296,7 +296,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     );
   }
 
-  String songToString(final Song? song) {
+  String songToString(Song? song) {
     return song == null
         ? ''
         : '${song.title} by ${song.artist}${song.coverArtist.isEmpty ? '' : ' cover by ${song.coverArtist}'}';
@@ -450,7 +450,7 @@ class DrumPlayListItem implements PlayListItem {
     bool isEditing,
     VoidCallback? refocus,
     bool bunch,
-    final PlayListSortType? playListSortType,
+    PlayListSortType? playListSortType,
   ) {
     var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: .bold);
     return AppInkWell(

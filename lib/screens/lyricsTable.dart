@@ -88,7 +88,7 @@ var _maxLines = _defaultMaxLines;
 const int _maxMomentNumber = 99999; //  many more than expected
 
 ///  The trick of the game: Figure the text size prior to boxing it
-Size _computeRichTextSize(final RichText richText, {int? maxLines, double? maxWidth}) {
+Size _computeRichTextSize(RichText richText, {int? maxLines, double? maxWidth}) {
   InlineSpan text = richText.text;
   if (text.toPlainText().isEmpty && richText.children.isNotEmpty) {
     var first = richText.children.first;
@@ -107,7 +107,7 @@ Size _computeRichTextSize(final RichText richText, {int? maxLines, double? maxWi
   );
 }
 
-Size _computeInlineSpanSize(final InlineSpan inLineSpan, {TextScaler? textScaler, int? maxLines, double? maxWidth}) {
+Size _computeInlineSpanSize(InlineSpan inLineSpan, {TextScaler? textScaler, int? maxLines, double? maxWidth}) {
   TextPainter textPainter = TextPainter(
     text: inLineSpan,
     textDirection: TextDirection.ltr,
@@ -146,7 +146,7 @@ class PlayMoment {
 }
 
 class PlayMomentNotifier extends ChangeNotifier {
-  set playMoment(final PlayMoment? newPlayMoment) {
+  set playMoment(PlayMoment? newPlayMoment) {
     if (newPlayMoment != _playMoment) {
       _playMoment = newPlayMoment;
       logger.log(_logPlayMoment, 'playMoment: $_playMoment');
@@ -169,7 +169,7 @@ class PlayMomentNotifier extends ChangeNotifier {
 }
 
 class SongMasterNotifier extends ChangeNotifier {
-  set songMaster(final SongMaster? songMaster) {
+  set songMaster(SongMaster? songMaster) {
     //  note: no change optimization required due to singleton
     _songMaster = songMaster;
     notifyListeners();
@@ -180,7 +180,7 @@ class SongMasterNotifier extends ChangeNotifier {
 }
 
 class LyricSectionNotifier extends ChangeNotifier {
-  setIndexRow(final int lyricSectionIndex, final int row) {
+  setIndexRow(int lyricSectionIndex, int row) {
     if (lyricSectionIndex != _lyricSectionIndex || row != _row) {
       _lyricSectionIndex = lyricSectionIndex;
       _row = row;
@@ -1763,10 +1763,10 @@ class LyricsTable {
 
   /// Transcribe the chord section to a text span, adding Nashville notation when appropriate.
   TextSpan _chordSectionTextSpan(
-    final ChordSection chordSection,
-    final musical_key.MajorKey originalKey,
+    ChordSection chordSection,
+    musical_key.MajorKey originalKey,
     int transpositionOffset, {
-    final musical_key.MajorKey? displayMusicKey,
+    musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
   }) {
     style = style ?? _coloredChordTextStyle;
@@ -1853,7 +1853,7 @@ class LyricsTable {
   }
 
   ///  see if the row has reduced beats
-  bool _rowHasExplicitBeats(final List<MeasureNode?> row) {
+  bool _rowHasExplicitBeats(List<MeasureNode?> row) {
     //  see if the row has reduced beats
     bool rowHasExplicitBeats = false;
     for (var c = 0; c < row.length; c++) {
@@ -1879,12 +1879,12 @@ class LyricsTable {
 
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
   TextSpan _measureNashvilleSelectionTextSpan(
-    final Measure measure,
-    final musical_key.MajorKey originalKey,
+    Measure measure,
+    musical_key.MajorKey originalKey,
     int transpositionOffset, {
-    final musical_key.MajorKey? displayMusicKey,
+    musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
-    final bool showBeats = true,
+    bool showBeats = true,
     withInversion = true,
   }) {
     style = style ?? _coloredChordTextStyle;
@@ -1939,13 +1939,13 @@ class LyricsTable {
   }
 
   TextSpan _measureTextSpan(
-    final Measure measure,
-    final musical_key.MajorKey originalKey,
-    final int transpositionOffset, {
-    final musical_key.MajorKey? displayMusicKey,
+    Measure measure,
+    musical_key.MajorKey originalKey,
+    int transpositionOffset, {
+    musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
-    final bool showBeats = false,
-    final withInversion = false,
+    bool showBeats = false,
+    withInversion = false,
   }) {
     style = style ?? _coloredChordTextStyle;
     logger.t(
@@ -2043,10 +2043,10 @@ class LyricsTable {
   }
 
   TextSpan _nashvilleMeasureTextSpan(
-    final Measure measure,
-    final musical_key.MajorKey originalKey,
-    final int transpositionOffset, {
-    final musical_key.MajorKey? displayMusicKey,
+    Measure measure,
+    musical_key.MajorKey originalKey,
+    int transpositionOffset, {
+    musical_key.MajorKey? displayMusicKey,
     TextStyle? style,
   }) {
     final keyOffset = originalKey.getHalfStep();
@@ -2165,7 +2165,7 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: .normal);
   }
 
-  int songMomentNumberToGridRow(final int? momentNumber) {
+  int songMomentNumberToGridRow(int? momentNumber) {
     if (momentNumber == null) {
       return 0;
     }
@@ -2173,19 +2173,19 @@ class LyricsTable {
     return _song.songMomentToGridCoordinate[min(max(momentNumber, 0), _song.songMoments.length - 1)].row;
   }
 
-  double rowToDisplayOffset(final int? rowNumber) {
+  double rowToDisplayOffset(int? rowNumber) {
     if (rowNumber == null) {
       return 0;
     }
     return _rowNumberToDisplayOffset[Util.intLimit(rowNumber, 0, _rowNumberToDisplayOffset.length - 1)];
   }
 
-  double rowHeight(final int? rowNumber) {
+  double rowHeight(int? rowNumber) {
     if (_heights.isEmpty || rowNumber == null) return 0;
     return _heights[Util.indexLimit(rowNumber, _heights)];
   }
 
-  double displayOffsetToRowNumber(final double displayOffset) {
+  double displayOffsetToRowNumber(double displayOffset) {
     for (int i = 0; i < _rowNumberToDisplayOffset.length; i++) {
       var offset = _rowNumberToDisplayOffset[i];
       if (offset >= displayOffset) {
@@ -2195,7 +2195,7 @@ class LyricsTable {
     return _rowNumberToDisplayOffset.length.toDouble();
   }
 
-  // int displayOffsetToRow(final double offset) {
+  // int displayOffsetToRow( double offset) {
   //   if (_songMomentToDisplayOffset.isEmpty) {
   //     return 0;
   //   }
@@ -2210,7 +2210,7 @@ class LyricsTable {
   //   return limit - 1;
   // }
 
-  int displayOffsetToSongMomentNumber(final double offset) {
+  int displayOffsetToSongMomentNumber(double offset) {
     if (_songMomentNumberToDisplayOffset.isEmpty) {
       return 0;
     }
@@ -2225,7 +2225,7 @@ class LyricsTable {
     return limit - 1;
   }
 
-  int rowToLyricSectionIndex(final int row) {
+  int rowToLyricSectionIndex(int row) {
     if (_cellGrid.isEmpty) {
       return 0;
     }
@@ -2244,7 +2244,7 @@ class LyricsTable {
     return 0;
   }
 
-  int lastRowInSection(final int row) {
+  int lastRowInSection(int row) {
     if (_cellGrid.isEmpty) {
       return 0;
     }
@@ -2282,7 +2282,7 @@ class LyricsTable {
     return r - 1;
   }
 
-  int gridRowToMomentNumber(final int row) {
+  int gridRowToMomentNumber(int row) {
     if (_cellGrid.isEmpty) {
       return 0;
     }
@@ -2308,8 +2308,7 @@ class LyricsTable {
     return 0;
   }
 
-  int lyricSectionIndexToRow(final int index) =>
-      _lyricSectionIndexToRowMap[index] ?? 1 /* can be null prior to song eval */;
+  int lyricSectionIndexToRow(int index) => _lyricSectionIndexToRowMap[index] ?? 1 /* can be null prior to song eval */;
 
   _scaleComponents({double scaleFactor = 1.0}) {
     _paddingSize = _paddingSizeMax * scaleFactor;
@@ -2318,7 +2317,7 @@ class LyricsTable {
     _margin = EdgeInsets.all(_marginSize);
   }
 
-  int pixelOffsetToRow(final double offset) {
+  int pixelOffsetToRow(double offset) {
     for (int i = 0; i < _pixelOffsets.length; i++) {
       var pixelOffset = _pixelOffsets[i];
       logger.log(
@@ -2335,7 +2334,7 @@ class LyricsTable {
     return _pixelOffsets.length - 1;
   }
 
-  double rowToPixelOffset(final int row) {
+  double rowToPixelOffset(int row) {
     if (_pixelOffsets.isEmpty) return 0;
     return _pixelOffsets[Util.indexLimit(row, _pixelOffsets)];
   }
@@ -2961,7 +2960,7 @@ class _BeatMarkCustomPainter extends CustomPainter {
   const _BeatMarkCustomPainter(this.beats);
 
   @override
-  void paint(final Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size size) {
     final paint = Paint();
     paint.color = Colors.black;
     final double unit = size.height;
@@ -2984,9 +2983,9 @@ class _BeatMarkCustomPainter extends CustomPainter {
 }
 
 ScaleNote scaleNoteByAccidentalExpressionChoice(
-  final ScaleNote scaleNote,
-  final AccidentalExpressionChoice choice, {
-  final musical_key.MajorKey? key,
+  ScaleNote scaleNote,
+  AccidentalExpressionChoice choice, {
+  musical_key.MajorKey? key,
 }) {
   //  process scale note by accidental choice
   switch (choice) {

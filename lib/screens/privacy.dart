@@ -34,24 +34,26 @@ class PrivacyState extends State<Privacy> {
         child: const SingleChildScrollView(
           scrollDirection: Axis.vertical,
           padding: EdgeInsets.all(8.0),
-          child: Text('The bsteeleMusicApp is a client side application.  '
-              'In normal circumstances, neither the phone app nor the web application has '
-              'any contact with the server after initialization.  '
-              'If used in a local display sharing mode (leader/follower), no data '
-              'other than the distribution of local song information '
-              'is sent.  This can be disabled by placing the host IP to "None".'
-              '\n\n'
-              'No personal data is collected in any fashion at any server.  '
-              'Data unique to your use, such as your user name or an entered song, '
-              'is held either in phone memory local to your phone '
-              'or in local storage on your browser.  '
-              '\n\n'
-              'Note that entered songs will contain your user name '
-              'in their .songlyrics file.  '
-              '\n\n'
-              'Note that the app will try on initialization to access the internet '
-              'to download the latest song list from www.bsteele.com.  '
-              'Should this fail, a local copy will be used.'),
+          child: Text(
+            'The bsteeleMusicApp is a client side application.  '
+            'In normal circumstances, neither the phone app nor the web application has '
+            'any contact with the server after initialization.  '
+            'If used in a local display sharing mode (leader/follower), no data '
+            'other than the distribution of local song information '
+            'is sent.  This can be disabled by placing the host IP to "None".'
+            '\n\n'
+            'No personal data is collected in any fashion at any server.  '
+            'Data unique to your use, such as your user name or an entered song, '
+            'is held either in phone memory local to your phone '
+            'or in local storage on your browser.  '
+            '\n\n'
+            'Note that entered songs will contain your user name '
+            'in their .songlyrics file.  '
+            '\n\n'
+            'Note that the app will try on initialization to access the internet '
+            'to download the latest song list from www.bsteele.com.  '
+            'Should this fail, a local copy will be used.',
+          ),
         ),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(),

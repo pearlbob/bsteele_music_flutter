@@ -12,16 +12,17 @@ void main() {
   test('test SongSearchMatcher', () {
     PlayListSearchMatcher songSearchMatcher = SongPlayListSearchMatcher(search: 's');
     var song = Song(
-        title: 'A blue tune',
-        artist: 'bob',
-        copyright: 'copyright nobody 2022',
-        key: MajorKey.getDefault(),
-        beatsPerMinute: MusicConstants.defaultBpm,
-        beatsPerBar: 4,
-        unitsPerMeasure: 4,
-        user: 'bob',
-        chords: 'v: G C G G, C C G G, D C G D c: G C G G, C C G G, D C G D',
-        rawLyrics: 'v: bob, bob, bob berand');
+      title: 'A blue tune',
+      artist: 'bob',
+      copyright: 'copyright nobody 2022',
+      key: MajorKey.getDefault(),
+      beatsPerMinute: MusicConstants.defaultBpm,
+      beatsPerBar: 4,
+      unitsPerMeasure: 4,
+      user: 'bob',
+      chords: 'v: G C G G, C C G G, D C G D c: G C G G, C C G G, D C G D',
+      rawLyrics: 'v: bob, bob, bob berand',
+    );
 
     song.coverArtist = 'Barbara';
     var item = SongPlayListItem.fromSong(song);

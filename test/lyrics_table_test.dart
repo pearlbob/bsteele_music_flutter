@@ -37,14 +37,14 @@ void testRatio(String s) {
 }
 
 Size sizeText(String text, {double? fontSize, TextStyle? textStyle}) {
-  return sizeRichText(RichText(
+  return sizeRichText(
+    RichText(
       text: TextSpan(
-    text: text,
-    style: textStyle ??
-        TextStyle(
-          fontSize: fontSize ?? defaultFontSize,
-        ),
-  )));
+        text: text,
+        style: textStyle ?? TextStyle(fontSize: fontSize ?? defaultFontSize),
+      ),
+    ),
+  );
 }
 
 Size sizeRichText(RichText richText) {

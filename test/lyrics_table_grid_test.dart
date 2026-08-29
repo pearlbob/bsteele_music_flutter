@@ -12,21 +12,21 @@ void main() {
   test('test lyrics to moment and back', () {
     //  Create the song
     Song a = Song(
-        title: 'After Midnight',
-        artist: 'Eric Clapton',
-        copyright: 'BMG',
-        key: MajorKey.D,
-        beatsPerMinute: 110,
-        beatsPerBar: 4,
-        unitsPerMeasure: 4,
-        chords: '''I:
+      title: 'After Midnight',
+      artist: 'Eric Clapton',
+      copyright: 'BMG',
+      key: MajorKey.D,
+      beatsPerMinute: 110,
+      beatsPerBar: 4,
+      unitsPerMeasure: 4,
+      chords: '''I:
 D FG D D x2
 V:
 D FG D D x2
 D G G A
 O:
 D FG D D x3''',
-        rawLyrics: '''I: (instrumental)
+      rawLyrics: '''I: (instrumental)
 
 V:
 After midnight
@@ -63,7 +63,8 @@ After midnight
 We gonna let it all hang down
 After midnight
 We gonna let it all hang down
-''');
+''',
+    );
 
     UserDisplayStyle userDisplayStyle = .both;
     var lyricsTable = LyricsTable();
@@ -85,10 +86,12 @@ We gonna let it all hang down
       //   }
       // }
 
-      logger.i('$songMoment:  ${songMoment.lyricSection.index}'
-          ', gridRow: $gridRow'
-          ', nodeRow: $nodeRow'
-          ', momentNumber: $momentNumber');
+      logger.i(
+        '$songMoment:  ${songMoment.lyricSection.index}'
+        ', gridRow: $gridRow'
+        ', nodeRow: $nodeRow'
+        ', momentNumber: $momentNumber',
+      );
     }
   });
 }

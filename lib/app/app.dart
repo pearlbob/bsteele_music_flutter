@@ -379,7 +379,7 @@ TextStyle appErrorTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, c
 
 const double _defaultFontSize = 24;
 
-TextStyle appButtonTextStyle({final double? fontSize}) {
+TextStyle appButtonTextStyle({double? fontSize}) {
   return generateAppTextStyle(fontSize: fontSize, fontWeight: .bold, color: Colors.black);
 }
 
@@ -486,7 +486,7 @@ class AppTooltip extends StatelessWidget {
   final Widget child;
 }
 
-BoxDecoration appTooltipBoxDecoration(final Color? color) {
+BoxDecoration appTooltipBoxDecoration(Color? color) {
   return BoxDecoration(
     color: color,
     border: Border.all(),
@@ -587,7 +587,7 @@ typedef CanPopQualifier = bool Function();
 class AppWidgetHelper {
   AppWidgetHelper(this.context);
 
-  IconButton back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
+  IconButton back({CanPopQualifier? canPop, VoidCallback? onPressed}) {
     return appIconButton(
       onPressed: () {
         if (canPop?.call() ?? true) {
@@ -599,7 +599,7 @@ class AppWidgetHelper {
     );
   }
 
-  Widget floatingBack({final CanPopQualifier? canPop}) {
+  Widget floatingBack({CanPopQualifier? canPop}) {
     return AppTooltip(
       message: 'Back',
       child: appFloatingActionButton(
@@ -613,12 +613,7 @@ class AppWidgetHelper {
     );
   }
 
-  AppBar backBar({
-    final Widget? titleWidget,
-    final String? title,
-    final List<Widget>? actions,
-    final VoidCallback? onPressed,
-  }) {
+  AppBar backBar({Widget? titleWidget, String? title, List<Widget>? actions, VoidCallback? onPressed}) {
     return appBar(
       title: title,
       titleWidget: titleWidget,
@@ -627,12 +622,7 @@ class AppWidgetHelper {
     );
   }
 
-  AppBar appBar({
-    final String? title,
-    final Widget? titleWidget,
-    final IconButton? leading,
-    final List<Widget>? actions,
-  }) {
+  AppBar appBar({String? title, Widget? titleWidget, IconButton? leading, List<Widget>? actions}) {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
       leading: leading,
@@ -652,12 +642,7 @@ class AppWidgetHelper {
     );
   }
 
-  Widget checkbox({
-    required final bool? value,
-    final ValueChanged<bool?>? onChanged,
-    final TextStyle? style,
-    final String? label,
-  }) {
+  Widget checkbox({required bool? value, ValueChanged<bool?>? onChanged, TextStyle? style, String? label}) {
     var checkbox = Checkbox(
       checkColor: Colors.white,
       fillColor: WidgetStateProperty.all(App.appBackgroundColor),
@@ -678,7 +663,7 @@ class AppWidgetHelper {
     return checkbox;
   }
 
-  RichText chordSection(final ChordSection chordSection, {required final TextStyle style}) {
+  RichText chordSection(ChordSection chordSection, {required TextStyle style}) {
     return RichText(
       text: TextSpan(text: chordSection.sectionVersion.toString(), style: style),
       //  don't allow the rich text to wrap:

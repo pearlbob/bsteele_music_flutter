@@ -24,14 +24,9 @@ class SheetNotationList {
       const double fontSize = 15; //  fixme
       switch (display) {
         case .section:
-          return SheetSectionTextNotation(
-            display,
-          );
+          return SheetSectionTextNotation(display);
         case .measureCount:
-          return SheetMeasureCountTextNotation(
-            display,
-            activeHeight: fontSize,
-          );
+          return SheetMeasureCountTextNotation(display, activeHeight: fontSize);
         case .chords:
           return SheetChordTextNotation(display);
         case .lyrics:
@@ -39,21 +34,37 @@ class SheetNotationList {
         case .guitarFingerings:
           return SheetTextNotation(display, activeHeight: fontSize * 4); // fixme temp
         case .pianoChords:
-          return SheetChordStaffNotation(display,
-              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+          return SheetChordStaffNotation(
+            display,
+            preHeight: staffMarginHeight,
+            activeHeight: staffHeight,
+            postHeight: staffMarginHeight,
+          );
         case .pianoTreble:
-          return SheetTrebleStaffNotation(display,
-              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+          return SheetTrebleStaffNotation(
+            display,
+            preHeight: staffMarginHeight,
+            activeHeight: staffHeight,
+            postHeight: staffMarginHeight,
+          );
         case .pianoBass: //  piano left hand
-          return SheetBassStaffNotation(display,
-              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+          return SheetBassStaffNotation(
+            display,
+            preHeight: staffMarginHeight,
+            activeHeight: staffHeight,
+            postHeight: staffMarginHeight,
+          );
         case .bassNoteNumbers:
           return SheetBassNoteNumbersTextNotation(display, activeHeight: fontSize * 2);
         case .bassNotes:
           return SheetBassNotesTextNotation(display, activeHeight: fontSize * 2);
         case .bass8vb:
-          return SheetBass8vbStaffNotation(display,
-              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+          return SheetBass8vbStaffNotation(
+            display,
+            preHeight: staffMarginHeight,
+            activeHeight: staffHeight,
+            postHeight: staffMarginHeight,
+          );
       }
     }, growable: false);
 

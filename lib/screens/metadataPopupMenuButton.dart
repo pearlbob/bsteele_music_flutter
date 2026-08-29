@@ -14,7 +14,7 @@ const Level _logSelected = Level.debug;
 
 class MetadataPopupMenuButton {
   static Widget button({
-    final String? title,
+    String? title,
     TextStyle? style,
     PopupMenuItemSelected<NameValueMatcher>? onSelected,
     bool showAllValues = true,
@@ -27,15 +27,14 @@ class MetadataPopupMenuButton {
       onSelected: (value) {
         logger.i('selected parent: $value'); //fixme: not used
       },
-      constraints: const BoxConstraints(
-        maxWidth: 25.0 * 56.0,
-      ),
+      constraints: const BoxConstraints(maxWidth: 25.0 * 56.0),
       itemBuilder: (BuildContext context) {
         //  find all name/values in use
         SplayTreeSet<NameValue> nameValues = SplayTreeSet();
         for (var songIdMetadata in SongMetadata.idMetadata) {
           nameValues.addAll(
-              songIdMetadata.nameValues.where((nv) => showAllValues || !SongMetadataGeneratedValue.isGenerated(nv)));
+            songIdMetadata.nameValues.where((nv) => showAllValues || !SongMetadataGeneratedValue.isGenerated(nv)),
+          );
         }
         logger.log(_logLists, 'lists.build: ${SongMetadata.idMetadata}');
         SplayTreeSet<String> names = SplayTreeSet()..addAll(nameValues.map((e) => e.name));
@@ -45,8 +44,10 @@ class MetadataPopupMenuButton {
         var fontSize = style!.fontSize ?? appDefaultFontSize;
         var offset = Offset(fontSize * 4, fontSize / 2);
         for (var name in names) {
-          List<NameValueMatcher> matcherItems =
-              nameValues.where((e) => e.name == name).map((e) => NameValueMatcher.value(e)).toList(growable: true);
+          List<NameValueMatcher> matcherItems = nameValues
+              .where((e) => e.name == name)
+              .map((e) => NameValueMatcher.value(e))
+              .toList(growable: true);
           if (showAllFilters) {
             matcherItems.add(NameValueMatcher.anyValue(name));
             matcherItems.add(NameValueMatcher.noValue(name));
@@ -56,7 +57,8 @@ class MetadataPopupMenuButton {
             items: matcherItems,
             style: style,
             offset: offset,
-            onSelected: onSelected ??
+            onSelected:
+                onSelected ??
                 (value) {
                   logger.log(_logSelected, 'selected: $value');
                 },
@@ -70,14 +72,8 @@ class MetadataPopupMenuButton {
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
-            title ?? 'Metadata selection',
-            style: style,
-          ),
-          Icon(
-            Icons.arrow_drop_down_sharp,
-            size: (style.fontSize ?? appDefaultFontSize) * 2,
-          ),
+          Text(title ?? 'Metadata selection', style: style),
+          Icon(Icons.arrow_drop_down_sharp, size: (style.fontSize ?? appDefaultFontSize) * 2),
         ],
       ),
     );

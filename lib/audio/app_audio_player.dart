@@ -1,7 +1,7 @@
 import 'audio_player_stub.dart'
-// ignore: uri_does_not_exist
+    // ignore: uri_does_not_exist
     if (dart.library.io) 'package:bsteele_music_flutter/audio/mock_audio_player.dart'
-// ignore: uri_does_not_exist
+    // ignore: uri_does_not_exist
     if (dart.library.html) 'package:bsteele_music_flutter/audio/web_audio_player.dart';
 
 abstract class AppAudioPlayer {

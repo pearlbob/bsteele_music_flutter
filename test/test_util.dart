@@ -143,7 +143,7 @@ class DropDownFinderByAppKey extends MatchFinder {
         (candidate.widget.key as ValueKey<String>).value.startsWith('_appKey.name')); //  fixme
   }
 
-// final AppKeyEnum _appKey;
+  // final AppKeyEnum _appKey;
 }
 
 class Find {
@@ -206,17 +206,17 @@ class Find {
     return ret;
   }
 
-// static DropdownButton<musical_key.MajorKey> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
-//   var textFinder = DropDownFinderByAppKey(appKeyEnum);
-//   var ret = textFinder.evaluate().first.widget as DropdownButton<musical_key.MajorKey>;
-//   return ret;
-// }
+  // static DropdownButton<musical_key.MajorKey> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
+  //   var textFinder = DropDownFinderByAppKey(appKeyEnum);
+  //   var ret = textFinder.evaluate().first.widget as DropdownButton<musical_key.MajorKey>;
+  //   return ret;
+  // }
 
-// static Widget findGlobalObjectKeyWidget(String valueKeyString) {
-//   var _textFinder = _GlobalObjectKeyFinder(valueKeyString);
-//   expect(_textFinder, findsOneWidget);
-//   return _textFinder.evaluate().first.widget;
-// }
+  // static Widget findGlobalObjectKeyWidget(String valueKeyString) {
+  //   var _textFinder = _GlobalObjectKeyFinder(valueKeyString);
+  //   expect(_textFinder, findsOneWidget);
+  //   return _textFinder.evaluate().first.widget;
+  // }
 }
 
 class RegexpTextFinder extends MatchFinder {

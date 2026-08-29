@@ -82,7 +82,7 @@ class SongMaster extends ChangeNotifier {
   }
 
   //  public only for testing
-  processTime(final double time) {
+  processTime(double time) {
     final double dt = time - _lastTime;
     //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
     _lastTime = time;
@@ -384,7 +384,7 @@ class SongMaster extends ChangeNotifier {
     _lastDrumTempoT = 0;
   }
 
-  _resetSongStart(final double time, final int momentNumber) {
+  _resetSongStart(double time, int momentNumber) {
     if (_momentNumber != momentNumber) {
       logger.log(
         _logRestart,
@@ -433,7 +433,7 @@ class SongMaster extends ChangeNotifier {
 
   /// Play a song in real time
   playSong(
-    final Song song, { //
+    Song song, { //
     DrumParts? drumParts,
     int? bpm,
   }) {
@@ -477,13 +477,13 @@ class SongMaster extends ChangeNotifier {
     _skipToCurrentSection = true;
   }
 
-  skipToMomentNumber(final Song song, final int momentNumber) {
+  skipToMomentNumber(Song song, int momentNumber) {
     _song = song.copyWith();
     _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.songMoments.length ?? 1) - 1);
   }
 
   /// Play a drums in real time
-  void playDrums(final Song song, final DrumParts? drumParts, {int? bpm}) {
+  void playDrums(Song song, DrumParts? drumParts, {int? bpm}) {
     _song = song.copyWith();
     _bpm = bpm ?? _song?.beatsPerMinute ?? MusicConstants.defaultBpm;
     _drumParts = drumParts;
@@ -513,7 +513,7 @@ class SongMaster extends ChangeNotifier {
     _drumParts = null; //  stop the drums
   }
 
-  void pause(final Song song) {
+  void pause(Song song) {
     _song = song.copySong(); //  allow for play modifications
     if (songUpdateState != .pause) {
       _momentNumber ??= 0;
@@ -545,7 +545,7 @@ class SongMaster extends ChangeNotifier {
     _repeatSection = Util.intLimit(_repeatSection + 1, 1, 2); //  limit the number of sections to repeat
   }
 
-  void _performDrumParts(double time, int bpm, final DrumParts drumParts) {
+  void _performDrumParts(double time, int bpm, DrumParts drumParts) {
     //  fixme:  even beat parts likely don't work on 3/4 or 6/8
     logger.t('_performDrumParts: $time - $_songStart = ${time - (_songStart ?? 0)}');
     int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);

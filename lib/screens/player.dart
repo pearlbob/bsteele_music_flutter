@@ -77,7 +77,7 @@ const Level _logSongMaster = .trace;
 const Level _logSongMasterBump = .trace;
 const Level _logLeaderSongUpdate = .trace;
 const Level _logScrollAnimation = .trace;
-const Level _logScrollPosition = .info;
+const Level _logScrollPosition = .trace;
 // const Level _logScrollMetricsNotification = .trace;
 const Level _logScreenTap = .info;
 const Level _logSongList = .trace;
@@ -239,7 +239,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     });
   }
 
-  _assignNewSong(final Song song) {
+  _assignNewSong(Song song) {
     widget._song = song;
     _song = song;
     _drumParts = _drumPartsList.songMatch(_song) ?? app.selectedDrumParts ?? _defaultDrumParts;
@@ -1369,7 +1369,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     );
   }
 
-  KeyEventResult _playerOnKeyEvent(final FocusNode node, final KeyEvent e) {
+  KeyEventResult _playerOnKeyEvent(FocusNode node, KeyEvent e) {
     logger.log(_logKeyboard, '_playerOnKeyEvent(): ${e.runtimeType}: ${e.logicalKey.keyLabel}');
 
     if (!_playerIsOnTop) {
@@ -1595,7 +1595,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   /// bump the bpm up or down
-  _bpmBump(final int bump) {
+  _bpmBump(int bump) {
     int nowUs = DateTime.now().microsecondsSinceEpoch;
 
     if (nowUs - _lastBpmBumpUs < 0.5 * Duration.microsecondsPerSecond) {
@@ -1624,7 +1624,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   /// bump by section only if paused
-  _bump(final int bump) {
+  _bump(int bump) {
     switch (_songUpdateState) {
       case .idle:
       case .none:
@@ -1640,7 +1640,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
   }
 
-  _sectionBump(final int bump) {
+  _sectionBump(int bump) {
     logger.log(_logSongMasterBump, '  _sectionBump($bump): moment: ${_songMaster.momentNumber}');
 
     var lyricSectionIndex = _song.getSongMoment(_songMaster.momentNumber ?? 0)?.lyricSection.index;
@@ -1658,7 +1658,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   /// note: only bumps one row at a time
-  _rowBump(final int bump) {
+  _rowBump(int bump) {
     logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber}');
     if (_songMaster.momentNumber != null) {
       if (bump > 0) {
@@ -1680,7 +1680,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   // /// note: only bumps one row at a time
-  // _displayRowBump(final int bump) {
+  // _displayRowBump( int bump) {
   //   logger.log(_logSongMasterBump, '_displayRowBump($bump): moment: ${_songMaster.momentNumber}');
   //   if (_songMaster.momentNumber != null) {
   //     SongMoment? originalMoment = _song.getSongMoment(_songMaster.momentNumber!);
@@ -1722,7 +1722,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   //   }
   // }
 
-  _scrollToLyricSection(int index, {final bool force = false}) {
+  _scrollToLyricSection(int index, {bool force = false}) {
     if (widget._song.lyricSections.isEmpty) {
       return; //  safety
     }
@@ -1745,7 +1745,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _itemScrollToRow(_lyricsTable.lyricSectionIndexToRow(index), force: force, priorIndex: priorIndex);
   }
 
-  _itemScrollToRow(final int requestedRow, {final bool force = false, int? priorIndex}) {
+  _itemScrollToRow(int requestedRow, {bool force = false, int? priorIndex}) {
     int row = Util.intLimit(requestedRow, 0, _lyricsTable.rowCount);
 
     //  guess a duration based on the song and the row
@@ -1774,7 +1774,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   ///  deal with new row requests while still scrolling to the old row
-  Future<void> _scrollToScrollTargetRow(final int row, final Duration duration) async {
+  Future<void> _scrollToScrollTargetRow(int row, Duration duration) async {
     _scrollController.jumpTo(_lyricsTable.rowToPixelOffset(row) - boxMarker);
   }
 
@@ -1790,7 +1790,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   //   return sb.toString();
   // }
 
-  _selectMoment(final int momentNumber) {
+  _selectMoment(int momentNumber) {
     var moment = _song.getSongMoment(momentNumber);
     if (moment == null) {
       return;
@@ -1848,7 +1848,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   //  only send updates when required
-  _setIndexRow(final int index, final int row) {
+  _setIndexRow(int index, int row) {
     switch (appOptions.playerScrollHighlight) {
       case .off:
         break;
@@ -1861,11 +1861,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   //  only send updates when required
-  _setPlayMomentNotifier(
-    final SongUpdateState songUpdateState,
-    final int playMomentNumber,
-    final SongMoment? songMoment,
-  ) {
+  _setPlayMomentNotifier(SongUpdateState songUpdateState, int playMomentNumber, SongMoment? songMoment) {
     List<GridCoordinate> songMomentToGridCoordinate = _song.songMomentToGridCoordinate;
     if (songMomentToGridCoordinate.isNotEmpty) {
       _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment);
@@ -2036,7 +2032,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(_logScroll, 'simpleStop():');
   }
 
-  void _performPause({final bool force = false}) {
+  void _performPause({bool force = false}) {
     var p = force;
     setState(() {
       switch (_songUpdateState) {
@@ -2100,7 +2096,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     return _anchorUrlStart + Uri.encodeFull(widget._song.artist);
   }
 
-  void _navigateToEdit(final BuildContext context, Song song) async {
+  void _navigateToEdit(BuildContext context, Song song) async {
     _playerIsOnTop = false;
     _cancelIdleTimer();
     Navigator.pushNamed(context, Edit.routeName).then((value) {

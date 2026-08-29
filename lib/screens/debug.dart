@@ -31,12 +31,7 @@ class DebugState extends State<Debug> {
         style: style,
         child: const Padding(
           padding: EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              Text('empty now'),
-            ],
-          ),
+          child: Column(crossAxisAlignment: .start, children: [Text('empty now')]),
         ),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(),

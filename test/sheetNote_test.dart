@@ -5,8 +5,6 @@ import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
-
-
 void main() {
   Logger.level = Level.info;
 
@@ -36,6 +34,4 @@ void main() {
       expect(set2.contains(SheetDisplay.bassNotes), isFalse);
     }
   });
-
-
 }

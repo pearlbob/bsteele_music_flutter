@@ -53,8 +53,14 @@ bool _isSwing = true;
 TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
 int _bpm = 106;
 
-final _defaultChord = Chord(ScaleChord(ScaleNote.C, ChordDescriptor.defaultChordDescriptor()), 4, 4, null,
-    ChordAnticipationOrDelay.defaultValue, false);
+final _defaultChord = Chord(
+  ScaleChord(ScaleNote.C, ChordDescriptor.defaultChordDescriptor()),
+  4,
+  4,
+  null,
+  ChordAnticipationOrDelay.defaultValue,
+  false,
+);
 
 Chord _getChord() {
   if (app.selectedSong.songMoments.isNotEmpty) {
@@ -129,73 +135,71 @@ class DetailState extends State<Detail> {
     _bpmTextEditingController.text = _bpm.toString();
 
     //  sheet display enables
-    Widget sheetDisplayEnableOptionsWidget = const SizedBox(
-      height: 0,
-    );
+    Widget sheetDisplayEnableOptionsWidget = const SizedBox(height: 0);
     if (_options) {
       List<Widget> children = [];
       for (var display in SheetDisplay.values) {
         var name = Util.firstToUpper(Util.camelCaseToLowercaseSpace(display.name));
-        children.add(Row(
-          children: [
-            appWidgetHelper.checkbox(
-              value: sheetDisplayEnables[display.index],
-              onChanged: (bool? value) {
-                if (value != null) {
-                  setState(() {
-                    sheetDisplayEnables[display.index] = value;
-                    storeSheetDisplayEnables();
-                    logger.i('detail: $name: ${sheetDisplayEnables[display.index]}');
-                  });
-                }
-              },
-            ),
-            TextButton(
-              child: Text(
-                name,
-                style: _style,
+        children.add(
+          Row(
+            children: [
+              appWidgetHelper.checkbox(
+                value: sheetDisplayEnables[display.index],
+                onChanged: (bool? value) {
+                  if (value != null) {
+                    setState(() {
+                      sheetDisplayEnables[display.index] = value;
+                      storeSheetDisplayEnables();
+                      logger.i('detail: $name: ${sheetDisplayEnables[display.index]}');
+                    });
+                  }
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  sheetDisplayEnables[display.index] = !sheetDisplayEnables[display.index];
-                  storeSheetDisplayEnables();
-                  logger.i('TextButton $name: ${sheetDisplayEnables[display.index]}');
-                });
-              },
-            ),
-          ],
-        ));
+              TextButton(
+                child: Text(name, style: _style),
+                onPressed: () {
+                  setState(() {
+                    sheetDisplayEnables[display.index] = !sheetDisplayEnables[display.index];
+                    storeSheetDisplayEnables();
+                    logger.i('TextButton $name: ${sheetDisplayEnables[display.index]}');
+                  });
+                },
+              ),
+            ],
+          ),
+        );
       }
 
       children.add(const AppSpace());
-      children.add(appButton('Close the options', onPressed: () {
-        setState(() {
-          _options = false;
-        });
-      }, fontSize: _fontSize));
+      children.add(
+        appButton(
+          'Close the options',
+          onPressed: () {
+            setState(() {
+              _options = false;
+            });
+          },
+          fontSize: _fontSize,
+        ),
+      );
 
       sheetDisplayEnableOptionsWidget = Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: .start,
-          children: children,
-        ),
+        child: Column(mainAxisSize: .min, crossAxisAlignment: .start, children: children),
       );
     }
 
-    const sheetMusicSizedBox = SizedBox(
-      width: .infinity,
-      height: 1000.0,
-    );
+    const sheetMusicSizedBox = SizedBox(width: .infinity, height: 1000.0);
 
     SheetMusicPainter sheetMusicPainter = SheetMusicPainter();
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(
-          title: '${app.selectedSong}'
-              ' (sheet music)'),
+        title:
+            '${app.selectedSong}'
+            ' (sheet music)',
+      ),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -206,10 +210,7 @@ class DetailState extends State<Detail> {
                   painter: _FretBoardPainter(),
                   isComplex: true,
                   willChange: false,
-                  child: const SizedBox(
-                    width: double.infinity,
-                    height: 200.0,
-                  ),
+                  child: const SizedBox(width: double.infinity, height: 200.0),
                 ),
               const AppSpace(),
               Row(
@@ -220,22 +221,12 @@ class DetailState extends State<Detail> {
                   Column(
                     crossAxisAlignment: .start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Key: $_key',
-                            style: _style,
-                          ),
-                        ],
-                      ),
+                      Row(children: [Text('Key: $_key', style: _style)]),
                       Row(
                         children: [
                           SizedBox(
                             width: 12 * _fontSize,
-                            child: Text(
-                              'Chord: ${_getChord()}',
-                              style: _style,
-                            ),
+                            child: Text('Chord: ${_getChord()}', style: _style),
                           ),
                         ],
                       ),
@@ -344,10 +335,7 @@ class DetailState extends State<Detail> {
                             },
                           ),
                           TextButton(
-                            child: Text(
-                              '+dot',
-                              style: _style,
-                            ),
+                            child: Text('+dot', style: _style),
                             onPressed: () {
                               setState(() {
                                 _isDot = !_isDot;
@@ -356,20 +344,18 @@ class DetailState extends State<Detail> {
                           ),
                           const AppSpace(),
                           appWidgetHelper.checkbox(
-                              value: _isTie,
-                              onChanged: (bool? value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _isTie = value;
-                                    logger.i('_isTie: $_isTie');
-                                  });
-                                }
-                              }),
+                            value: _isTie,
+                            onChanged: (bool? value) {
+                              if (value != null) {
+                                setState(() {
+                                  _isTie = value;
+                                  logger.i('_isTie: $_isTie');
+                                });
+                              }
+                            },
+                          ),
                           TextButton(
-                            child: Text(
-                              '+tie',
-                              style: _style,
-                            ),
+                            child: Text('+tie', style: _style),
                             onPressed: () {
                               setState(() {
                                 _isTie = !_isTie;
@@ -382,10 +368,7 @@ class DetailState extends State<Detail> {
                       const AppSpace(),
                       Row(
                         children: [
-                          Text(
-                            'Lyrics:',
-                            style: _style,
-                          ),
+                          Text('Lyrics:', style: _style),
                           const AppSpace(),
                           SizedBox(
                             width: 250,
@@ -393,9 +376,7 @@ class DetailState extends State<Detail> {
                             child: TextField(
                               //    key: const ValueKey('lyrics'),
                               controller: _lyricsTextEditingController,
-                              decoration: const InputDecoration(
-                                hintText: 'Enter lyrics',
-                              ),
+                              decoration: const InputDecoration(hintText: 'Enter lyrics'),
                               maxLength: null,
                               style: _style,
                             ),
@@ -404,29 +385,21 @@ class DetailState extends State<Detail> {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 10,
-                  ),
+                  Container(width: 10),
                   // timing
                   Column(
                     crossAxisAlignment: .start,
                     children: [
                       Row(
                         children: [
-                          Text(
-                            'Time:',
-                            style: _style,
-                          ),
+                          Text('Time:', style: _style),
                           const AppSpace(),
                           DropdownButton<TimeSignature>(
                             items: knownTimeSignatures.map((TimeSignature value) {
                               return DropdownMenuItem<TimeSignature>(
                                 key: ValueKey('timeSignature_${value.beatsPerBar}_${value.unitsPerMeasure}'),
                                 value: value,
-                                child: Text(
-                                  value.toString(),
-                                  style: _style,
-                                ),
+                                child: Text(value.toString(), style: _style),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -446,18 +419,13 @@ class DetailState extends State<Detail> {
                       ),
                       Row(
                         children: [
-                          Text(
-                            'BPM:',
-                            style: _style,
-                          ),
+                          Text('BPM:', style: _style),
                           SizedBox(
                             width: _fontSize * 2,
                             child: TextField(
                               //    key: const ValueKey('lyrics'),
                               controller: _bpmTextEditingController,
-                              decoration: const InputDecoration(
-                                hintText: 'Enter BPM',
-                              ),
+                              decoration: const InputDecoration(hintText: 'Enter BPM'),
                               maxLength: null,
                               style: _style,
                               onChanged: (value) {
@@ -491,10 +459,7 @@ class DetailState extends State<Detail> {
                             },
                           ),
                           TextButton(
-                            child: Text(
-                              'Swing',
-                              style: _style,
-                            ),
+                            child: Text('Swing', style: _style),
                             onPressed: () {
                               setState(() {
                                 _isSwing = !_isSwing;
@@ -519,11 +484,15 @@ class DetailState extends State<Detail> {
                   appButton('Loop', onPressed: () {}, fontSize: _fontSize),
                   appButton('Play', onPressed: () {}, fontSize: _fontSize),
                   appButton('Stop', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Options', onPressed: () {
-                    setState(() {
-                      _options = !_options;
-                    });
-                  }, fontSize: _fontSize),
+                  appButton(
+                    'Options',
+                    onPressed: () {
+                      setState(() {
+                        _options = !_options;
+                      });
+                    },
+                    fontSize: _fontSize,
+                  ),
                 ],
               ),
               const AppSpace(),
@@ -660,15 +629,8 @@ class DetailState extends State<Detail> {
     return KeyEventResult.ignored;
   }
 
-  ElevatedButton _restButton(
-    String character, {
-    required VoidCallback? onPressed,
-  }) {
-    return appNoteButton(
-      character,
-      onPressed: onPressed,
-      height: 1,
-    );
+  ElevatedButton _restButton(String character, {required VoidCallback? onPressed}) {
+    return appNoteButton(character, onPressed: onPressed, height: 1);
   }
 
   @override
@@ -748,34 +710,40 @@ class _FretBoardPainter extends CustomPainter {
       double dotRadius = 10;
       for (var i = 0; i < 4; i++) {
         canvas.drawArc(
-            Rect.fromCenter(
-                center: Offset((fretLoc(2 + 2 * i) + fretLoc(2 + 2 * i + 1)) / 2, bassFretY + bassFretHeight / 2),
-                width: 2 * dotRadius,
-                height: 2 * dotRadius),
-            0,
-            2 * pi,
-            true,
-            _dotColor);
+          Rect.fromCenter(
+            center: Offset((fretLoc(2 + 2 * i) + fretLoc(2 + 2 * i + 1)) / 2, bassFretY + bassFretHeight / 2),
+            width: 2 * dotRadius,
+            height: 2 * dotRadius,
+          ),
+          0,
+          2 * pi,
+          true,
+          _dotColor,
+        );
       }
       //  double dots on fret 12
       canvas.drawArc(
-          Rect.fromCenter(
-              center: Offset((fretLoc(11) + fretLoc(12)) / 2, bassFretY + bassFretHeight / 4),
-              width: 2 * dotRadius,
-              height: 2 * dotRadius),
-          0,
-          2 * pi,
-          true,
-          _dotColor);
+        Rect.fromCenter(
+          center: Offset((fretLoc(11) + fretLoc(12)) / 2, bassFretY + bassFretHeight / 4),
+          width: 2 * dotRadius,
+          height: 2 * dotRadius,
+        ),
+        0,
+        2 * pi,
+        true,
+        _dotColor,
+      );
       canvas.drawArc(
-          Rect.fromCenter(
-              center: Offset((fretLoc(11) + fretLoc(12)) / 2, bassFretY + bassFretHeight * 3 / 4),
-              width: 2 * dotRadius,
-              height: 2 * dotRadius),
-          0,
-          2 * pi,
-          true,
-          _dotColor);
+        Rect.fromCenter(
+          center: Offset((fretLoc(11) + fretLoc(12)) / 2, bassFretY + bassFretHeight * 3 / 4),
+          width: 2 * dotRadius,
+          height: 2 * dotRadius,
+        ),
+        0,
+        2 * pi,
+        true,
+        _dotColor,
+      );
     }
 
     //  compute scale notes
@@ -784,8 +752,11 @@ class _FretBoardPainter extends CustomPainter {
     musical_key.MajorKey rootKey = musical_key.MajorKey.getKeyByHalfStep(chord.scaleChord.scaleNote.halfStep);
     final fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
-      fretBoardNotes.add(_key.inKey(
-          scaleChord.chordDescriptor.isMajor() ? rootKey.getMajorScaleByNote(n) : rootKey.getMinorScaleByNote(n)));
+      fretBoardNotes.add(
+        _key.inKey(
+          scaleChord.chordDescriptor.isMajor() ? rootKey.getMajorScaleByNote(n) : rootKey.getMinorScaleByNote(n),
+        ),
+      );
     }
 
     fretBoardNotes.addAll(scaleChord.chordNotes(rootKey));
@@ -796,8 +767,9 @@ class _FretBoardPainter extends CustomPainter {
     for (var fret = 0; fret <= 12; fret++) {
       for (var bassString = 0; bassString < 4; bassString++) {
         var halfStep = (bassString * 5 + fret) % MusicConstants.halfStepsPerOctave;
-        var scaleNote =
-            _key.inKey(rootKey.getKeyScaleNoteByHalfStep(bassHalfStepOffset - rootKey.getHalfStep() + halfStep));
+        var scaleNote = _key.inKey(
+          rootKey.getKeyScaleNoteByHalfStep(bassHalfStepOffset - rootKey.getHalfStep() + halfStep),
+        );
 
         if (fretBoardNotes.contains(scaleNote) || fretBoardNotes.contains(scaleNote.alias)) {
           var halfStepOff = (scaleNote.halfStep - rootKey.halfStep) % MusicConstants.halfStepsPerOctave;
@@ -828,39 +800,47 @@ class _FretBoardPainter extends CustomPainter {
     fret = max(0, min(12, fret));
     bassString = max(0, min(3, bassString));
     const double pressRadius = 20;
-    var offset = Offset(fretLoc(fret) - pressRadius - 4,
-        bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8);
+    var offset = Offset(
+      fretLoc(fret) - pressRadius - 4,
+      bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8,
+    );
     canvas.drawCircle(offset, pressRadius, paint);
     canvas.drawCircle(offset, pressRadius, _blackOutline);
     if (noteChar != null && _isShowScaleNotes) {
       // create a paragraph of text using ParagraphBuilder.
-      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
-        ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
-      )
-        ..pushStyle(ui.TextStyle(
+      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(ui.ParagraphStyle(textDirection: ui.TextDirection.ltr))
+        ..pushStyle(
+          ui.TextStyle(
             color: Colors.black,
             fontSize: _fontSize,
             fontWeight: .bold,
-            fontFamilyFallback: appFontFamilyFallback))
+            fontFamilyFallback: appFontFamilyFallback,
+          ),
+        )
         ..addText(noteChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
       canvas.drawParagraph(
-          paragraph, Offset(offset.dx - paragraph.maxIntrinsicWidth / 2, offset.dy - paragraph.height / 2));
+        paragraph,
+        Offset(offset.dx - paragraph.maxIntrinsicWidth / 2, offset.dy - paragraph.height / 2),
+      );
     }
     if (scaleChar != null && _isShowScaleNumbers) {
       // To create a paragraph of text, we use ParagraphBuilder.
-      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
-        ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
-      )
-        ..pushStyle(ui.TextStyle(
+      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(ui.ParagraphStyle(textDirection: ui.TextDirection.ltr))
+        ..pushStyle(
+          ui.TextStyle(
             color: Colors.black,
             fontSize: _fontSize,
             fontWeight: .bold,
-            fontFamilyFallback: appFontFamilyFallback))
+            fontFamilyFallback: appFontFamilyFallback,
+          ),
+        )
         ..addText(scaleChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
-      canvas.drawParagraph(paragraph,
-          Offset(offset.dx - pressRadius * 3 / 2 - paragraph.maxIntrinsicWidth, offset.dy - paragraph.height / 2));
+      canvas.drawParagraph(
+        paragraph,
+        Offset(offset.dx - pressRadius * 3 / 2 - paragraph.maxIntrinsicWidth, offset.dy - paragraph.height / 2),
+      );
     }
   }
 

@@ -52,21 +52,28 @@ class SongPerformanceDaemon {
     var dueFormat = intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(due));
     var nowMs = DateTime.now().millisecondsSinceEpoch;
 
-    if (_lastStore != appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch //  store required
-            &&
-            nowMs >= due //  been idle long enough
-        ) {
-      logger.i('SongPerformanceDaemon update: '
-          '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(nowMs))} > $dueFormat');
+    if (_lastStore !=
+            appOptions
+                .lastAllSongPerformancesStoreMillisecondsSinceEpoch //  store required
+                &&
+        nowMs >=
+            due //  been idle long enough
+            ) {
+      logger.i(
+        'SongPerformanceDaemon update: '
+        '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(nowMs))} > $dueFormat',
+      );
       saveAllSongPerformances().then((response) {
         appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch = nowMs;
         _lastStore = appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
       });
     } else {
-      logger.i('SongPerformanceDaemon callback: not needed: '
-          '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(_lastStore))}'
-          ', ${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(nowMs))}'
-          ' ${nowMs < due ? '<' : '>'} $dueFormat');
+      logger.i(
+        'SongPerformanceDaemon callback: not needed: '
+        '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(_lastStore))}'
+        ', ${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(nowMs))}'
+        ' ${nowMs < due ? '<' : '>'} $dueFormat',
+      );
     }
   }
 

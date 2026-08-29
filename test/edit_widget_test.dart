@@ -46,14 +46,14 @@ void main() async {
 
     await tester.pumpWidget(
       MaterialApp(
-          title: 'Edit Screen',
-          home: ChangeNotifierProvider<AppOptions>(
-              create: (_) => AppOptions(),
-              builder: (BuildContext context, Widget? child) {
-                return Edit(
-                  initialSong: Song.createEmptySong(),
-                );
-              })),
+        title: 'Edit Screen',
+        home: ChangeNotifierProvider<AppOptions>(
+          create: (_) => AppOptions(),
+          builder: (BuildContext context, Widget? child) {
+            return Edit(initialSong: Song.createEmptySong());
+          },
+        ),
+      ),
     );
 
     await tester.pumpAndSettle(const Duration(seconds: 1));
@@ -174,7 +174,7 @@ void main() async {
     //   }
     // }
 
-//  wait a while
-//     await tester.pump(new Duration(milliseconds: 50));
+    //  wait a while
+    //     await tester.pump(new Duration(milliseconds: 50));
   });
 }

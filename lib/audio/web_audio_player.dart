@@ -9,11 +9,11 @@ class WebAudioPlayer implements AppAudioPlayer {
   //  private constructor for singleton
   WebAudioPlayer._privateConstructor() {
     try {
-//      for (final Pitch pitch in Pitch.flats) {
-//        String s = 'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3';
-//        logger.i('piano: $s');
-//        _audioFilePlayer.bufferFile(s);
-//      }
+      //      for (final Pitch pitch in Pitch.flats) {
+      //        String s = 'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3';
+      //        logger.i('piano: $s');
+      //        _audioFilePlayer.bufferFile(s);
+      //      }
       for (int i = 0; i < 40; i++) {
         String path = 'audio/bass_$i.mp3';
         _audioFilePlayer.bufferFile(path);

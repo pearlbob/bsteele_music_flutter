@@ -46,65 +46,53 @@ class SongsState extends State<Songs> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(
-            mainAxisAlignment: .spaceBetween,
-            crossAxisAlignment: .start,
-            children: <Widget>[
-              app.messageTextWidget(),
-              const AppSpace(),
-              appButton(
-                'Read local file',
+          mainAxisAlignment: .spaceBetween,
+          crossAxisAlignment: .start,
+          children: <Widget>[
+            app.messageTextWidget(),
+            const AppSpace(),
+            appButton(
+              'Read local file',
+              onPressed: () {
+                _filePick(context);
+              },
+            ),
+            const AppSpace(space: 20),
+            appButton(
+              'Write all songs to the local file: $fileLocation',
+              onPressed: () {
+                _writeAll();
+              },
+            ),
+            const AppSpace(space: 20),
+            AppTooltip(
+              message: 'A reload of the application will return them all.',
+              child: appButton(
+                'Remove all songs from the current list',
                 onPressed: () {
-                  _filePick(context);
+                  setState(() {
+                    app.removeAllSongs();
+                  });
                 },
               ),
-              const AppSpace(
-                space: 20,
-              ),
-              appButton(
-                'Write all songs to the local file: $fileLocation',
+            ),
+            const AppSpace(verticalSpace: 40),
+            AppTooltip(
+              message:
+                  'Edit the last song the editor validated.\n'
+                  'This can be used to recover an edited song... if you are lucky.',
+              child: appButton(
+                'Edit the last song edited',
                 onPressed: () {
-                  _writeAll();
+                  _navigateToLastEdit();
                 },
               ),
-              const AppSpace(
-                space: 20,
-              ),
-              AppTooltip(
-                message: 'A reload of the application will return them all.',
-                child: appButton(
-                  'Remove all songs from the current list',
-                  onPressed: () {
-                    setState(() {
-                      app.removeAllSongs();
-                    });
-                  },
-                ),
-              ),
-              const AppSpace(
-                verticalSpace: 40,
-              ),
-              AppTooltip(
-                message: 'Edit the last song the editor validated.\n'
-                    'This can be used to recover an edited song... if you are lucky.',
-                child: appButton(
-                  'Edit the last song edited',
-                  onPressed: () {
-                    _navigateToLastEdit();
-                  },
-                ),
-              ),
-              const AppSpace(
-                verticalSpace: 20,
-              ),
-              Text(
-                'Song count:  ${app.allSongs.length}',
-                style: generateAppTextStyle(),
-              ),
-              Text(
-                'Most recent song update: ${_mostRecent()}',
-                style: generateAppTextStyle(),
-              ),
-            ]),
+            ),
+            const AppSpace(verticalSpace: 20),
+            Text('Song count:  ${app.allSongs.length}', style: generateAppTextStyle()),
+            Text('Most recent song update: ${_mostRecent()}', style: generateAppTextStyle()),
+          ],
+        ),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(),
     );
@@ -143,9 +131,12 @@ class SongsState extends State<Songs> {
     forLoop:
     for (final Song song in songsRead) {
       if (app.allSongs.contains(song)) {
-        Song? oldSong = app.allSongs.firstWhere((v) => song.compareTo(v) == 0, orElse: () {
-          return Song.theEmptySong; // should never happen
-        });
+        Song? oldSong = app.allSongs.firstWhere(
+          (v) => song.compareTo(v) == 0,
+          orElse: () {
+            return Song.theEmptySong; // should never happen
+          },
+        );
         if (song.songBaseSameContent(oldSong)) {
           songsDuplicateCount++;
           continue;
@@ -181,70 +172,91 @@ class SongsState extends State<Songs> {
 
   Future<SongsDialogResponse> _diffWarningPopup(Song oldSong, Song newSong) async {
     PrettyDiffText prettyDiffText = PrettyDiffText(
-        oldText: Util.readableJson(oldSong.toJsonString()), newText: Util.readableJson(newSong.toJsonString()));
+      oldText: Util.readableJson(oldSong.toJsonString()),
+      newText: Util.readableJson(newSong.toJsonString()),
+    );
     logger.i('_diffWarningPopup( ${oldSong.songId.toString()} , ${newSong.songId.toString()})');
     SongsDialogResponse response = SongsDialogResponse.rejectAll;
     await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                '${oldSong.title} by ${oldSong.artist}'
-                '${oldSong.coverArtist.isNotEmpty ? ', cover by ${oldSong.coverArtist}' : ''}\n\n'
-                'The existing version of this song differs from the song read:',
-                style: const TextStyle(fontSize: 22, fontWeight: .bold),
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          '${oldSong.title} by ${oldSong.artist}'
+          '${oldSong.coverArtist.isNotEmpty ? ', cover by ${oldSong.coverArtist}' : ''}\n\n'
+          'The existing version of this song differs from the song read:',
+          style: const TextStyle(fontSize: 22, fontWeight: .bold),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              AppWrapFullWidth(
+                spacing: 20,
+                children: [
+                  Text('Legend:', style: prettyDiffText.defaultTextStyle),
+                  Text(
+                    'Existing, dated: '
+                    '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}'
+                    ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}',
+                    style: prettyDiffText.deletedTextStyle,
+                  ),
+                  Text(
+                    'Read, dated: '
+                    '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
+                    ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
+                    '${oldSong.lastModifiedTime > newSong.lastModifiedTime ? ' It\'s older!' : ''}',
+                    style: prettyDiffText.addedTextStyle,
+                  ),
+                ],
               ),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    AppWrapFullWidth(spacing: 20, children: [
-                      Text(
-                        'Legend:',
-                        style: prettyDiffText.defaultTextStyle,
-                      ),
-                      Text(
-                        'Existing, dated: '
-                        '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}'
-                        ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}',
-                        style: prettyDiffText.deletedTextStyle,
-                      ),
-                      Text(
-                        'Read, dated: '
-                        '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
-                        ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
-                        '${oldSong.lastModifiedTime > newSong.lastModifiedTime ? ' It\'s older!' : ''}',
-                        style: prettyDiffText.addedTextStyle,
-                      )
-                    ]),
-                    prettyDiffText
-                  ],
-                ),
+              prettyDiffText,
+            ],
+          ),
+        ),
+        actions: [
+          AppWrapFullWidth(
+            spacing: 20,
+            children: [
+              appButton(
+                'Accept',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  response = SongsDialogResponse.accept;
+                },
               ),
-              actions: [
-                AppWrapFullWidth(spacing: 20, children: [
-                  appButton('Accept', onPressed: () {
-                    Navigator.of(context).pop();
-                    response = SongsDialogResponse.accept;
-                  }),
-                  appButton('Reject', onPressed: () {
-                    Navigator.of(context).pop();
-                    response = SongsDialogResponse.reject;
-                  }),
-                ]),
-                const AppSpace(),
-                AppWrapFullWidth(spacing: 20, children: [
-                  appButton('Accept all songs', onPressed: () {
-                    Navigator.of(context).pop();
-                    response = SongsDialogResponse.acceptAll;
-                  }),
-                  appButton('Reject this and any more songs', onPressed: () {
-                    Navigator.of(context).pop();
-                    response = SongsDialogResponse.rejectAll;
-                  }),
-                ]),
-              ],
-              actionsAlignment: .start,
-              elevation: 24.0,
-            ));
+              appButton(
+                'Reject',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  response = SongsDialogResponse.reject;
+                },
+              ),
+            ],
+          ),
+          const AppSpace(),
+          AppWrapFullWidth(
+            spacing: 20,
+            children: [
+              appButton(
+                'Accept all songs',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  response = SongsDialogResponse.acceptAll;
+                },
+              ),
+              appButton(
+                'Reject this and any more songs',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  response = SongsDialogResponse.rejectAll;
+                },
+              ),
+            ],
+          ),
+        ],
+        actionsAlignment: .start,
+        elevation: 24.0,
+      ),
+    );
     return response;
   }
 

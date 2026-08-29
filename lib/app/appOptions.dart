@@ -80,7 +80,7 @@ class AppOptions extends ChangeNotifier {
     _prefs = await SharedPreferences.getInstance();
     await _load();
   }
-  
+
   Future<void> _load() async {
     var usTimer = UsTimer();
     _userDisplayStyle =
@@ -153,8 +153,8 @@ class AppOptions extends ChangeNotifier {
   }
 
   void clear() async {
-   await _prefs.clear();
-   await _load();
+    await _prefs.clear();
+    await _load();
   }
 
   /// A persistent debug flag for internal software development use.
@@ -179,46 +179,46 @@ class AppOptions extends ChangeNotifier {
     return ret;
   }
 
-  Future<bool> _readBool(final String key, {defaultValue = false}) async {
+  Future<bool> _readBool(String key, {defaultValue = false}) async {
     var value = _prefs.getBool(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
-  Future<int> _readInt(final String key, {defaultValue = 0}) async {
+  Future<int> _readInt(String key, {defaultValue = 0}) async {
     var value = _prefs.getInt(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
-  Future<double> _readDouble(final String key, {defaultValue = 0.0}) async {
+  Future<double> _readDouble(String key, {defaultValue = 0.0}) async {
     var value = _prefs.getDouble(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
-  Future<String> _readString(final String key, {defaultValue = ''}) async {
+  Future<String> _readString(String key, {defaultValue = ''}) async {
     var value = _prefs.getString(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
-  _saveBool(final String key, final bool value) async {
+  _saveBool(String key, bool value) async {
     await _prefs.setBool(key, value);
     notifyListeners();
   }
 
-  _saveInt(final String key, final int value) async {
+  _saveInt(String key, int value) async {
     await _prefs.setInt(key, value);
     notifyListeners();
   }
 
-  _saveDouble(final String key, final double value) async {
+  _saveDouble(String key, double value) async {
     await _prefs.setDouble(key, value);
     notifyListeners();
   }
 
-  _saveString(final String key, String value) async {
+  _saveString(String key, String value) async {
     await _prefs.setString(key, value);
     notifyListeners();
   }
@@ -455,7 +455,6 @@ class AppOptions extends ChangeNotifier {
   bool get simplifiedChords => _simplifiedChords;
   bool _simplifiedChords = false;
 
-
   set showRepeatCounts(bool value) {
     if (_showRepeatCounts == value) {
       return;
@@ -523,7 +522,6 @@ class AppOptions extends ChangeNotifier {
       logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
-
   }
 
   void storeSongMetadata() {

@@ -45,31 +45,28 @@ class AboutState extends State<About> with WidgetsBindingObserver {
         style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),
         child: SingleChildScrollView(
           child: Column(
-              mainAxisAlignment: .start,
-              crossAxisAlignment: .start,
-              children: <Widget>[
-                app.messageTextWidget(),
-                const AppSpace(),
-                const Text(
-                  'The bsteeleMusicApp has been written by bob.',
+            mainAxisAlignment: .start,
+            crossAxisAlignment: .start,
+            children: <Widget>[
+              app.messageTextWidget(),
+              const AppSpace(),
+              const Text('The bsteeleMusicApp has been written by bob.'),
+              AppTooltip(
+                message: 'Use this QR for the web version of the app.',
+                child: Image(
+                  image: const AssetImage('lib/assets/app_qr_code.png'),
+                  width: max(150, app.screenInfo.mediaWidth / 5),
+                  height: max(150, app.screenInfo.mediaWidth / 5),
+                  semanticLabel: "bsteele.com website",
                 ),
-                AppTooltip(
-                  message: 'Use this QR for the web version of the app.',
-                  child: Image(
-                    image: const AssetImage('lib/assets/app_qr_code.png'),
-                    width: max(150, app.screenInfo.mediaWidth / 5),
-                    height: max(150, app.screenInfo.mediaWidth / 5),
-                    semanticLabel: "bsteele.com website",
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    AppTooltip(
-                      message: 'Visit bob\'s website',
-                      child: AppWrap(children: [
-                        const Text(
-                          'See ',
-                        ),
+              ),
+              Row(
+                children: <Widget>[
+                  AppTooltip(
+                    message: 'Visit bob\'s website',
+                    child: AppWrap(
+                      children: [
+                        const Text('See '),
                         const AppSpace(horizontalSpace: 10),
                         InkWell(
                           onTap: () {
@@ -80,96 +77,76 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                             style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                           ),
                         ),
-                        const Text(
-                          '.',
-                        ),
-                      ]),
+                        const Text('.'),
+                      ],
                     ),
-                    const AppSpace(horizontalSpace: 20),
-                    AppTooltip(
-                        message: 'Native versions are available for the app here.',
-                        child: InkWell(
-                          onTap: () {
-                            openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
-                          },
-                          child: Text(
-                            'Download the app.',
-                            style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
-                          ),
-                        )),
-                  ],
-                ),
-                const AppSpace(),
-                AppWrapFullWidth(
-                  spacing: 20,
-                  children: [
-                    Text(
-                      'version: ${packageInfo.version}',
-                    ),
-                    if (isBeta)
-                      const Text(
-                        'beta  ',
-                      ),
-                    //  release notes
-                    InkWell(
+                  ),
+                  const AppSpace(horizontalSpace: 20),
+                  AppTooltip(
+                    message: 'Native versions are available for the app here.',
+                    child: InkWell(
                       onTap: () {
-                        //  why is this so hard?
-                        openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}release_notes.html');
+                        openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
                       },
                       child: Text(
-                        'Release Notes',
+                        'Download the app.',
                         style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                       ),
                     ),
-                    const Text(
-                      'Mode: ${kReleaseMode ? 'release' : 'debug'}',
-                    ),
-                    //  utc date
-                    Text(
-                      'utcDate: ${_utcDateAsString ?? 'unknown'}',
-                    ),
-                  ],
-                ),
-
-                AppWrapFullWidth(children: [
-                  const Text(
-                    'Test the ',
                   ),
+                ],
+              ),
+              const AppSpace(),
+              AppWrapFullWidth(
+                spacing: 20,
+                children: [
+                  Text('version: ${packageInfo.version}'),
+                  if (isBeta) const Text('beta  '),
+                  //  release notes
+                  InkWell(
+                    onTap: () {
+                      //  why is this so hard?
+                      openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}release_notes.html');
+                    },
+                    child: Text('Release Notes', style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize)),
+                  ),
+                  const Text('Mode: ${kReleaseMode ? 'release' : 'debug'}'),
+                  //  utc date
+                  Text('utcDate: ${_utcDateAsString ?? 'unknown'}'),
+                ],
+              ),
+
+              AppWrapFullWidth(
+                children: [
+                  const Text('Test the '),
                   InkWell(
                     onTap: () {
                       var path = Uri.base.path.replaceFirst('index.html', '').replaceFirst('/beta', '');
                       openLink('${Uri.base.scheme}://${Uri.base.authority}${path}beta/index.html');
                     },
-                    child: Text(
-                      'beta',
-                      style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
-                    ),
+                    child: Text('beta', style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize)),
                   ),
-                  const Text(
-                    '.',
-                  ),
-                ]),
+                  const Text('.'),
+                ],
+              ),
 
-                const Text(''),
-                Text(
-                  'screen: (${app.screenInfo.mediaWidth.toStringAsFixed(0)}'
-                  ',${app.screenInfo.mediaHeight.toStringAsFixed(0)})'
-                  // ', fontSize: ${app.screenInfo.fontSize}'
-                  // ', titleScaleFactor: ${app.screenInfo.titleScaleFactor.toStringAsFixed(2)}'
-                  ,
-                ),
-                Text(
-                  'OS:  ${kIsWeb ? 'web version on' : ''}'
-                  ' ${Theme.of(context).platform.name}',
-                ),
-                if (!kIsWeb)
-                  Text(
-                    'Document Path: $_applicationDocumentsPath',
-                  ),
-                // Text(
-                //   'ver: ${Platform.version}',
-                // ),
-              ]),
+              const Text(''),
+              Text(
+                'screen: (${app.screenInfo.mediaWidth.toStringAsFixed(0)}'
+                ',${app.screenInfo.mediaHeight.toStringAsFixed(0)})',
+                // ', fontSize: ${app.screenInfo.fontSize}'
+                // ', titleScaleFactor: ${app.screenInfo.titleScaleFactor.toStringAsFixed(2)}'
+              ),
+              Text(
+                'OS:  ${kIsWeb ? 'web version on' : ''}'
+                ' ${Theme.of(context).platform.name}',
+              ),
+              if (!kIsWeb) Text('Document Path: $_applicationDocumentsPath'),
+              // Text(
+              //   'ver: ${Platform.version}',
+              // ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(),

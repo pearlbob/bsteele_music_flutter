@@ -399,7 +399,7 @@
     ]
   },
   {
-    "id": "Song_AcCentTchuAte_The_Positive_by_Bing_Crosby_The_Andrews_Sisters_coverBy_CJ",
+    "id": "Song_AcCentTchuAte_The_Positive_by_Bing_Crosby_The_Andrews_Sisters",
     "metadata": [
       {
         "name": "Genre",
@@ -1396,7 +1396,7 @@
     ]
   },
   {
-    "id": "Song_Bad_Boy_by_Beatles_The_orig_Larry_Williams",
+    "id": "Song_Bad_Boy_by_Larry_Williams_coverBy_Beatles_The",
     "metadata": [
       {
         "name": "Genre",
@@ -3186,7 +3186,7 @@
     ]
   },
   {
-    "id": "Song_Crazy_On_You_by_Heart_coverBy_CJ",
+    "id": "Song_Crazy_On_You_by_Heart",
     "metadata": [
       {
         "name": "Vocalist",
@@ -4796,15 +4796,6 @@
     ]
   },
   {
-    "id": "Song_Folsom_Prison_Blues_by_Johnny_Cash_coverBy_CJ",
-    "metadata": [
-      {
-        "name": "Genre",
-        "value": "Blues"
-      }
-    ]
-  },
-  {
     "id": "Song_Fool_On_The_Hill_by_Beatles_The",
     "metadata": [
       {
@@ -5844,15 +5835,6 @@
   },
   {
     "id": "Song_Heaven_Is_A_Place_On_Earth_by_Belinda_Carlisle",
-    "metadata": [
-      {
-        "name": "Vocalist",
-        "value": "Female"
-      }
-    ]
-  },
-  {
-    "id": "Song_Heaven_Is_A_Place_On_Earth_by_Belinda_Carlisle_coverBy_CJ",
     "metadata": [
       {
         "name": "Vocalist",
@@ -7326,15 +7308,6 @@
     ]
   },
   {
-    "id": "Song_Jealous_Moon_by_Sarah_Jarosz_coverBy_CJ",
-    "metadata": [
-      {
-        "name": "Genre",
-        "value": "Folk"
-      }
-    ]
-  },
-  {
     "id": "Song_Jealousy_by_Natalie_Merchant",
     "metadata": [
       {
@@ -8177,15 +8150,6 @@
     ]
   },
   {
-    "id": "Song_Listen_to_Your_Heart_by_Roxette_coverBy_CJ",
-    "metadata": [
-      {
-        "name": "Vocalist",
-        "value": "Female"
-      }
-    ]
-  },
-  {
     "id": "Song_Little_Bird_by_Annie_Lennox",
     "metadata": [
       {
@@ -8379,15 +8343,6 @@
       {
         "name": "Jam",
         "value": "Beginner"
-      }
-    ]
-  },
-  {
-    "id": "Song_Long_Cool_Woman_by_Hollies_The_coverBy_CJ_reharmonized",
-    "metadata": [
-      {
-        "name": "Genre",
-        "value": "Blues"
       }
     ]
   },
@@ -8753,7 +8708,7 @@
     ]
   },
   {
-    "id": "Song_Make_a_Space_by_Jennifer_Brandlon_coverBy_Jennifer_Brandlon",
+    "id": "Song_Make_a_Space_by_Jennifer_Brandlon",
     "metadata": [
       {
         "name": "Status",
@@ -8947,7 +8902,7 @@
     ]
   },
   {
-    "id": "Song_Merry_Christmas_Baby_by_Elvis_Presley_coverBy_CJ",
+    "id": "Song_Merry_Christmas_Baby_by_Elvis_Presley",
     "metadata": [
       {
         "name": "Jam",
@@ -10045,7 +10000,7 @@
     ]
   },
   {
-    "id": "Song_Paradise_Circus_2_by_Massive_Attack",
+    "id": "Song_Paradise_Circus_by_Massive_Attack",
     "metadata": [
       {
         "name": "Vocalist",
@@ -12620,7 +12575,7 @@
     ]
   },
   {
-    "id": "Song_Sweet_Jane_by_Velvet_Undergound_The_coverBy_CJ",
+    "id": "Song_Sweet_Jane_by_Velvet_Undergound_The",
     "metadata": [
       {
         "name": "Jam",
@@ -14108,6 +14063,15 @@
     ]
   },
   {
+    "id": "Song_What_Does_It_Matter_by_Vicki",
+    "metadata": [
+      {
+        "name": "Status",
+        "value": "Original"
+      }
+    ]
+  },
+  {
     "id": "Song_What_I_Am_by_Edie_Brickell_New_Bohemians",
     "metadata": [
       {
@@ -14189,15 +14153,6 @@
         "name": "Jam",
         "value": "Beginner"
       },
-      {
-        "name": "Status",
-        "value": "Original"
-      }
-    ]
-  },
-  {
-    "id": "Song_What_does_it_matter_by_Vicki",
-    "metadata": [
       {
         "name": "Status",
         "value": "Original"

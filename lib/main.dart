@@ -74,6 +74,7 @@ import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/improv.dart';
 // import 'package:bsteele_music_flutter/screens/leader.dart';
 import 'package:bsteele_music_flutter/screens/metadata.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
@@ -336,6 +337,7 @@ class BSteeleMusicApp extends StatelessWidget {
             Singers.routeName: (context) => const Singers(),
             MetadataScreen.routeName: (context) => const MetadataScreen(),
             Edit.routeName: (context) => Edit(initialSong: app.selectedSong),
+            Improv.routeName: (context) => Improv(),
             PerformanceHistory.routeName: (context) => const PerformanceHistory(),
             Privacy.routeName: (context) => const Privacy(),
             Documentation.routeName: (context) => const Documentation(),
@@ -653,6 +655,13 @@ class MyHomePageState extends State<MyHomePage> {
               },
             ),
             appListTile(
+              title: 'Improv',
+              style: navTextStyle,
+              onTap: () {
+                _navigateToImprov();
+              },
+            ),
+            appListTile(
               title: 'Drums',
               style: navTextStyle,
               enabled: app.isEditReady,
@@ -897,6 +906,15 @@ class MyHomePageState extends State<MyHomePage> {
   _navigateToEdit() async {
     app.clearMessage();
     await Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(initialSong: Song.createEmptySong())));
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
+  }
+
+  _navigateToImprov() async {
+    app.clearMessage();
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => Improv()));
     if (!mounted) {
       return;
     }

@@ -7,30 +7,23 @@ import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/measure_node.dart';
+import 'package:bsteele_music_lib/songs/phrase.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_lib/songs/section.dart';
 import 'package:bsteele_music_lib/songs/section_version.dart';
-import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_edit_manager.dart';
-import 'package:bsteele_music_lib/util/undo_stack.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 
+const Level _logTextEntry = Level.info;
+
 const double _defaultChordFontSize = 22;
+int _beatsPerBar = 4;
 
-const bool _logDebug = kDebugMode && false;
-const Level _log = Level.debug;
-const Level _logEditPoint = Level.debug;
-const Level _logUndoStack = Level.debug;
-
-///   screen to edit a song
-///   Note: This screen is scaled differently than the others.
-///   It is expected that it will only be used on a desktop only
-///   and will not be displayed to the musicians on a large screen display.
+///   screen to facilitate an improv session
 class Improv extends StatefulWidget {
   Improv({super.key});
 
@@ -41,34 +34,8 @@ class Improv extends StatefulWidget {
 }
 
 class ImprovState extends State<Improv> {
-  ImprovState() {
-    //  _checkSongStatus();
-
-    undoStackPush();
-  }
-
-  @override
-  initState() {
-    super.initState();
-
-    editTextFieldFocusNode = FocusNode();
-    editTextFieldFocusNode?.addListener(() {
-      logger.log(_log, 'focusNode.listener()');
-    });
-
-    editTextController.addListener(() {
-      //  fixme: workaround for loss of focus when pressing an edit button
-      TextSelection textSelection = editTextController.selection;
-      if (textSelection.baseOffset >= 0) {
-        lastEditTextSelection = textSelection.copyWith();
-      }
-    });
-  }
-
   @override
   void dispose() {
-    editTextController.dispose();
-    editTextFieldFocusNode?.dispose();
     if (_idleTimer != null) {
       _idleTimer!.cancel();
     }
@@ -87,11 +54,7 @@ class ImprovState extends State<Improv> {
     app.screenInfo.refresh(context);
 
     //  adjust to screen size
-    chordFontSize = 5 * _defaultChordFontSize;
-    appendFontSize = chordFontSize * 0.75;
-
-    chordBoldTextStyle = generateAppTextStyle(fontWeight: .bold, fontSize: chordFontSize);
-    chordTextStyle = generateAppTextStyle(fontSize: appendFontSize, color: Colors.black87);
+    chordFontSize = 4 * _defaultChordFontSize;
 
     //  build the chords display based on the song chord section grid
     tableKeyId = 0;
@@ -154,34 +117,6 @@ class ImprovState extends State<Improv> {
                                     ),
                                   ],
                                 ),
-                                AppWrap(
-                                  alignment: WrapAlignment.spaceBetween,
-                                  spacing: 25,
-                                  children: <Widget>[
-                                    editTooltip(
-                                      message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                      child: appButton(
-                                        'Undo',
-                                        fontSize: _defaultChordFontSize,
-                                        onPressed: () {
-                                          undo();
-                                        },
-                                      ),
-                                    ),
-                                    editTooltip(
-                                      message: undoStack.canUndo
-                                          ? 'Redo the last edit undone'
-                                          : 'There is no edit to redo',
-                                      child: appButton(
-                                        'Redo',
-                                        fontSize: _defaultChordFontSize,
-                                        onPressed: () {
-                                          redo();
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
 
@@ -194,7 +129,7 @@ class ImprovState extends State<Improv> {
                                 focusNode: proChordTextFieldFocusNode,
                                 minLines: 1,
                                 maxLines: 1,
-                                fontSize: 4 * _defaultChordFontSize,
+                                fontSize: chordFontSize,
                                 fontWeight: .normal,
                                 width: MediaQuery.of(context).size.width * 0.96,
                                 border: .none,
@@ -258,7 +193,7 @@ class ImprovState extends State<Improv> {
 
   void undo() {
     setState(() {
-      // checkSong();
+      checkSong();
       // if (undoStack.canUndo) {
       //   app.clearMessage();
       //   clearMeasureEntry();
@@ -273,78 +208,6 @@ class ImprovState extends State<Improv> {
     });
   }
 
-  void redo() {
-    // checkSong();
-    setState(() {
-      // if (undoStack.canRedo) {
-      //   app.clearMessage();
-      //   clearMeasureEntry();
-      //   loadSong(undoStack.redo()?.copySong() ?? Song.createEmptySong());
-      //   undoStackLog('redo');
-      //   logger.t('song key: ${song.key}');
-      //   checkSongChangeStatus();
-      // } else {
-      //   app.errorMessage('cannot redo any more');
-      // }
-    });
-  }
-
-  ///  don't push an identical copy 1234
-  void undoStackPushIfDifferent() {
-    // if (!(song.songBaseSameContent(undoStack.top))) {
-    //   //  fixme: what was this doing?:  song.lastModifiedTime = originalSong.lastModifiedTime;
-    //   undoStackPush();
-    //   logger.log(_logUndoStack, 'undoStackPushIfDifferent ${undoStackAllToString()}');
-    // }
-  }
-
-  /// push a copy of the current song onto the undo stack
-  void undoStackPush() {
-    logger.log(_logUndoStack, 'undo push(): ${undoStackAllToString()}');
-    // undoStack.push(song.copySong());
-  }
-
-  void undoStackLog(String comment) {
-    logger.log(_logUndoStack, 'undo $comment: ${undoStackAllToString()}');
-  }
-
-  void editLogPre(Song logSong, bool endOfRow) {
-    if (_logDebug) {
-      //  output to match the TestSong() tests from the library. i.e. bsteeleMusicLib
-      logger.t('//  from ${Util.utcNow()}');
-      logger.t('ts.startingChords(\'${logSong.toMarkup()}\');');
-      logger.t(
-        'ts.edit(${logSong.currentMeasureEditType}, \'${logSong.currentChordSectionLocation}\''
-        ', \'${logSong.getCurrentMeasureNode()?.toMarkup()}\'' //  measure string
-        ', SongBase.entryToUppercase(\'${measureEntryNodes?.toString()}\')'
-        ');'
-        ' // endOfRow: $endOfRow',
-      );
-    }
-  }
-
-  void editLogPost(Song logSong, bool endOfRow) {
-    if (_logDebug) {
-      //  output to match the TestSong() tests from the library. i.e. bsteeleMusicLib
-      logger.t('ts.resultChords(\'${logSong.toMarkup()}\');');
-      logger.t(
-        'ts.post(${logSong.currentMeasureEditType},\'${logSong.getCurrentChordSectionLocation()}\''
-        ',\'${logSong.getCurrentMeasureNode()?.toMarkup()}\' );'
-        ' // endOfRow: $endOfRow',
-      );
-    }
-  }
-
-  String undoStackAllToString() {
-    StringBuffer sb = StringBuffer(undoStack);
-    sb.writeln('');
-    for (var i = undoStack.length - 1; i >= 0; i--) {
-      var j = undoStack.length - 1 - i;
-      sb.writeln('$i: ${undoStack.get(j)?.key.toMarkup()}');
-    }
-    return sb.toString();
-  }
-
   ///  delete the current measure
   void performDelete() {
     setState(() {});
@@ -355,7 +218,7 @@ class ImprovState extends State<Improv> {
       clearMeasureEntry();
       app.clearMessage();
       selectedEditPoint = editPoint;
-      logger.log(_logEditPoint, 'setEditPoint(${editPoint.toString()})');
+      logger.log(_logTextEntry, 'setEditPoint(${editPoint.toString()})');
     });
   }
 
@@ -367,7 +230,6 @@ class ImprovState extends State<Improv> {
 
   void clearMeasureEntry() {
     logger.d('_clearMeasureEntry():');
-    editTextField = null;
     selectedEditPoint = null;
     measureEntryIsClear = true;
     measureEntryCorrection = null;
@@ -375,15 +237,31 @@ class ImprovState extends State<Improv> {
   }
 
   void checkSongWhenIdle() {
+    logger.log(_logTextEntry, 'checkSongWhenIdle(): "${proChordTextEditingController.text}"');
     if (_idleTimer != null) {
       _idleTimer!.cancel();
     }
 
     _idleTimer = Timer(const Duration(milliseconds: 700), () {
       setState(() {
-        // checkSong();
+        checkSong();
       });
     });
+  }
+
+  bool checkSong() {
+    try {
+      logger.log(_logTextEntry, 'checkSong: "${proChordTextEditingController.text}"');
+      MarkedString markedString = MarkedString(proChordTextEditingController.text);
+      Phrase phrase = Phrase.parse(markedString, 0, _beatsPerBar, null);
+      logger.log(_logTextEntry, 'phrase: $phrase, markedString: "$markedString"');
+      isValidSong = markedString.isEmpty;
+      app.errorMessage(isValidSong ? '' : 'not understood: "$markedString"');
+    } catch (e) {
+      isValidSong = false;
+      app.errorMessage(e.toString());
+    }
+    return isValidSong;
   }
 
   String listSections() {
@@ -426,7 +304,6 @@ class ImprovState extends State<Improv> {
   bool isValidSong = false;
   bool isValidSongChordsAndLyrics = false;
 
-  double appendFontSize = 14;
   double chordFontSize = 14;
 
   EditPoint? selectedEditPoint;
@@ -442,29 +319,15 @@ class ImprovState extends State<Improv> {
   List<MeasureNode>? measureEntryNodes;
   MeasureNode? displayMeasureEntryNode;
 
-  TextStyle chordBoldTextStyle = generateAppTextStyle(fontWeight: .bold);
-
-  // TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: .bold);
-  TextStyle chordTextStyle = generateAppTextStyle();
-
   EdgeInsets marginInsets = const EdgeInsets.all(4);
   EdgeInsets doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets textPadding = EdgeInsets.all(6);
   static const EdgeInsets appendInsets = EdgeInsets.all(3);
   static const EdgeInsets appendPadding = EdgeInsets.all(3);
 
-  TextField? editTextField;
-
   TextEditingController proChordTextEditingController = TextEditingController();
   FocusNode proChordTextFieldFocusNode = FocusNode();
-  TextEditingController proLyricsTextEditingController = TextEditingController();
-  int proLyricsLastLineSelected = 0;
-  FocusNode proLyricsTextFieldFocusNode = FocusNode();
   final ScrollController scrollController = ScrollController();
-
-  final TextEditingController editTextController = TextEditingController();
-  FocusNode? editTextFieldFocusNode;
-  TextSelection? lastEditTextSelection;
 
   List<TableRow> chordRows = [];
   List<Widget> chordRowChildren = [];
@@ -476,8 +339,6 @@ class ImprovState extends State<Improv> {
   ScaleNote keyChordNote = musical_key.MajorKey.getDefault().getKeyScaleNote();
 
   final List<ChangeNotifier> disposeList = []; //  fixme: workaround to dispose the text controllers
-
-  final UndoStack<Song> undoStack = UndoStack();
 
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();

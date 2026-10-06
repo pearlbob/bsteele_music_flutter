@@ -1,27 +1,76 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
+import 'package:bsteele_music_lib/songs/chord.dart';
+import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/measure_node.dart';
+import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/phrase.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_lib/songs/section.dart';
-import 'package:bsteele_music_lib/songs/section_version.dart';
-import 'package:bsteele_music_lib/songs/song_edit_manager.dart';
+import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 
-const Level _logTextEntry = Level.info;
+const Level _logTextEntry = Level.debug;
+
+Phrase _improvPhrase = Phrase([], 0);
+List<String?> _majorPentatonicHalfStepLabels = [
+  '1', //  0
+  null,
+  '2', //  2
+  null,
+  '3', //  4
+  null,
+  null,
+  '5', // 7
+  null,
+  '6', //  9
+  null,
+  null, //  11
+];
+List<String?> _minorPentatonicHalfStepLabels = [
+  '1', //  0
+  null,
+  null,
+  'b3', //  3
+  null,
+  '4', //  5
+  null,
+  '5', // 7
+  null,
+  null,
+  'b7', //  10
+  null,
+];
 
 const double _defaultChordFontSize = 22;
 int _beatsPerBar = 4;
+
+final List<Color> scaleNoteColors = [
+  Color.fromARGB(255, 255, 99, 0), //  A
+  Color.fromARGB(255, 242, 178, 4), //  A#
+  Color.fromARGB(255, 166, 225, 3), //  B
+  Color.fromARGB(240, 0, 255, 13), // C
+  Color.fromARGB(255, 0, 255, 232), //  C#
+  Color.fromARGB(255, 20, 200, 255), //  D
+  Color.fromARGB(255, 20, 100, 255), //  D#
+  Color.fromARGB(255, 137, 80, 255), //  E
+  Color.fromARGB(255, 176, 20, 180), //  F
+  Color.fromARGB(255, 200, 40, 100), //  F#
+  Color.fromARGB(255, 240, 30, 50), //  G
+  Color.fromARGB(255, 255, 40, 0), //  G#
+];
+
+TextStyle _chordTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, color: Colors.black87);
+TextStyle _boldChordTextStyle = generateAppTextStyle(
+  fontSize: _defaultChordFontSize,
+  color: Colors.black87,
+  fontWeight: FontWeight.bold,
+);
 
 ///   screen to facilitate an improv session
 class Improv extends StatefulWidget {
@@ -36,10 +85,6 @@ class Improv extends StatefulWidget {
 class ImprovState extends State<Improv> {
   @override
   void dispose() {
-    if (_idleTimer != null) {
-      _idleTimer!.cancel();
-    }
-
     for (final focusNode in disposeList) {
       focusNode.dispose();
     }
@@ -54,10 +99,7 @@ class ImprovState extends State<Improv> {
     app.screenInfo.refresh(context);
 
     //  adjust to screen size
-    chordFontSize = 4 * _defaultChordFontSize;
-
-    //  build the chords display based on the song chord section grid
-    tableKeyId = 0;
+    chordFontSize = 2 * _defaultChordFontSize;
 
     var theme = Theme.of(context);
 
@@ -76,77 +118,57 @@ class ImprovState extends State<Improv> {
           //  note that return (i.e. enter) is not a keyboard event!
           KeyboardListener(
             focusNode: FocusNode(),
-            onKeyEvent: _improvOnKey,
             child: Column(
               children: [
                 app.messageTextWidget(),
                 // const AppVerticalSpace(space: 10),
-                Expanded(
-                  child: GestureDetector(
-                    // fixme: put GestureDetector only on chord table
-                    child: Scrollbar(
-                      thickness: max(16.0, 0.0125 * app.screenInfo.mediaWidth),
-                      controller: scrollController,
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: 10, children: <Widget>[]),
-                            const AppSpace(),
-                            //  chords
-                            AppWrapFullWidth(
-                              alignment: WrapAlignment.spaceBetween,
-                              children: <Widget>[
-                                AppWrap(
-                                  spacing: 50,
-                                  children: [
-                                    editTooltip(
-                                      message:
-                                          'Validate the chord input.\n'
-                                          'This will also reformat the entry.',
-                                      child: appButton(
-                                        'Validate',
-                                        fontSize: _defaultChordFontSize,
-                                        onPressed: () {
-                                          setState(() {
-                                            // validateSongChords(select: true);
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                Column(
+                  children: [
+                    AppWrapFullWidth(
+                      alignment: WrapAlignment.start,
+                      spacing: 2,
+                      children: <Widget>[
+                        const AppSpace(),
+                        Text('Improv measures:', style: _chordTextStyle),
+                        const AppSpace(),
 
-                            Container(
-                              alignment: .topLeft,
-                              padding: const EdgeInsets.all(16.0),
-                              color: theme.colorScheme.surface,
-                              child: AppTextField(
-                                controller: proChordTextEditingController,
-                                focusNode: proChordTextFieldFocusNode,
-                                minLines: 1,
-                                maxLines: 1,
-                                fontSize: chordFontSize,
-                                fontWeight: .normal,
-                                width: MediaQuery.of(context).size.width * 0.96,
-                                border: .none,
-                                onChanged: (value) {
-                                  checkSongWhenIdle();
-                                },
-                              ),
-                            ),
-                          ],
+                        Container(
+                          // alignment: .topLeft,
+                          padding: const EdgeInsets.all(16.0),
+                          color: theme.colorScheme.surface,
+                          child: AppTextField(
+                            controller: proChordTextEditingController,
+                            focusNode: proChordTextFieldFocusNode,
+                            minLines: 1,
+                            maxLines: 1,
+                            fontSize: chordFontSize,
+                            fontWeight: .normal,
+                            width: MediaQuery.of(context).size.width * 0.55,
+                            border: .none,
+                            onSubmitted: (value) {
+                              checkSong();
+                              FocusScope.of(context).requestFocus(proChordTextFieldFocusNode);
+                            },
+                          ),
                         ),
-                      ),
+                        //  search clear
+                        appIconButton(
+                          icon: const Icon(Icons.clear),
+                          iconSize: 1.25 * chordFontSize,
+                          onPressed: (() {
+                            proChordTextEditingController.clear();
+                            app.clearMessage();
+                            setState(() {
+                              FocusScope.of(context).requestFocus(proChordTextFieldFocusNode);
+                              //_lastSelectedSong = null;
+                            });
+                          }),
+                        ),
+                      ],
                     ),
-                    onTap: () {
-                      logger.t('GestureDetector.onTap():');
-                      performMeasureEntryCancel();
-                    },
-                  ),
+                    const AppSpace(),
+                    _improvDisplay(),
+                  ],
                 ),
               ],
             ),
@@ -154,34 +176,94 @@ class ImprovState extends State<Improv> {
     );
   }
 
-  void addChordRowNullChildrenUpTo(int columns) {
-    //  add children to max columns to keep the table class happy
-    while (chordRowChildren.length < columns) {
-      chordRowChildren.add(NullWidget());
+  Widget titleCell(Widget child) {
+    return Padding(
+      padding: const EdgeInsets.all(_defaultChordFontSize), // Change size as needed
+      child: Center(child: child),
+    );
+  }
+
+  Widget myCell(Widget child, {ScaleNote? scaleNote}) {
+    if (scaleNote == null) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0), // Change size as needed
+        child: Center(child: child),
+      );
     }
+    return Container(
+      color: scaleNoteColors[scaleNote.halfStep],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0), // Change size as needed
+        child: Center(child: child),
+      ),
+    );
   }
 
-  void _improvOnKey(KeyEvent e) {}
+  Widget _improvDisplay() {
+    if (!isValidSong) {
+      return NullWidget();
+    }
 
-  void addChordRowChildAtRowEnd(int maxCols, Widget child) {
-    //  add children to max columns to keep the table class happy
-    addChordRowNullChildrenUpTo(maxCols - 1);
-    chordRowChildren.add(child);
-  }
+    List<Chord?> chordCols = [];
+    for (Measure measure in _improvPhrase.measures) {
+      if (chordCols.isNotEmpty) {
+        chordCols.add(null);
+      }
+      for (Chord chord in measure.chords) {
+        chordCols.add(chord);
+      }
+    }
 
-  void addChordRowChildrenAndComplete(int maxCols) {
-    //  add children to max columns to keep the table class happy
-    addChordRowNullChildrenUpTo(maxCols);
+    List<TableRow> tableRows = [];
 
-    //  add row to table
-    chordRows.add(TableRow(key: ValueKey('table${tableKeyId++}'), children: chordRowChildren));
+    {
+      List<Widget> children = [];
+      for (final Chord? chord in chordCols) {
+        children.add(titleCell(Text(chord?.toString() ?? '', style: _boldChordTextStyle)));
+      }
+      TableRow tableRow = TableRow(children: children);
+      tableRows.add(tableRow);
+    }
 
-    //  prep for new row
-    chordRowChildren = [];
-  }
+    //  pentatonics
+    for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
+      List<Widget> children = [];
 
-  void addChordRowNullWidget() {
-    chordRowChildren.add(NullWidget());
+      for (final Chord? chord in chordCols) {
+        if (chord == null) {
+          children.add(myCell(NullWidget()));
+          continue;
+        }
+
+        String? label;
+        ScaleNote? scaleNote;
+        if (chord.scaleChord.chordDescriptor.isMajor()) {
+          label = _majorPentatonicHalfStepLabels[r];
+        } else if (chord.scaleChord.chordDescriptor.isMinor()) {
+          label = _minorPentatonicHalfStepLabels[r];
+        } else {
+          scaleNote = ScaleNote.X; //  showcase an error!
+        }
+        if (label != null) {
+          scaleNote = ScaleNote.getFlatByHalfStep(chord.scaleChord.scaleNote.halfStep + r);
+        }
+
+        children.add(
+          myCell(
+            Text('${label != null ? '${scaleNote?.toString()}' : ''}', style: _chordTextStyle),
+            scaleNote: scaleNote ,
+          ),
+        );
+      }
+      TableRow tableRow = TableRow(children: children);
+      tableRows.add(tableRow);
+    }
+
+    return Table(
+      border: TableBorder.all(color: Colors.grey, width: 1),
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: tableRows,
+    );
   }
 
   Widget nullEditGridDisplayWidget() {
@@ -213,54 +295,27 @@ class ImprovState extends State<Improv> {
     setState(() {});
   }
 
-  void setEditPoint(EditPoint editPoint) {
-    setState(() {
-      clearMeasureEntry();
-      app.clearMessage();
-      selectedEditPoint = editPoint;
-      logger.log(_logTextEntry, 'setEditPoint(${editPoint.toString()})');
-    });
-  }
-
-  void performMeasureEntryCancel() {
-    setState(() {
-      clearMeasureEntry();
-    });
-  }
-
-  void clearMeasureEntry() {
-    logger.d('_clearMeasureEntry():');
-    selectedEditPoint = null;
-    measureEntryIsClear = true;
-    measureEntryCorrection = null;
-    measureEntryValid = false;
-  }
-
-  void checkSongWhenIdle() {
-    logger.log(_logTextEntry, 'checkSongWhenIdle(): "${proChordTextEditingController.text}"');
-    if (_idleTimer != null) {
-      _idleTimer!.cancel();
-    }
-
-    _idleTimer = Timer(const Duration(milliseconds: 700), () {
-      setState(() {
-        checkSong();
-      });
-    });
-  }
-
   bool checkSong() {
-    try {
-      logger.log(_logTextEntry, 'checkSong: "${proChordTextEditingController.text}"');
-      MarkedString markedString = MarkedString(proChordTextEditingController.text);
-      Phrase phrase = Phrase.parse(markedString, 0, _beatsPerBar, null);
-      logger.log(_logTextEntry, 'phrase: $phrase, markedString: "$markedString"');
-      isValidSong = markedString.isEmpty;
-      app.errorMessage(isValidSong ? '' : 'not understood: "$markedString"');
-    } catch (e) {
-      isValidSong = false;
-      app.errorMessage(e.toString());
-    }
+    setState(() {
+      try {
+        logger.log(_logTextEntry, 'checkSong: "${proChordTextEditingController.text}"');
+        MarkedString markedString = MarkedString(SongBase.entryToUppercase(proChordTextEditingController.text));
+        _improvPhrase = Phrase.parse(markedString, 0, _beatsPerBar, null);
+        logger.log(_logTextEntry, 'phrase: $_improvPhrase, markedString: "$markedString"');
+        isValidSong = markedString.isEmpty;
+
+        if (isValidSong) {
+          app.clearMessage();
+          proChordTextEditingController.text = _improvPhrase.toString();
+        } else {
+          app.errorMessage('not understood: "$markedString"');
+        }
+      } catch (e) {
+        isValidSong = false;
+        app.errorMessage(e.toString());
+      }
+      logger.log(_logTextEntry, 'app.error: ${app.error}');
+    });
     return isValidSong;
   }
 
@@ -302,19 +357,8 @@ class ImprovState extends State<Improv> {
   }
 
   bool isValidSong = false;
-  bool isValidSongChordsAndLyrics = false;
 
   double chordFontSize = 14;
-
-  EditPoint? selectedEditPoint;
-  bool hadSelectedEditPoint = false;
-
-  int transpositionOffset = 0;
-
-  Timer? _idleTimer;
-  bool measureEntryIsClear = true;
-  String? measureEntryCorrection;
-  bool measureEntryValid = false;
 
   List<MeasureNode>? measureEntryNodes;
   MeasureNode? displayMeasureEntryNode;
@@ -329,70 +373,8 @@ class ImprovState extends State<Improv> {
   FocusNode proChordTextFieldFocusNode = FocusNode();
   final ScrollController scrollController = ScrollController();
 
-  List<TableRow> chordRows = [];
-  List<Widget> chordRowChildren = [];
-  int tableKeyId = 0;
-
-  LyricsEntries lyricsEntries = LyricsEntries();
-
-  SectionVersion sectionVersion = SectionVersion.defaultInstance;
-  ScaleNote keyChordNote = musical_key.MajorKey.getDefault().getKeyScaleNote();
-
   final List<ChangeNotifier> disposeList = []; //  fixme: workaround to dispose the text controllers
 
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();
 }
-
-/*
-v: a b c d, d c g g
-C: C G D A, E E E E
-
-
-Off the top of my head, since the order of flats is
-B, E, A, D, G, C and F
-
-We pretty-much never see Gb, Cb and Fb  (because Cb is B and Fb is E)
-
-going the other way, we pretty-much never see A#, E#, and B# (Because E# is F and B# is C)
-
- */
-
-/*
- final List<DropdownMenuItem<int>> repeatDropDownMenuList = [];
-
-    //
-    //  stuff the repeat Drop Down Menu List
-    repeatDropDownMenuList.clear();
-    repeatDropDownMenuList.add(appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.editRepeatX2, value: 2, child: Text('x2', style: appDropdownListItemTextStyle)));
-    repeatDropDownMenuList.add(appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.editRepeatX3, value: 3, child: Text('x3', style: appDropdownListItemTextStyle)));
-    repeatDropDownMenuList.add(appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.editRepeatX4, value: 4, child: Text('x4', style: appDropdownListItemTextStyle)));
-
-
-    editTooltip(
-                        message: 'Add a repeat for this row',
-                        child: ButtonTheme(
-                          alignedDropdown: true,
-                          child: DropdownButton<int>(
-                            hint: Text(
-                              "repeats",
-                              style: sectionAppTextStyle,
-                            ),
-                            items: repeatDropDownMenuList,
-                            onChanged: (_value) {
-                              setState(() {
-                                logger.log(_log, 'repeat at: ${editPoint.location}');
-                                song.setRepeat(editPoint.location, _value ?? 1);
-                                undoStackPushIfDifferent();
-                                clearMeasureEntry();
-                              });
-                            },
-                            itemHeight: null,
-                          ),
-                        ),
-                      ),
-
- */

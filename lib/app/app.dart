@@ -2,7 +2,6 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_section.dart';
@@ -279,9 +278,6 @@ class App {
 
   /// Generate a message display widget
   Widget messageTextWidget() {
-    if (_message.isEmpty) {
-      return NullWidget();
-    }
     return Text(_message, style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle);
   }
 

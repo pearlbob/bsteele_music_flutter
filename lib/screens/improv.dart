@@ -2,6 +2,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
+import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/phrase.dart';
@@ -115,59 +116,54 @@ class ImprovState extends State<Improv> {
             focusNode: FocusNode(),
             child: Column(
               children: [
-                app.messageTextWidget(),
-                // const AppVerticalSpace(space: 10),
-                Column(
-                  children: [
-                    AppWrapFullWidth(
-                      alignment: WrapAlignment.start,
-                      spacing: 2,
-                      children: <Widget>[
-                        const AppSpace(),
-                        Text('Improv measures:', style: _chordTextStyle),
-                        const AppSpace(),
+                AppWrapFullWidth(
+                  alignment: WrapAlignment.start,
+                  spacing: 2,
+                  children: <Widget>[
+                    const AppSpace(),
+                    Text('Measures:', style: _chordTextStyle),
+                    const AppSpace(),
 
-                        Container(
-                          // alignment: .topLeft,
-                          padding: const EdgeInsets.all(16.0),
-                          color: theme.colorScheme.surface,
-                          child: AppTextField(
-                            controller: improvEntryController,
-                            focusNode: improvEntryFocusNode,
-                            minLines: 1,
-                            maxLines: 1,
-                            fontSize: chordFontSize,
-                            fontWeight: .normal,
-                            width: MediaQuery.of(context).size.width * 0.55,
-                            border: .none,
-                            onSubmitted: (value) {
-                              checkSong();
-                              FocusScope.of(context).requestFocus(improvEntryFocusNode);
-                            },
-                          ),
-                        ),
-                        //  search clear
-                        appIconButton(
-                          icon: const Icon(Icons.clear),
-                          iconSize: 1.25 * chordFontSize,
-                          onPressed: (() {
-                            improvEntryController.clear();
-                            app.clearMessage();
-                            setState(() {
-                              FocusScope.of(context).requestFocus(improvEntryFocusNode);
-                              //_lastSelectedSong = null;
-                            });
-                          }),
-                        ),
-                      ],
-                    ),
-                    Center(
-                      child: CustomPaint(
-                        size: Size(1900, 14 * _rowHeight), // Specify the canvas boundaries
-                        painter: ImprovPainter(),
+                    Container(
+                      // alignment: .topLeft,
+                      padding: const EdgeInsets.all(16.0),
+                      color: theme.colorScheme.surface,
+                      child: AppTextField(
+                        controller: improvEntryController,
+                        focusNode: improvEntryFocusNode,
+                        minLines: 1,
+                        maxLines: 1,
+                        fontSize: chordFontSize,
+                        fontWeight: .normal,
+                        width: MediaQuery.of(context).size.width * 0.55,
+                        border: .none,
+                        onSubmitted: (value) {
+                          checkSong();
+                          FocusScope.of(context).requestFocus(improvEntryFocusNode);
+                        },
                       ),
                     ),
+                    //  search clear
+                    appIconButton(
+                      icon: const Icon(Icons.clear),
+                      iconSize: 1.25 * chordFontSize,
+                      onPressed: (() {
+                        improvEntryController.clear();
+                        app.clearMessage();
+                        setState(() {
+                          FocusScope.of(context).requestFocus(improvEntryFocusNode);
+                          //_lastSelectedSong = null;
+                        });
+                      }),
+                    ),
+                    app.messageTextWidget(),
                   ],
+                ),
+                Center(
+                  child: CustomPaint(
+                    size: Size(1900, 14 * _rowHeight), // Specify the canvas boundaries
+                    painter: ImprovPainter(),
+                  ),
                 ),
               ],
             ),
@@ -256,18 +252,79 @@ class ImprovState extends State<Improv> {
 class ImprovPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    if ( _chordCols.isEmpty ){
+      return;
+    }
     final brush = Paint()
       ..style = PaintingStyle.fill
-      ..strokeWidth = 5;
+      ..strokeWidth = 3;
+    final verticalBrush = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = Colors.black38
+      ..strokeWidth = 4;
     const double radius = 50;
-    const double measureWidth = 250;
+    const double measureWidth = 200;
+    const double xOff = 50;
+    const double yOff = 50;
+    bool repeatRequired = _chordCols.isNotEmpty && _chordCols.first?.scaleChord != _chordCols.last?.scaleChord;
+
+    // title row
+    for (int c = 0; c < _chordCols.length; c++) {
+      Chord? chord = _chordCols[c];
+      if (chord == null) {
+        continue;
+      }
+
+      final Offset offset = Offset(xOff + 2 * radius + c * measureWidth, _defaultChordFontSize);
+      _textPaint(canvas, size, chord.toString(), offset, centered: true);
+    }
+    {
+      final Offset offset = Offset(xOff , _defaultChordFontSize);
+      _textPaint(canvas, size, 'pentatonic', offset, centered: true);
+    }
+    if (repeatRequired) {
+      final Offset offset = Offset(xOff + 2 * radius + _chordCols.length * measureWidth, _defaultChordFontSize);
+      _textPaint(canvas, size, 'repeat', offset, centered: true);
+    }
+
+    //  left side scale numbers
+    {
+      bool majorNumbers = false;
+      bool minorNumbers = false;
+      for (final chord in _chordCols) {
+        if (chord != null) {
+          ChordDescriptor descriptor = chord.scaleChord.chordDescriptor;
+          if (descriptor.isMajor()) majorNumbers = true;
+          if (descriptor.isMinor()) minorNumbers = true;
+        }
+      }
+      List<int> numbersPrinted = [];
+      if (majorNumbers) {
+        for (int i = 0; i < _majorPentatonicHalfStepLabels.length; i++) {
+          String? s = _majorPentatonicHalfStepLabels[i];
+          if (s != null && !numbersPrinted.contains(i)) {
+            _textPaint(canvas, size, s, Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
+            numbersPrinted.add(i);
+          }
+        }
+      }
+      if (minorNumbers) {
+        for (int i = 0; i < _minorPentatonicHalfStepLabels.length; i++) {
+          String? s = _minorPentatonicHalfStepLabels[i];
+          if (s != null && !numbersPrinted.contains(i)) {
+            _textPaint(canvas, size, s, Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
+            numbersPrinted.add(i);
+          }
+        }
+      }
+    }
 
     //  draw the relationships in the background
     for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
       for (int c = 0; c < _chordCols.length; c++) {
         ScaleNote? scaleNote = _scaleNoteGrid.get(r, c);
         if (scaleNote != null) {
-          final Offset offset = Offset(radius + c * measureWidth + radius, r * _rowHeight + radius);
+          final Offset offset = Offset(xOff + radius + c * measureWidth + radius, yOff + r * _rowHeight + radius);
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
 
           //  find the next use of the scale note
@@ -277,20 +334,31 @@ class ImprovPainter extends CustomPainter {
               if (_scaleNoteGrid.get(0, nextC) != null) {
                 break;
               }
+              //  gap between measures
+              if (r == 0) {
+                canvas.drawLine(
+                  Offset(xOff + radius + nextC * measureWidth + radius, yOff),
+                  Offset(
+                    xOff + radius + nextC * measureWidth + radius,
+                    yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
+                  ),
+                  verticalBrush,
+                );
+              }
             }
+
             final nextX = radius + nextC * measureWidth + radius; //  loop to the first
-            if ( nextC == _chordCols.length){
+            if (nextC == _chordCols.length) {
+              if (_chordCols.first?.scaleChord == _chordCols.last?.scaleChord) {
+                break;
+              }
               nextC = 0;
             }
 
             for (int nextR = 0; nextR < MusicConstants.halfStepsPerOctave; nextR++) {
               ScaleNote? nextScaleNote = _scaleNoteGrid.get(nextR, nextC);
               if (scaleNote == nextScaleNote) {
-                canvas.drawLine(
-                  offset,
-                  Offset(nextX, nextR * _rowHeight + radius),
-                  brush,
-                );
+                canvas.drawLine(offset, Offset(xOff + nextX, yOff + nextR * _rowHeight + radius), brush);
               }
             }
           }
@@ -298,51 +366,54 @@ class ImprovPainter extends CustomPainter {
       }
     }
 
+    //  gap between last measure and the first reflection
+    canvas.drawLine(
+      Offset(xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius, yOff),
+      Offset(
+        xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius,
+        yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
+      ),
+      verticalBrush,
+    );
+
     //  draw the scale notes
     for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
       for (int c = 0; c < _chordCols.length; c++) {
         ScaleNote? scaleNote = _scaleNoteGrid.get(r, c);
         if (scaleNote != null) {
-          final double x = radius + c * measureWidth + radius;
-          final double y = r * _rowHeight + radius;
-          final Offset offset = Offset(x, y);
+          final Offset offset = Offset(xOff + radius + c * measureWidth + radius, yOff + r * _rowHeight + radius);
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
           canvas.drawCircle(offset, radius, brush);
 
-          final textSpan = TextSpan(
-            text: scaleNote.toString(),
-            style: const TextStyle(
+          _textPaint(
+            canvas,
+            size,
+            scaleNote.toString(),
+            offset,
+            textStyle: const TextStyle(
               color: Colors.black,
               fontSize: 3 * _defaultChordFontSize,
               fontWeight: FontWeight.bold,
             ),
+            centered: true,
           );
-
-          final textPainter = TextPainter(
-            text: textSpan,
-            textDirection: TextDirection.ltr, // Text direction is required
-          );
-
-          textPainter.layout(
-            minWidth: 0,
-            maxWidth: size.width, // Prevents text from overflowing the canvas width
-          );
-
-          textPainter.paint(canvas, offset - Offset(textPainter.width / 2, textPainter.height / 2));
         }
       }
     }
 
     //  repeat the first scale notes without the scale note labels
-    for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
-     int c = 0;
+    if (repeatRequired) {
+      for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
+        int c = 0;
         ScaleNote? scaleNote = _scaleNoteGrid.get(r, c);
         if (scaleNote != null) {
-          final double x = radius + _chordCols.length * measureWidth + radius;
-          final double y = r * _rowHeight + radius;
-          final Offset offset = Offset(x, y);
+          final Offset offset = Offset(
+            xOff + radius + _chordCols.length * measureWidth + radius,
+            yOff + r * _rowHeight + radius,
+          );
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
-          canvas.drawCircle(offset, radius, brush);
+          canvas.drawCircle(offset, 0.7 * radius, brush);
+        }
       }
     }
   }
@@ -350,5 +421,35 @@ class ImprovPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false; // Return true if your configuration properties change dynamically
+  }
+
+  void _textPaint(
+    Canvas canvas,
+    Size size,
+    String text,
+    Offset offset, {
+    TextStyle textStyle = const TextStyle(
+      color: Colors.black,
+      fontSize: _defaultChordFontSize,
+      fontWeight: FontWeight.bold,
+    ),
+    bool centered = false,
+  }) {
+    final textSpan = TextSpan(text: text, style: textStyle);
+
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr, // Text direction is required
+    );
+
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: size.width, // Prevents text from overflowing the canvas width
+    );
+
+    textPainter.paint(
+      canvas,
+      offset - (centered ? Offset(textPainter.width / 2, textPainter.height / 2) : Offset.zero),
+    );
   }
 }

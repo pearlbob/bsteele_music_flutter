@@ -17,7 +17,7 @@ import 'package:logger/logger.dart';
 import '../app/app.dart';
 
 const Level _logTextEntry = Level.debug;
-const Level _logNotes = Level.info;
+const Level _logNotes = Level.debug;
 
 Phrase _improvPhrase = Phrase([], 0);
 List<String?> _majorPentatonicHalfStepLabels = [
@@ -148,11 +148,11 @@ class ImprovState extends State<Improv> {
             child: AppWrap(
               children: [
                 SizedBox(
-                  width: 3 * _defaultChordFontSize, //  max width of chars expected
+                  width: 4 * _defaultChordFontSize, //  max width of chars expected
                   child: Text(valueString, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.left),
                 ),
                 SizedBox(
-                  width: 2 * _defaultChordFontSize, //  max width of chars expected
+                  width: 3 * _defaultChordFontSize, //  max width of chars expected
                   child: Text(offsetString, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.right),
                 ),
               ],
@@ -393,7 +393,7 @@ class ImprovPainter extends CustomPainter {
       ..strokeWidth = 4;
     const double radius = 50;
     const double measureWidth = 200;
-    const double xOff = 50;
+    const double xOff = 70;
     const double yOff = 70;
     bool repeatRequired = _chordCols.isNotEmpty && _chordCols.first?.scaleChord != _chordCols.last?.scaleChord;
 
@@ -437,6 +437,9 @@ class ImprovPainter extends CustomPainter {
           String? s = _majorPentatonicHalfStepLabels[i];
           if (s != null) {
             ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
+            Offset offset = Offset(xOff, yOff + radius + i * _rowHeight);
+            brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
+            canvas.drawCircle(offset, 0.5 * radius, brush);
             _textPaint(canvas, size, '$s $scaleNote', Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
           }
         }
@@ -445,7 +448,10 @@ class ImprovPainter extends CustomPainter {
           String? s = _minorPentatonicHalfStepLabels[i];
           if (s != null) {
             ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
-            _textPaint(canvas, size, '$s $scaleNote', Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
+            Offset offset = Offset(xOff, yOff + radius + i * _rowHeight);
+            brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
+            canvas.drawCircle(offset, 0.5 * radius, brush);
+            _textPaint(canvas, size, '$s $scaleNote', offset, centered: true);
           }
         }
       }
@@ -556,7 +562,7 @@ class ImprovPainter extends CustomPainter {
             yOff + r * _rowHeight + radius,
           );
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
-          canvas.drawCircle(offset, 0.7 * radius, brush);
+          canvas.drawCircle(offset, 0.5 * radius, brush);
         }
       }
     }

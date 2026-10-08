@@ -3,7 +3,9 @@ import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/measure.dart';
+import 'package:bsteele_music_lib/songs/mode.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/phrase.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
@@ -15,6 +17,7 @@ import 'package:logger/logger.dart';
 import '../app/app.dart';
 
 const Level _logTextEntry = Level.debug;
+const Level _logNotes = Level.info;
 
 Phrase _improvPhrase = Phrase([], 0);
 List<String?> _majorPentatonicHalfStepLabels = [
@@ -22,8 +25,8 @@ List<String?> _majorPentatonicHalfStepLabels = [
   null,
   '2', //  2
   null,
-  '3', //  4
   null,
+  '3', //  4
   null,
   '5', // 7
   null,
@@ -46,6 +49,8 @@ List<String?> _minorPentatonicHalfStepLabels = [
   null,
 ];
 
+Mode _selectedMode = Mode.mixolydian;
+musical_key.MajorKey _selectedKey = musical_key.MajorKey.C;
 const double _defaultChordFontSize = 22;
 int _beatsPerBar = 4;
 const double _rowHeight = 66;
@@ -99,6 +104,64 @@ class ImprovState extends State<Improv> {
 
     _computePentatonics();
 
+    _keyDropDownMenuList = [];
+    {
+      const int steps = MusicConstants.halfStepsPerOctave;
+      const int halfOctave = steps ~/ 2;
+
+      List<musical_key.MajorKey?> rolledKeyList = List.generate(steps, (i) {
+        return null;
+      });
+
+      List<musical_key.MajorKey> list = musical_key.MajorKey.keysByHalfStepFrom(_selectedKey); //temp loc
+      for (int i = 0; i <= halfOctave; i++) {
+        rolledKeyList[i] = list[halfOctave - i];
+      }
+      for (int i = halfOctave + 1; i < steps; i++) {
+        rolledKeyList[i] = list[steps - i + halfOctave];
+      }
+
+      for (int i = 0; i < steps; i++) {
+        musical_key.MajorKey value = rolledKeyList[i] ?? _selectedKey;
+
+        //  deal with the Gb/F# duplicate issue
+        if (value.halfStep == _selectedKey.halfStep) {
+          value = _selectedKey;
+        }
+
+        //logger.log(_logMusicKey, 'key value: $value');
+
+        int relativeOffset = halfOctave - i;
+        String valueString = value.toMarkup().padRight(
+          2,
+        ); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+        String offsetString = '';
+        if (relativeOffset > 0) {
+          offsetString = '+${relativeOffset.toString()}';
+        } else if (relativeOffset < 0) {
+          offsetString = relativeOffset.toString();
+        }
+
+        _keyDropDownMenuList.add(
+          appDropdownMenuItem<musical_key.MajorKey>(
+            value: value,
+            child: AppWrap(
+              children: [
+                SizedBox(
+                  width: 3 * _defaultChordFontSize, //  max width of chars expected
+                  child: Text(valueString, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.left),
+                ),
+                SizedBox(
+                  width: 2 * _defaultChordFontSize, //  max width of chars expected
+                  child: Text(offsetString, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.right),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.appBar(
@@ -120,6 +183,78 @@ class ImprovState extends State<Improv> {
                   alignment: WrapAlignment.start,
                   spacing: 2,
                   children: <Widget>[
+                    //  key change
+                    AppWrap(
+                      children: [
+                        Text('Key: ', style: _chordTextStyle, softWrap: false),
+                        appDropdownButton<musical_key.MajorKey>(
+                          _keyDropDownMenuList,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                _selectedKey = value;
+                              }
+                            });
+                          },
+                          value: _selectedKey,
+                          style: _chordTextStyle,
+                          // iconSize: lookupIconSize(),
+                          // itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
+                          //     kMinInteractiveDimension),
+                        ),
+                        if (app.isScreenBig) const AppSpace(),
+                        if (app.isScreenBig)
+                          AppTooltip(
+                            message: 'Move the key one half step up.',
+                            child: appIconWithLabelButton(
+                              icon: appIcon(Icons.arrow_upward),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedKey = _selectedKey.nextKeyByHalfStep();
+                                });
+                              },
+                            ),
+                          ),
+                        if (app.isScreenBig) const AppSpace(space: 5),
+                        if (app.isScreenBig)
+                          AppTooltip(
+                            message: 'Move the key one half step down.',
+                            child: appIconWithLabelButton(
+                              icon: appIcon(Icons.arrow_downward),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedKey = _selectedKey.nextKeyByHalfStep();
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                    const AppSpace(),
+                    AppWrap(
+                      children: [
+                        Text('Mode: ', style: _chordTextStyle),
+                        DropdownButton<Mode>(
+                          items: Mode.values.map((Mode value) {
+                            return DropdownMenuItem<Mode>(
+                              key: ValueKey('mode${value.halfStep}'),
+                              value: value,
+                              child: Text('${Util.firstToUpper(value.name)}', style: _chordTextStyle),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedMode = value;
+                              });
+                            }
+                          },
+                          value: _selectedMode,
+                          style: generateAppTextStyle(color: Colors.black, textBaseline: TextBaseline.ideographic),
+                          itemHeight: null,
+                        ),
+                      ],
+                    ),
                     const AppSpace(),
                     Text('Measures:', style: _chordTextStyle),
                     const AppSpace(),
@@ -133,9 +268,9 @@ class ImprovState extends State<Improv> {
                         focusNode: improvEntryFocusNode,
                         minLines: 1,
                         maxLines: 1,
-                        fontSize: chordFontSize,
+                        fontSize: 1.5 * _defaultChordFontSize,
                         fontWeight: .normal,
-                        width: MediaQuery.of(context).size.width * 0.55,
+                        width: MediaQuery.of(context).size.width * 0.2,
                         border: .none,
                         onSubmitted: (value) {
                           checkSong();
@@ -185,33 +320,25 @@ class ImprovState extends State<Improv> {
         _chordCols.add(chord);
       }
     }
+    logger.log(_logNotes, '_chordCols: $_chordCols');
 
     _scaleNoteGrid = Grid();
 
-    //  pentatonic rows
-    for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
-      for (int c = 0; c < _chordCols.length; c++) {
-        final Chord? chord = _chordCols[c];
-        if (chord == null) {
-          continue;
-        }
+    for (int c = 0; c < _chordCols.length; c++) {
+      final Chord? chord = _chordCols[c];
+      if (chord == null) {
+        continue;
+      }
 
-        String? label;
-        ScaleNote? scaleNote;
-
-        if (chord.scaleChord.chordDescriptor.isMajor()) {
-          label = _majorPentatonicHalfStepLabels[r];
-        } else if (chord.scaleChord.chordDescriptor.isMinor()) {
-          label = _minorPentatonicHalfStepLabels[r];
-        } else {
-          scaleNote = ScaleNote.X; //  showcase an error!
-        }
-        if (label != null) {
-          scaleNote = ScaleNote.getFlatByHalfStep(chord.scaleChord.scaleNote.halfStep + r);
-          _scaleNoteGrid.set(r, c, scaleNote);
-        }
+      for (ScaleNote scaleNote in chord.scaleChord.chordNotes(_selectedKey)) {
+        int r =
+            (MusicConstants.halfStepsPerOctave + scaleNote.halfStep - _selectedKey.halfStep) %
+            MusicConstants.halfStepsPerOctave;
+        // logger.log(_logNotes, '     $r: scaleNote: $scaleNote');
+        _scaleNoteGrid.set(r, c, scaleNote);
       }
     }
+    logger.log(_logNotes, '_scaleNoteGrid: $_scaleNoteGrid');
   }
 
   bool checkSong() {
@@ -245,6 +372,8 @@ class ImprovState extends State<Improv> {
   TextEditingController improvEntryController = TextEditingController();
   FocusNode improvEntryFocusNode = FocusNode();
 
+  List<DropdownMenuItem<musical_key.MajorKey>> _keyDropDownMenuList = [];
+
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();
 }
@@ -252,7 +381,7 @@ class ImprovState extends State<Improv> {
 class ImprovPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    if ( _chordCols.isEmpty ){
+    if (_chordCols.isEmpty) {
       return;
     }
     final brush = Paint()
@@ -265,7 +394,7 @@ class ImprovPainter extends CustomPainter {
     const double radius = 50;
     const double measureWidth = 200;
     const double xOff = 50;
-    const double yOff = 50;
+    const double yOff = 70;
     bool repeatRequired = _chordCols.isNotEmpty && _chordCols.first?.scaleChord != _chordCols.last?.scaleChord;
 
     // title row
@@ -276,47 +405,73 @@ class ImprovPainter extends CustomPainter {
       }
 
       final Offset offset = Offset(xOff + 2 * radius + c * measureWidth, _defaultChordFontSize);
-      _textPaint(canvas, size, chord.toString(), offset, centered: true);
+      _textPaint(
+        canvas,
+        size,
+        chord.toString(),
+        offset,
+        textStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 2.5 * _defaultChordFontSize,
+          fontWeight: FontWeight.bold,
+        ),
+        centered: true,
+      );
     }
     {
-      final Offset offset = Offset(xOff , _defaultChordFontSize);
-      _textPaint(canvas, size, 'pentatonic', offset, centered: true);
+      final Offset offset = Offset(xOff, _defaultChordFontSize);
+      _textPaint(canvas, size, 'penta', offset, centered: true);
     }
     if (repeatRequired) {
       final Offset offset = Offset(xOff + 2 * radius + _chordCols.length * measureWidth, _defaultChordFontSize);
       _textPaint(canvas, size, 'repeat', offset, centered: true);
     }
 
-    //  left side scale numbers
+    //  left side scale
     {
-      bool majorNumbers = false;
-      bool minorNumbers = false;
-      for (final chord in _chordCols) {
-        if (chord != null) {
-          ChordDescriptor descriptor = chord.scaleChord.chordDescriptor;
-          if (descriptor.isMajor()) majorNumbers = true;
-          if (descriptor.isMinor()) minorNumbers = true;
-        }
-      }
-      List<int> numbersPrinted = [];
+      bool majorNumbers = _selectedMode.isMajor;
+      bool minorNumbers = _selectedMode.isMinor;
+
       if (majorNumbers) {
         for (int i = 0; i < _majorPentatonicHalfStepLabels.length; i++) {
           String? s = _majorPentatonicHalfStepLabels[i];
-          if (s != null && !numbersPrinted.contains(i)) {
-            _textPaint(canvas, size, s, Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
-            numbersPrinted.add(i);
+          if (s != null) {
+            ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
+            _textPaint(canvas, size, '$s $scaleNote', Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
           }
         }
-      }
-      if (minorNumbers) {
+      } else if (minorNumbers) {
         for (int i = 0; i < _minorPentatonicHalfStepLabels.length; i++) {
           String? s = _minorPentatonicHalfStepLabels[i];
-          if (s != null && !numbersPrinted.contains(i)) {
-            _textPaint(canvas, size, s, Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
-            numbersPrinted.add(i);
+          if (s != null) {
+            ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
+            _textPaint(canvas, size, '$s $scaleNote', Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
           }
         }
       }
+    }
+
+    //  vertical bars between measures
+    for (int c = 0; c < _chordCols.length; c++) {
+      if (_chordCols[c] != null) {
+        continue;
+      }
+      canvas.drawLine(
+        Offset(xOff + radius + c * measureWidth + radius, yOff),
+        Offset(xOff + radius + c * measureWidth + radius, yOff + _rowHeight * MusicConstants.halfStepsPerOctave),
+        verticalBrush,
+      );
+    }
+    //  draw line between the last and the repeat
+    if (_chordCols.length > 1 && _chordCols.first != _chordCols.last) {
+      canvas.drawLine(
+        Offset(xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius, yOff),
+        Offset(
+          xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius,
+          yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
+        ),
+        verticalBrush,
+      );
     }
 
     //  draw the relationships in the background
@@ -331,19 +486,8 @@ class ImprovPainter extends CustomPainter {
           {
             int nextC;
             for (nextC = c + 1; nextC < _chordCols.length; nextC++) {
-              if (_scaleNoteGrid.get(0, nextC) != null) {
+              if (_scaleNoteGrid.get(r, nextC) != null) {
                 break;
-              }
-              //  gap between measures
-              if (r == 0) {
-                canvas.drawLine(
-                  Offset(xOff + radius + nextC * measureWidth + radius, yOff),
-                  Offset(
-                    xOff + radius + nextC * measureWidth + radius,
-                    yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
-                  ),
-                  verticalBrush,
-                );
               }
             }
 
@@ -366,15 +510,15 @@ class ImprovPainter extends CustomPainter {
       }
     }
 
-    //  gap between last measure and the first reflection
-    canvas.drawLine(
-      Offset(xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius, yOff),
-      Offset(
-        xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius,
-        yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
-      ),
-      verticalBrush,
-    );
+    // //  gap between last measure and the first reflection
+    // canvas.drawLine(
+    //   Offset(xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius, yOff),
+    //   Offset(
+    //     xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius,
+    //     yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
+    //   ),
+    //   verticalBrush,
+    // );
 
     //  draw the scale notes
     for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {

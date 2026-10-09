@@ -54,8 +54,10 @@ musical_key.MajorKey _selectedKey = musical_key.MajorKey.C;
 const double _defaultChordFontSize = 22;
 int _beatsPerBar = 4;
 const double _rowHeight = 66;
+const double _measureWidth = 150;
 List<Chord?> _chordCols = [];
 Grid<ScaleNote> _scaleNoteGrid = Grid();
+String _lastEntry = 'C F G';
 
 final List<Color> scaleNoteColors = [
   Color.fromARGB(255, 255, 99, 0), //  A
@@ -85,6 +87,13 @@ class Improv extends StatefulWidget {
 }
 
 class ImprovState extends State<Improv> {
+  @override
+  void initState() {
+    super.initState();
+
+    improvEntryController.text = _lastEntry;
+  }
+
   @override
   void dispose() {
     focusNode.dispose();
@@ -308,6 +317,7 @@ class ImprovState extends State<Improv> {
 
   void _computePentatonics() {
     _chordCols.clear();
+
     if (!isValidSong) {
       return;
     }
@@ -353,6 +363,7 @@ class ImprovState extends State<Improv> {
         if (isValidSong) {
           app.clearMessage();
           improvEntryController.text = _improvPhrase.toString();
+          _lastEntry = _improvPhrase.toString();
         } else {
           app.errorMessage('not understood: "$markedString"');
         }
@@ -369,7 +380,7 @@ class ImprovState extends State<Improv> {
 
   double chordFontSize = 14;
 
-  TextEditingController improvEntryController = TextEditingController();
+  TextEditingController improvEntryController = TextEditingController(text: _lastEntry);
   FocusNode improvEntryFocusNode = FocusNode();
 
   List<DropdownMenuItem<musical_key.MajorKey>> _keyDropDownMenuList = [];
@@ -392,8 +403,8 @@ class ImprovPainter extends CustomPainter {
       ..color = Colors.black38
       ..strokeWidth = 4;
     const double radius = 50;
-    const double measureWidth = 200;
-    const double xOff = 70;
+
+    const double xOff = 100;
     const double yOff = 70;
     bool repeatRequired = _chordCols.isNotEmpty && _chordCols.first?.scaleChord != _chordCols.last?.scaleChord;
 
@@ -404,7 +415,7 @@ class ImprovPainter extends CustomPainter {
         continue;
       }
 
-      final Offset offset = Offset(xOff + 2 * radius + c * measureWidth, _defaultChordFontSize);
+      final Offset offset = Offset(xOff + 2 * radius + c * _measureWidth, _defaultChordFontSize);
       _textPaint(
         canvas,
         size,
@@ -419,11 +430,11 @@ class ImprovPainter extends CustomPainter {
       );
     }
     {
-      final Offset offset = Offset(xOff, _defaultChordFontSize);
+      final Offset offset = Offset(xOff / 2, _defaultChordFontSize);
       _textPaint(canvas, size, 'penta', offset, centered: true);
     }
     if (repeatRequired) {
-      final Offset offset = Offset(xOff + 2 * radius + _chordCols.length * measureWidth, _defaultChordFontSize);
+      final Offset offset = Offset(xOff + 2 * radius + _chordCols.length * _measureWidth, _defaultChordFontSize);
       _textPaint(canvas, size, 'repeat', offset, centered: true);
     }
 
@@ -437,10 +448,10 @@ class ImprovPainter extends CustomPainter {
           String? s = _majorPentatonicHalfStepLabels[i];
           if (s != null) {
             ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
-            Offset offset = Offset(xOff, yOff + radius + i * _rowHeight);
+            Offset offset = Offset(xOff / 2, yOff + radius + i * _rowHeight);
             brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
             canvas.drawCircle(offset, 0.5 * radius, brush);
-            _textPaint(canvas, size, '$s $scaleNote', Offset(xOff, yOff + radius + i * _rowHeight), centered: true);
+            _textPaint(canvas, size, '$s $scaleNote', offset, centered: true);
           }
         }
       } else if (minorNumbers) {
@@ -448,7 +459,7 @@ class ImprovPainter extends CustomPainter {
           String? s = _minorPentatonicHalfStepLabels[i];
           if (s != null) {
             ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
-            Offset offset = Offset(xOff, yOff + radius + i * _rowHeight);
+            Offset offset = Offset(xOff / 2, yOff + radius + i * _rowHeight);
             brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
             canvas.drawCircle(offset, 0.5 * radius, brush);
             _textPaint(canvas, size, '$s $scaleNote', offset, centered: true);
@@ -458,22 +469,27 @@ class ImprovPainter extends CustomPainter {
     }
 
     //  vertical bars between measures
+    canvas.drawLine(
+      Offset(xOff + radius / 2, yOff),
+      Offset(xOff + radius / 2, yOff + _rowHeight * MusicConstants.halfStepsPerOctave),
+      verticalBrush,
+    );
     for (int c = 0; c < _chordCols.length; c++) {
       if (_chordCols[c] != null) {
         continue;
       }
       canvas.drawLine(
-        Offset(xOff + radius + c * measureWidth + radius, yOff),
-        Offset(xOff + radius + c * measureWidth + radius, yOff + _rowHeight * MusicConstants.halfStepsPerOctave),
+        Offset(xOff + radius + c * _measureWidth + radius, yOff),
+        Offset(xOff + radius + c * _measureWidth + radius, yOff + _rowHeight * MusicConstants.halfStepsPerOctave),
         verticalBrush,
       );
     }
     //  draw line between the last and the repeat
     if (_chordCols.length > 1 && _chordCols.first != _chordCols.last) {
       canvas.drawLine(
-        Offset(xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius, yOff),
+        Offset(xOff + radius + (_chordCols.length - 0.5) * _measureWidth + radius, yOff),
         Offset(
-          xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius,
+          xOff + radius + (_chordCols.length - 0.5) * _measureWidth + radius,
           yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
         ),
         verticalBrush,
@@ -485,7 +501,7 @@ class ImprovPainter extends CustomPainter {
       for (int c = 0; c < _chordCols.length; c++) {
         ScaleNote? scaleNote = _scaleNoteGrid.get(r, c);
         if (scaleNote != null) {
-          final Offset offset = Offset(xOff + radius + c * measureWidth + radius, yOff + r * _rowHeight + radius);
+          final Offset offset = Offset(xOff + radius + c * _measureWidth + radius, yOff + r * _rowHeight + radius);
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
 
           //  find the next use of the scale note
@@ -497,7 +513,7 @@ class ImprovPainter extends CustomPainter {
               }
             }
 
-            final nextX = radius + nextC * measureWidth + radius; //  loop to the first
+            final nextX = radius + nextC * _measureWidth + radius; //  loop to the first
             if (nextC == _chordCols.length) {
               if (_chordCols.first?.scaleChord == _chordCols.last?.scaleChord) {
                 break;
@@ -516,22 +532,12 @@ class ImprovPainter extends CustomPainter {
       }
     }
 
-    // //  gap between last measure and the first reflection
-    // canvas.drawLine(
-    //   Offset(xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius, yOff),
-    //   Offset(
-    //     xOff + radius + (_chordCols.length - 0.5) * measureWidth + radius,
-    //     yOff + _rowHeight * MusicConstants.halfStepsPerOctave,
-    //   ),
-    //   verticalBrush,
-    // );
-
     //  draw the scale notes
     for (int r = 0; r < MusicConstants.halfStepsPerOctave; r++) {
       for (int c = 0; c < _chordCols.length; c++) {
         ScaleNote? scaleNote = _scaleNoteGrid.get(r, c);
         if (scaleNote != null) {
-          final Offset offset = Offset(xOff + radius + c * measureWidth + radius, yOff + r * _rowHeight + radius);
+          final Offset offset = Offset(xOff + radius + c * _measureWidth + radius, yOff + r * _rowHeight + radius);
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
           canvas.drawCircle(offset, radius, brush);
 
@@ -558,7 +564,7 @@ class ImprovPainter extends CustomPainter {
         ScaleNote? scaleNote = _scaleNoteGrid.get(r, c);
         if (scaleNote != null) {
           final Offset offset = Offset(
-            xOff + radius + _chordCols.length * measureWidth + radius,
+            xOff + radius + _chordCols.length * _measureWidth + radius,
             yOff + r * _rowHeight + radius,
           );
           brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];

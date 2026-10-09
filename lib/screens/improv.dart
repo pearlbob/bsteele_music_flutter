@@ -2,7 +2,6 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
-import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/mode.dart';
@@ -437,6 +436,9 @@ class ImprovPainter extends CustomPainter {
       final Offset offset = Offset(xOff + 2 * radius + _chordCols.length * _measureWidth, _defaultChordFontSize);
       _textPaint(canvas, size, 'repeat', offset, centered: true);
     }
+
+    logger.log(_logNotes, 'key: $_selectedKey, mode: $_selectedMode'
+        );
 
     //  left side scale
     {

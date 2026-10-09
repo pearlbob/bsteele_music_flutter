@@ -2,6 +2,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
+import 'package:bsteele_music_lib/songs/chord_component.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/measure.dart';
@@ -18,6 +19,7 @@ import '../app/app.dart';
 
 const Level _logTextEntry = Level.debug;
 const Level _logNotes = Level.debug;
+const Level _logPentatonic = Level.info;
 
 Phrase _improvPhrase = Phrase([], 0);
 List<String?> _majorPentatonicHalfStepLabels = [
@@ -440,31 +442,23 @@ class ImprovPainter extends CustomPainter {
 
     //  left side scale
     {
-      bool majorNumbers = _selectedMode.isMajor;
-      bool minorNumbers = _selectedMode.isMinor;
+      logger.log(_logPentatonic, 'key: $_selectedKey,  mode: $_selectedMode');
+      PentatonicScale pentatonicScale = _selectedMode.pentatonicScale;
+      for (int n = 0; n < PentatonicScale.notesPerScale; n++) {
+        final ChordComponent chordComponent = pentatonicScale.degrees[n];
+        final int halfSteps = chordComponent.halfSteps;
+        ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(halfSteps);
+        logger.log(
+          _logPentatonic,
+          '   note $n: ,  mode: ${_selectedMode.name}: '
+          ' ${chordComponent.shortName} $scaleNote'
+          ', halfStepOffset: $halfSteps',
+        );
 
-      if (majorNumbers) {
-        for (int i = 0; i < _majorPentatonicHalfStepLabels.length; i++) {
-          String? s = _majorPentatonicHalfStepLabels[i];
-          if (s != null) {
-            ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
-            Offset offset = Offset(xOff / 2, yOff + radius + i * _rowHeight);
-            brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
-            canvas.drawCircle(offset, 0.5 * radius, brush);
-            _textPaint(canvas, size, '$s $scaleNote', offset, centered: true);
-          }
-        }
-      } else if (minorNumbers) {
-        for (int i = 0; i < _minorPentatonicHalfStepLabels.length; i++) {
-          String? s = _minorPentatonicHalfStepLabels[i];
-          if (s != null) {
-            ScaleNote scaleNote = _selectedKey.getKeyScaleNoteByHalfStep(i);
-            Offset offset = Offset(xOff / 2, yOff + radius + i * _rowHeight);
-            brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
-            canvas.drawCircle(offset, 0.5 * radius, brush);
-            _textPaint(canvas, size, '$s $scaleNote', offset, centered: true);
-          }
-        }
+        Offset offset = Offset(xOff / 2, yOff + radius + halfSteps * _rowHeight);
+        brush.color = scaleNoteColors[scaleNote.halfStep % MusicConstants.halfStepsPerOctave];
+        canvas.drawCircle(offset, 0.65 * radius, brush);
+        _textPaint(canvas, size, '${chordComponent.shortName} $scaleNote', offset, centered: true);
       }
     }
 

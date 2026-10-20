@@ -15,8 +15,45 @@ import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 
+/*
+I–V–vi–IV (C – G – Am – F in C major): Extremely popular in upbeat pop, rock, and EDM.
+vi–IV–I–V (Am – F – C – G): Often used for a more emotional or cinematic feel.
+I–IV–V (C – F – G): The classic backbone of early rock, blues, and folk music.
+ii–V–I (Dm – G – C): A signature, smooth progression widely used in jazz and neo-soul.
+I – IV – V – V
+I – I – IV – V
+I – IV – I – V
+I – IV – V – IV
+I – IV – V – I
+i–VII–VI–V
+I–vi–IV–V
+I–vi–ii–V
+vi–ii–V–I
+i–VII–VI–V
+i–III–iv–VI
+i–III–IV–VI
+
+ */
+
 const Level _logTextEntry = Level.debug;
 const Level _logNotes = Level.debug;
+const List<String> _commonChordProgressions = [
+  'I V vi IV', //	Extremely popular in upbeat pop, rock, and EDM.
+  'vi IV I V', //	Often used for a more emotional or cinematic feel.
+  'I IV V', //	The classic backbone of early rock, blues, and folk music.
+  'ii V I', //	A signature, smooth progression widely used in jazz and neo-soul.
+  'I IV V V',
+  'I I IV V',
+  'I IV I V',
+  'I IV V IV',
+  'I IV V I',
+  'I vi IV V',
+  'I vi ii V',
+  'vi ii V I',
+  'i VII VI V',
+  'i III iv VI',
+  'i III IV VI',
+];
 
 Phrase _improvPhrase = Phrase([], 0);
 List<String?> _majorPentatonicHalfStepLabels = [
@@ -50,9 +87,10 @@ List<String?> _minorPentatonicHalfStepLabels = [
 
 Mode _selectedMode = Mode.mixolydian;
 musical_key.MajorKey _selectedKey = musical_key.MajorKey.C;
-const double _defaultChordFontSize = 22;
+String? _selectedProgression;
+const double _defaultChordFontSize = 18;
 int _beatsPerBar = 4;
-const double _rowHeight = 66;
+const double _rowHeight = 50;
 const double _measureWidth = 150;
 List<Chord?> _chordCols = [];
 Grid<ScaleNote> _scaleNoteGrid = Grid();
@@ -170,6 +208,25 @@ class ImprovState extends State<Improv> {
       }
     }
 
+    _progressionDropDownMenuList = [];
+    {
+      for (String prog in _commonChordProgressions) {
+        _progressionDropDownMenuList.add(
+          appDropdownMenuItem<String>(
+            value: prog,
+            child: AppWrap(
+              children: [
+                SizedBox(
+                  width: 6 * _defaultChordFontSize, //  max width of chars expected
+                  child: Text(prog, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.left),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.appBar(
@@ -262,6 +319,20 @@ class ImprovState extends State<Improv> {
                           itemHeight: null,
                         ),
                       ],
+                    ),
+                    const AppSpace(),
+                    Text('Progressions:', style: _chordTextStyle),
+                    appDropdownButton<String>(
+                      _progressionDropDownMenuList,
+                      onChanged: (value) {
+                        setState(() {
+                          if (value != null) {
+                            _selectedProgression = value;
+                          }
+                        });
+                      },
+                      value: _selectedProgression,
+                      style: _chordTextStyle,
                     ),
                     const AppSpace(),
                     Text('Measures:', style: _chordTextStyle),
@@ -383,6 +454,7 @@ class ImprovState extends State<Improv> {
   FocusNode improvEntryFocusNode = FocusNode();
 
   List<DropdownMenuItem<musical_key.MajorKey>> _keyDropDownMenuList = [];
+  List<DropdownMenuItem<String>> _progressionDropDownMenuList = [];
 
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();
@@ -437,8 +509,7 @@ class ImprovPainter extends CustomPainter {
       _textPaint(canvas, size, 'repeat', offset, centered: true);
     }
 
-    logger.log(_logNotes, 'key: $_selectedKey, mode: $_selectedMode'
-        );
+    logger.log(_logNotes, 'key: $_selectedKey, mode: $_selectedMode');
 
     //  left side scale
     {

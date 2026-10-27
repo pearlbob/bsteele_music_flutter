@@ -419,7 +419,6 @@ class ImprovState extends State<Improv> {
       improvEntryController.text = sb.toString();
       checkSong();
     }
-
   }
 
   void _computePentatonics() {

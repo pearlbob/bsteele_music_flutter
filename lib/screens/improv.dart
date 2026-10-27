@@ -38,6 +38,10 @@ i–III–IV–VI
 const Level _logTextEntry = Level.debug;
 const Level _logNotes = Level.debug;
 const List<String> _commonChordProgressions = [
+  'I IV',
+  'I V',
+  'V vi',
+  'ii V',
   'I V vi IV', //	Extremely popular in upbeat pop, rock, and EDM.
   'vi IV I V', //	Often used for a more emotional or cinematic feel.
   'I IV V', //	The classic backbone of early rock, blues, and folk music.

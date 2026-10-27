@@ -39,10 +39,11 @@ i–III–IV–VI
 
 const Level _logTextEntry = Level.debug;
 const Level _logNotes = Level.debug;
-const Level _logPentatonic = Level.info;
+const Level _logProgression = Level.debug;
 const List<String> _commonChordProgressions = [
   'I IV',
   'I V',
+  'I IV V I',
   'V vi',
   'ii V',
   'I V vi IV', //	Extremely popular in upbeat pop, rock, and EDM.
@@ -53,7 +54,7 @@ const List<String> _commonChordProgressions = [
   'I I IV V',
   'I IV I V',
   'I IV V IV',
-  'I IV V I',
+
   'I vi IV V',
   'I vi ii V',
   'vi ii V I',
@@ -262,11 +263,10 @@ class ImprovState extends State<Improv> {
                         appDropdownButton<musical_key.MajorKey>(
                           _keyDropDownMenuList,
                           onChanged: (value) {
-                            setState(() {
-                              if (value != null) {
-                                _selectedKey = value;
-                              }
-                            });
+                            if (value != null) {
+                              _selectedKey = value;
+                              _computeSelectProgression();
+                            }
                           },
                           value: _selectedKey,
                           style: _chordTextStyle,
@@ -316,9 +316,8 @@ class ImprovState extends State<Improv> {
                           }).toList(),
                           onChanged: (value) {
                             if (value != null) {
-                              setState(() {
-                                _selectedMode = value;
-                              });
+                              _selectedMode = value;
+                              _computeSelectProgression();
                             }
                           },
                           value: _selectedMode,
@@ -332,11 +331,10 @@ class ImprovState extends State<Improv> {
                     appDropdownButton<String>(
                       _progressionDropDownMenuList,
                       onChanged: (value) {
-                        setState(() {
-                          if (value != null) {
-                            _selectedProgression = value;
-                          }
-                        });
+                        if (value != null) {
+                          _selectedProgression = value;
+                          _computeSelectProgression();
+                        }
                       },
                       value: _selectedProgression,
                       style: _chordTextStyle,
@@ -390,6 +388,38 @@ class ImprovState extends State<Improv> {
             ),
           ),
     );
+  }
+
+  void _computeSelectProgression() {
+    if (_selectedProgression == null) return;
+    List<Diatonic> progression = Diatonic.parse(_selectedProgression!);
+    if (progression.isEmpty) return;
+    logger.log(
+      _logProgression,
+      'key: $_selectedKey, '
+      'progression: $_selectedProgression: ${progression.map((e) => e.halfStep)}'
+      ', mode:  $_selectedMode',
+    );
+    logger.log(_logProgression, '     mode: ${_selectedMode.chordComponents.map((e) => e.halfSteps)}');
+    logger.log(_logProgression, '     majorDiatonics: ${majorDiatonics.map((e) => e.halfStep)}');
+    logger.log(
+      _logProgression,
+      '     progression+mode: ${progression.map((e) => (e.halfStep + _selectedMode.halfStep) % MusicConstants.halfStepsPerOctave)}',
+    );
+    logger.log(
+      _logProgression,
+      '     chords: ${progression.map((e) => _selectedKey.getKeyScaleNoteByHalfStep(e.halfStep + _selectedMode.halfStep))}',
+    );
+    StringBuffer sb = StringBuffer();
+    for (Diatonic diatonic in progression) {
+      if (sb.isNotEmpty) sb.write(' ');
+      sb.write(_selectedKey.getKeyScaleNoteByHalfStep(diatonic.halfStep + _selectedMode.halfStep).toString());
+    }
+    if (sb.isNotEmpty) {
+      improvEntryController.text = sb.toString();
+      checkSong();
+    }
+
   }
 
   void _computePentatonics() {

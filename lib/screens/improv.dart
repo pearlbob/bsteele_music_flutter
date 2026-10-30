@@ -2,8 +2,6 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
-import 'package:bsteele_music_lib/songs/chord_component.dart';
-import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
 import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/mode.dart';
@@ -16,26 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../app/app.dart';
-
-/*
-I–V–vi–IV (C – G – Am – F in C major): Extremely popular in upbeat pop, rock, and EDM.
-vi–IV–I–V (Am – F – C – G): Often used for a more emotional or cinematic feel.
-I–IV–V (C – F – G): The classic backbone of early rock, blues, and folk music.
-ii–V–I (Dm – G – C): A signature, smooth progression widely used in jazz and neo-soul.
-I – IV – V – V
-I – I – IV – V
-I – IV – I – V
-I – IV – V – IV
-I – IV – V – I
-i–VII–VI–V
-I–vi–IV–V
-I–vi–ii–V
-vi–ii–V–I
-i–VII–VI–V
-i–III–iv–VI
-i–III–IV–VI
-
- */
 
 const Level _logTextEntry = Level.debug;
 const Level _logNotes = Level.debug;
@@ -167,12 +145,14 @@ class ImprovState extends State<Improv> {
         return null;
       });
 
-      List<musical_key.MajorKey> list = musical_key.MajorKey.keysByHalfStepFrom(_selectedKey); //temp loc
-      for (int i = 0; i <= halfOctave; i++) {
-        rolledKeyList[i] = list[halfOctave - i];
-      }
-      for (int i = halfOctave + 1; i < steps; i++) {
-        rolledKeyList[i] = list[steps - i + halfOctave];
+      {
+        List<musical_key.MajorKey> list = musical_key.MajorKey.keysByHalfStepFrom(_selectedKey); //temp loc
+        for (int i = 0; i <= halfOctave; i++) {
+          rolledKeyList[i] = list[halfOctave - i];
+        }
+        for (int i = halfOctave + 1; i < steps; i++) {
+          rolledKeyList[i] = list[steps - i + halfOctave];
+        }
       }
 
       for (int i = 0; i < steps; i++) {
@@ -186,9 +166,7 @@ class ImprovState extends State<Improv> {
         //logger.log(_logMusicKey, 'key value: $value');
 
         int relativeOffset = halfOctave - i;
-        String valueString = value.toMarkup().padRight(
-          2,
-        ); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+        String valueString = '${value.toString().padRight(2)}  ${value.minorKey}';
         String offsetString = '';
         if (relativeOffset > 0) {
           offsetString = '+${relativeOffset.toString()}';
@@ -202,7 +180,7 @@ class ImprovState extends State<Improv> {
             child: AppWrap(
               children: [
                 SizedBox(
-                  width: 4 * _defaultChordFontSize, //  max width of chars expected
+                  width: 8 * _defaultChordFontSize, //  max width of chars expected
                   child: Text(valueString, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.left),
                 ),
                 SizedBox(
@@ -259,13 +237,16 @@ class ImprovState extends State<Improv> {
                     //  key change
                     AppWrap(
                       children: [
-                        Text('Key: ', style: _chordTextStyle, softWrap: false),
+                        const AppSpace(),
+                        // Text('Key: ', style: _chordTextStyle, softWrap: false),
                         appDropdownButton<musical_key.MajorKey>(
                           _keyDropDownMenuList,
                           onChanged: (value) {
                             if (value != null) {
-                              _selectedKey = value;
-                              _computeSelectProgression();
+                              setState(() {
+                                _selectedKey = value;
+                                _computeSelectProgression();
+                              });
                             }
                           },
                           value: _selectedKey,
@@ -274,50 +255,56 @@ class ImprovState extends State<Improv> {
                           // itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
                           //     kMinInteractiveDimension),
                         ),
-                        if (app.isScreenBig) const AppSpace(),
-                        if (app.isScreenBig)
-                          AppTooltip(
-                            message: 'Move the key one half step up.',
-                            child: appIconWithLabelButton(
-                              icon: appIcon(Icons.arrow_upward),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedKey = _selectedKey.nextKeyByHalfStep();
-                                });
-                              },
-                            ),
-                          ),
-                        if (app.isScreenBig) const AppSpace(space: 5),
-                        if (app.isScreenBig)
-                          AppTooltip(
-                            message: 'Move the key one half step down.',
-                            child: appIconWithLabelButton(
-                              icon: appIcon(Icons.arrow_downward),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedKey = _selectedKey.nextKeyByHalfStep();
-                                });
-                              },
-                            ),
-                          ),
+                        // if (app.isScreenBig) const AppSpace(),
+                        // if (app.isScreenBig)
+                        //   AppTooltip(
+                        //     message: 'Move the key one half step up.',
+                        //     child: appIconWithLabelButton(
+                        //       icon: appIcon(Icons.arrow_upward),
+                        //       onPressed: () {
+                        //         setState(() {
+                        //           _selectedKey = _selectedKey.nextKeyByHalfStep();
+                        //         });
+                        //       },
+                        //     ),
+                        //   ),
+                        // if (app.isScreenBig) const AppSpace(space: 5),
+                        // if (app.isScreenBig)
+                        //   AppTooltip(
+                        //     message: 'Move the key one half step down.',
+                        //     child: appIconWithLabelButton(
+                        //       icon: appIcon(Icons.arrow_downward),
+                        //       onPressed: () {
+                        //         setState(() {
+                        //           _selectedKey = _selectedKey.nextKeyByHalfStep();
+                        //         });
+                        //       },
+                        //     ),
+                        //   ),
                       ],
                     ),
                     const AppSpace(),
                     AppWrap(
                       children: [
-                        Text('Mode: ', style: _chordTextStyle),
+                        // Text('Mode: ', style: _chordTextStyle),
                         DropdownButton<Mode>(
                           items: Mode.values.map((Mode value) {
                             return DropdownMenuItem<Mode>(
                               key: ValueKey('mode${value.halfStep}'),
                               value: value,
-                              child: Text('${Util.firstToUpper(value.name)}', style: _chordTextStyle),
+                              child: Text(
+                                '${Util.firstToUpper(value.name)}'
+                                '   ${value.isMajor ? 'major' : 'minor'}',
+                                style: _chordTextStyle,
+                              ),
                             );
                           }).toList(),
                           onChanged: (value) {
                             if (value != null) {
-                              _selectedMode = value;
-                              _computeSelectProgression();
+                              setState(() {
+                                _selectedMode = value;
+                                _computeSelectProgression();
+                              });
                             }
                           },
                           value: _selectedMode,
@@ -327,13 +314,15 @@ class ImprovState extends State<Improv> {
                       ],
                     ),
                     const AppSpace(),
-                    Text('Progressions:', style: _chordTextStyle),
+                    // Text('Progressions:', style: _chordTextStyle),
                     appDropdownButton<String>(
                       _progressionDropDownMenuList,
                       onChanged: (value) {
                         if (value != null) {
-                          _selectedProgression = value;
-                          _computeSelectProgression();
+                          setState(() {
+                            _selectedProgression = value;
+                            _computeSelectProgression();
+                          });
                         }
                       },
                       value: _selectedProgression,
@@ -357,8 +346,10 @@ class ImprovState extends State<Improv> {
                         width: MediaQuery.of(context).size.width * 0.2,
                         border: .none,
                         onSubmitted: (value) {
-                          checkSong();
-                          FocusScope.of(context).requestFocus(improvEntryFocusNode);
+                          setState(() {
+                            checkSong();
+                            FocusScope.of(context).requestFocus(improvEntryFocusNode);
+                          });
                         },
                       ),
                     ),
@@ -458,27 +449,25 @@ class ImprovState extends State<Improv> {
   }
 
   bool checkSong() {
-    setState(() {
-      try {
-        logger.log(_logTextEntry, 'checkSong: "${improvEntryController.text}"');
-        MarkedString markedString = MarkedString(SongBase.entryToUppercase(improvEntryController.text));
-        _improvPhrase = Phrase.parse(markedString, 0, _beatsPerBar, null);
-        logger.log(_logTextEntry, 'phrase: $_improvPhrase, markedString: "$markedString"');
-        isValidSong = markedString.isEmpty;
+    try {
+      logger.log(_logTextEntry, 'checkSong: "${improvEntryController.text}"');
+      MarkedString markedString = MarkedString(SongBase.entryToUppercase(improvEntryController.text));
+      _improvPhrase = Phrase.parse(markedString, 0, _beatsPerBar, null);
+      logger.log(_logTextEntry, 'phrase: $_improvPhrase, markedString: "$markedString"');
+      isValidSong = markedString.isEmpty;
 
-        if (isValidSong) {
-          app.clearMessage();
-          improvEntryController.text = _improvPhrase.toString();
-          _lastEntry = _improvPhrase.toString();
-        } else {
-          app.errorMessage('not understood: "$markedString"');
-        }
-      } catch (e) {
-        isValidSong = false;
-        app.errorMessage(e.toString());
+      if (isValidSong) {
+        app.clearMessage();
+        improvEntryController.text = _improvPhrase.toString();
+        _lastEntry = _improvPhrase.toString();
+      } else {
+        app.errorMessage('not understood: "$markedString"');
       }
-      logger.log(_logTextEntry, 'app.error: ${app.error}');
-    });
+    } catch (e) {
+      isValidSong = false;
+      app.errorMessage(e.toString());
+    }
+    logger.log(_logTextEntry, 'app.error: ${app.error}');
     return isValidSong;
   }
 

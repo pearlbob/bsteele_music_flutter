@@ -75,6 +75,7 @@ import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/improv.dart';
+
 // import 'package:bsteele_music_flutter/screens/leader.dart';
 import 'package:bsteele_music_flutter/screens/metadata.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
@@ -93,6 +94,8 @@ import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/util/app_util.dart';
+import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -100,6 +103,7 @@ import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_io/io.dart';
+import 'package:searchlight/searchlight.dart';
 
 import 'app/app.dart';
 import 'app/appOptions.dart';
@@ -383,6 +387,14 @@ class MyHomePageState extends State<MyHomePage> {
 
   void _awaitReadSongList() async {
     await _readSongList();
+
+    //  give the beta warning
+    if (isBeta && Uri.base.queryParameters.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await _betaWarningPopup();
+      });
+    }
+
     setState(() {});
   }
 
@@ -396,12 +408,45 @@ class MyHomePageState extends State<MyHomePage> {
       await _readInternalSongList();
     }
 
-    //  give the beta warning
-    if (isBeta && Uri.base.queryParameters.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await _betaWarningPopup();
-      });
+    // logger.i('app.allSongs.length:  ${app.allSongs.length}');
+    // _buildIndex();
+  }
+
+  void _buildIndex() {
+    //  fixme: unused
+    UsTimer usTimer = UsTimer();
+    final db = Searchlight.create(
+      schema: Schema({
+        'songIdString': const TypedField(SchemaType.string),
+        'title': const TypedField(SchemaType.string),
+        'lyrics': const TypedField(SchemaType.string),
+      }),
+    );
+
+    int totalLyrics = 0;
+    for (final song in app.allSongs) {
+      totalLyrics +=song.rawLyrics.length;
+      db.insert({'songIdString': song.songId.songIdAsString, 'title': song.title, 'lyrics': song.rawLyrics});
     }
+
+    int deltaUs = usTimer.deltaUs;
+    logger.i('_buildIndex deltaUs:  $deltaUs = ${deltaUs/Duration.microsecondsPerSecond} s'
+        ' for ${to1(totalLyrics/1e6)}M lyrics characters');
+    usTimer.reset();
+    final results = db.search(
+      term: 'bang a gong',//'hands upon the wheel',
+      properties: const ['title', 'lyrics'],
+        exact : true
+    );
+    deltaUs = usTimer.deltaUs;
+    logger.i('_buildIndex lookup deltaUs:  $deltaUs = ${deltaUs/Duration.microsecondsPerSecond} s');
+    logger.i('results.count:  ${results.count}');
+
+    for (final hit in results.hits) {
+      print('${hit.score.toStringAsFixed(2)} ${hit.document.getString('songIdString')}');
+    }
+
+    // await db.dispose();
   }
 
   Future<void> _readInternalSongList() async {

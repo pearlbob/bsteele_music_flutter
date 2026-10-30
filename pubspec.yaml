@@ -43,6 +43,7 @@ dependencies:
   gamepads:
   bsteele_music_lib:
     path: ../bsteeleMusicLib/bsteele_music_lib
+  searchlight: ^0.2.3
 
 
   # The following adds the Cupertino Icons font to your application.

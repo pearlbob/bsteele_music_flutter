@@ -18,7 +18,7 @@ import '../app/app.dart';
 const Level _logTextEntry = Level.debug;
 const Level _logNotes = Level.debug;
 const Level _logProgression = Level.debug;
-const List<String> _commonChordProgressions = [
+const List<String> commonImprovChordProgressions = [
   'I IV',
   'I V',
   'I IV V I',
@@ -196,14 +196,14 @@ class ImprovState extends State<Improv> {
 
     _progressionDropDownMenuList = [];
     {
-      for (String prog in _commonChordProgressions) {
+      for (String prog in commonImprovChordProgressions) {
         _progressionDropDownMenuList.add(
           appDropdownMenuItem<String>(
             value: prog,
             child: AppWrap(
               children: [
                 SizedBox(
-                  width: 6 * _defaultChordFontSize, //  max width of chars expected
+                  width: 9 * _defaultChordFontSize, //  max width of chars expected
                   child: Text(prog, style: _chordTextStyle, softWrap: false, textAlign: TextAlign.left),
                 ),
               ],

@@ -13,5 +13,5 @@ pandoc lib/assets/release_notes.md >> $dst
 echo "<p>Release notes date: <q>"`date`"</q></p>" >> $dst
 cat lib/assets/release_notes_tail.html >> $dst
 
-validatornu $dst
+vnu $dst
 exit $status
